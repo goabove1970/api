@@ -1,5 +1,5 @@
-import { ParseError } from "../../../models/errors/parse-error";
-import { parseAmount, parseBalance } from "../../../controllers/parser-controller/helper";
+import { ParseError } from "@models/errors/parse-error";
+import { parseAmount, parseBalance } from "@controllers/parser-controller/helper";
 import { Parser } from "../Parser";
 import { ChaseTransaction } from "@models/transaction/chase/ChaseTransaction";
 import { parseChaseTransDetails, parseChaseTransactionType } from "./ChaseParseHelper";

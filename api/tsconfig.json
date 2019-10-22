@@ -23,7 +23,8 @@
     "target": "esnext",
     "paths": {
       "@src/*": ["src/*"],
-      "@models/*": ["src/models/*"]
+      "@models/*": ["src/models/*"],
+      "@controllers/*": ["src/controllers/*"]
     }
   },
   "include": ["src/**/*", "app.ts", "bin/www.ts"],

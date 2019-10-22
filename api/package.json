@@ -6,7 +6,9 @@
     "start": "node ./dist/bin/www",
     "build": "npm run compile",
     "build:ts": "tsc",
-    "compile": "npm run build:ts"
+    "compile": "npm run build:ts",
+    "prettier:check": "prettier --check \"./**/*.{js,ts,tsx,json,scss,md}\"",
+    "prettier:write": "prettier --write \"./**/*.{js,ts,tsx,json,scss,md}\""
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",

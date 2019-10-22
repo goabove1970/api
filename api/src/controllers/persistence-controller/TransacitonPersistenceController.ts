@@ -1,5 +1,5 @@
-import { ChaseTransaction } from "../../models/transaction/chase/ChaseTransaction";
-import { TransactionReadArg } from "../../models/transaction/TransactionReadArgs";
+import { ChaseTransaction } from "@models/transaction/chase/ChaseTransaction";
+import { TransactionReadArg } from "@models/transaction/TransactionReadArgs";
 import {
   TransactionPersistanceControllerBase,
   TransactionPersistanceControllerReadonlyBase
