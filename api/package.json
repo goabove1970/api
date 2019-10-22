@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./dist/src/bin/www",
+    "start": "node ./dist/bin/www",
     "build": "npm run compile",
     "build:ts": "tsc",
     "compile": "npm run build:ts"
@@ -14,7 +14,7 @@
     "debug": "~2.6.9",
     "express": "~4.16.0",
     "fs": "0.0.1-security",
-    "http-errors": "~1.6.2",
+    "http-errors": "^1.6.3",
     "jade": "~1.11.0",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",

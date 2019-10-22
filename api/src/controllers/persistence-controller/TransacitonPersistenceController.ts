@@ -1,269 +1,276 @@
-import { ChaseTransaction } from '../../models/transaction/chase/ChaseTransaction';
-import { TransactionReadArg } from '../../models/transaction/TransactionReadArgs';
-import { TransactionPersistanceControllerBase, TransactionPersistanceControllerReadonlyBase } from './TransactionPersistanceControllerBase';
-import moment = require('moment');
-import { DataController } from '../data-controller/DataController';
-import { chaseTransactionFileDataController } from '../data-controller/chase/ChaseTransactionFileDataController';
+import { ChaseTransaction } from "../../models/transaction/chase/ChaseTransaction";
+import { TransactionReadArg } from "../../models/transaction/TransactionReadArgs";
+import {
+  TransactionPersistanceControllerBase,
+  TransactionPersistanceControllerReadonlyBase
+} from "./TransactionPersistanceControllerBase";
+import moment = require("moment");
+import { DataController } from "../data-controller/DataController";
+import { chaseTransactionFileDataController } from "../data-controller/chase/ChaseTransactionFileDataController";
 
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
+  private dataController: DataController<ChaseTransaction>;
 
-    private dataController: DataController<ChaseTransaction>;
+  constructor(controller: DataController<ChaseTransaction>) {
+    this.dataController = controller;
+  }
 
-    constructor(controller: DataController<ChaseTransaction>) {
-        this.dataController = controller;
+  readTransaction(transactionId: string): ChaseTransaction | undefined {
+    if (!this.dataController.cache) {
+      return undefined;
     }
 
+    const filtered = this.dataController.cache.filter(t =>
+      this.matchesArgument(t, {
+        transactionId
+      })
+    );
 
-    readTransaction(transactionId: string): ChaseTransaction | undefined {
-        if (!this.dataController.cache) {
-            return undefined;
-        }
-
-        const filtered = this.dataController.cache.filter(t => this.matchesArgument(t, {
-            transactionId
-        }));
-
-        if (filtered.length > 0) {
-            return filtered[0];
-        }
-
-        return undefined;
+    if (filtered.length > 0) {
+      return filtered[0];
     }
 
-    readAllTransactions(): ChaseTransaction[] {
-        return this.dataController.cache || [];
+    return undefined;
+  }
+
+  readAllTransactions(): ChaseTransaction[] {
+    return this.dataController.cache || [];
+  }
+
+  readTransactionsArg(args: TransactionReadArg): ChaseTransaction[] {
+    if (!this.dataController.cache) {
+      return [];
     }
 
-    readTransactionsArg(args: TransactionReadArg): ChaseTransaction[] {
-        if (!this.dataController.cache) {
-            return [];
-        }
+    return this.dataController.cache.filter(t => this.matchesArgument(t, args));
+  }
 
-        return this.dataController.cache.filter(t => this.matchesArgument(t, args));
+  getLastTransaction(args: TransactionReadArg): ChaseTransaction[] {
+    if (!this.dataController.cache) {
+      return [];
     }
 
-    getLastTransaction(args: TransactionReadArg): ChaseTransaction[] {
-        if (!this.dataController.cache) {
-            return [];
-        }
+    const filtered = this.dataController.cache
+      .filter(t => this.matchesArgument(t, args) && t.PostingDate!!)
+      .sort((t1: ChaseTransaction, t2: ChaseTransaction) => this.compareDates(t2, t1)); // descending
 
-        const filtered = this.dataController.cache.filter(t => this.matchesArgument(t, args) && t.PostingDate!!).
-            sort((t1: ChaseTransaction, t2: ChaseTransaction) => this.compareDates(t2, t1)); // descending
+    const readCount = args.readCount ? args.readCount : 1;
 
-        const readCount = args.readCount ? args.readCount : 1;
-
-        if (filtered.length >= readCount) {
-            return filtered.slice(readCount);
-        } else {
-            return filtered.slice(filtered.length);
-        }
-
-        return [];
+    if (filtered.length >= readCount) {
+      return filtered.slice(readCount);
+    } else {
+      return filtered.slice(filtered.length);
     }
 
-    private compareDates(date1: ChaseTransaction, date2: ChaseTransaction): number {
-        if (date1 === date2) {
-            return 0;
-        }
+    return [];
+  }
 
-        if (date1 > date2) {
-            return 1;
-        }
-
-        return -1;
+  private compareDates(date1: ChaseTransaction, date2: ChaseTransaction): number {
+    if (date1 === date2) {
+      return 0;
     }
 
-    getTransactionCount(args: TransactionReadArg): number {
-        if (!this.dataController.cache) {
-            return 0;
-        }
-
-        return this.dataController.cache.filter(t => this.matchesArgument(t, args)).length;
+    if (date1 > date2) {
+      return 1;
     }
 
-    updateTransaction(t: ChaseTransaction, commit: boolean = true): number {
-        if (!t.TransactionId) {
-            return 0;
-        }
+    return -1;
+  }
 
-        const oldCount = this.dataController.cache.length;
-        const deletedCount = this.deleteTransaction(t.TransactionId, false);
-        if (deletedCount === 0) {
-            return 0;
-        }
-
-        this.dataController.cache.push(t);
-        const newCount = this.dataController.cache.length;
-        if (commit) {
-            this.dataController.commitAllRecords();
-        }
-        return oldCount - newCount;
+  getTransactionCount(args: TransactionReadArg): number {
+    if (!this.dataController.cache) {
+      return 0;
     }
 
-    addOrUpdateTransaction(t: ChaseTransaction, commit: boolean = true): number {
-        if (!t.TransactionId || !this.dataController.cache) {
-            return 0;
-        }
+    return this.dataController.cache.filter(t => this.matchesArgument(t, args)).length;
+  }
 
-        const oldCount = this.dataController.cache.length;
-        this.deleteTransaction(t.TransactionId, false);
-        this.dataController.cache.push(t);
-        const newCount = this.dataController.cache.length;
-        if (commit) {
-            this.dataController.commitAllRecords();
-        }
-        return oldCount - newCount;
+  updateTransaction(t: ChaseTransaction, commit: boolean = true): number {
+    if (!t.TransactionId) {
+      return 0;
     }
 
-    deleteTransaction(transactionId?: string, commit: boolean = true): number {
-        return this.deleteMatchingTransactions({
-            transactionId
-        }, commit);
+    const oldCount = this.dataController.cache.length;
+    const deletedCount = this.deleteTransaction(t.TransactionId, false);
+    if (deletedCount === 0) {
+      return 0;
     }
 
-    deleteMatchingTransactions(args: TransactionReadArg, commit: boolean = true): number {
-        if (!this.dataController.cache) {
-            return 0;
-        }
+    this.dataController.cache.push(t);
+    const newCount = this.dataController.cache.length;
+    if (commit) {
+      this.dataController.commitAllRecords();
+    }
+    return oldCount - newCount;
+  }
 
-        const oldCount = this.dataController.cache.length;
-        this.dataController.cache = this.dataController.cache.filter(t => !this.matchesArgument(t, args));
-        const newCount = this.dataController.cache.length;
-        if (commit) {
-            this.dataController.commitAllRecords();
-        }
-        return oldCount - newCount;
+  addOrUpdateTransaction(t: ChaseTransaction, commit: boolean = true): number {
+    if (!t.TransactionId || !this.dataController.cache) {
+      return 0;
     }
 
-    private matchesArgument(t: ChaseTransaction, args: TransactionReadArg): boolean {
-        let matches = true;
+    const oldCount = this.dataController.cache.length;
+    this.deleteTransaction(t.TransactionId, false);
+    this.dataController.cache.push(t);
+    const newCount = this.dataController.cache.length;
+    if (commit) {
+      this.dataController.commitAllRecords();
+    }
+    return oldCount - newCount;
+  }
 
-        if (args.accountId) {
-            matches = matches && t.AccountId === args.accountId!;
-        }
+  deleteTransaction(transactionId?: string, commit: boolean = true): number {
+    return this.deleteMatchingTransactions(
+      {
+        transactionId
+      },
+      commit
+    );
+  }
 
-        if (args.transactionId) {
-            matches = matches && t.TransactionId === args.transactionId!;
-        }
-
-        if (t.PostingDate && args.startDate) {
-            matches = matches && moment(t.PostingDate).isSameOrAfter(moment(args.startDate!));
-        }
-
-        if (t.PostingDate && args.endDate) {
-            matches = matches && moment(t.PostingDate).isSameOrBefore(moment(args.endDate!));
-        }
-
-        if (args.userId) {
-            matches = matches && t.AccountId === args.accountId;
-        }
-
-        return matches;
+  deleteMatchingTransactions(args: TransactionReadArg, commit: boolean = true): number {
+    if (!this.dataController.cache) {
+      return 0;
     }
 
+    const oldCount = this.dataController.cache.length;
+    this.dataController.cache = this.dataController.cache.filter(t => !this.matchesArgument(t, args));
+    const newCount = this.dataController.cache.length;
+    if (commit) {
+      this.dataController.commitAllRecords();
+    }
+    return oldCount - newCount;
+  }
 
+  private matchesArgument(t: ChaseTransaction, args: TransactionReadArg): boolean {
+    let matches = true;
+
+    if (args.accountId) {
+      matches = matches && t.AccountId === args.accountId!;
+    }
+
+    if (args.transactionId) {
+      matches = matches && t.TransactionId === args.transactionId!;
+    }
+
+    if (t.PostingDate && args.startDate) {
+      matches = matches && moment(t.PostingDate).isSameOrAfter(moment(args.startDate!));
+    }
+
+    if (t.PostingDate && args.endDate) {
+      matches = matches && moment(t.PostingDate).isSameOrBefore(moment(args.endDate!));
+    }
+
+    if (args.userId) {
+      matches = matches && t.AccountId === args.accountId;
+    }
+
+    return matches;
+  }
 }
 
 export class ChaseTransacitonReader implements TransactionPersistanceControllerReadonlyBase {
+  private dataController: DataController<ChaseTransaction>;
 
-    private dataController: DataController<ChaseTransaction>;
+  constructor(controller: DataController<ChaseTransaction>) {
+    this.dataController = controller;
+  }
 
-    constructor(controller: DataController<ChaseTransaction>) {
-        this.dataController = controller;
+  readTransaction(transactionId: string): ChaseTransaction | undefined {
+    if (!this.dataController.cache) {
+      return undefined;
     }
 
-    readTransaction(transactionId: string): ChaseTransaction | undefined {
-        if (!this.dataController.cache) {
-            return undefined;
-        }
+    const filtered = this.dataController.cache.filter(t =>
+      this.matchesArgument(t, {
+        transactionId
+      })
+    );
 
-        const filtered = this.dataController.cache.filter(t => this.matchesArgument(t, {
-            transactionId
-        }));
-
-        if (filtered.length > 0) {
-            return filtered[0];
-        }
-
-        return undefined;
+    if (filtered.length > 0) {
+      return filtered[0];
     }
 
-    readAllTransactions(): ChaseTransaction[] {
-        return this.dataController.cache || [];
+    return undefined;
+  }
+
+  readAllTransactions(): ChaseTransaction[] {
+    return this.dataController.cache || [];
+  }
+
+  readTransactionsArg(args: TransactionReadArg): ChaseTransaction[] {
+    if (!this.dataController.cache) {
+      return [];
     }
 
-    readTransactionsArg(args: TransactionReadArg): ChaseTransaction[] {
-        if (!this.dataController.cache) {
-            return [];
-        }
+    return this.dataController.cache.filter(t => this.matchesArgument(t, args));
+  }
 
-        return this.dataController.cache.filter(t => this.matchesArgument(t, args));
+  getLastTransaction(args: TransactionReadArg): ChaseTransaction[] {
+    if (!this.dataController.cache) {
+      return [];
     }
 
-    getLastTransaction(args: TransactionReadArg): ChaseTransaction[] {
-        if (!this.dataController.cache) {
-            return [];
-        }
+    const filtered = this.dataController.cache
+      .filter(t => this.matchesArgument(t, args) && t.PostingDate!!)
+      .sort((t1: ChaseTransaction, t2: ChaseTransaction) => this.compareDates(t2, t1)); // descending
 
-        const filtered = this.dataController.cache.filter(t => this.matchesArgument(t, args) && t.PostingDate!!).
-            sort((t1: ChaseTransaction, t2: ChaseTransaction) => this.compareDates(t2, t1)); // descending
+    const readCount = args.readCount ? args.readCount : 1;
 
-        const readCount = args.readCount ? args.readCount : 1;
-
-        if (filtered.length >= readCount) {
-            return filtered.slice(readCount);
-        } else {
-            return filtered.slice(filtered.length);
-        }
-
-        return [];
+    if (filtered.length >= readCount) {
+      return filtered.slice(readCount);
+    } else {
+      return filtered.slice(filtered.length);
     }
 
-    private compareDates(date1: ChaseTransaction, date2: ChaseTransaction): number {
-        if (date1 === date2) {
-            return 0;
-        }
+    return [];
+  }
 
-        if (date1 > date2) {
-            return 1;
-        }
-
-        return -1;
+  private compareDates(date1: ChaseTransaction, date2: ChaseTransaction): number {
+    if (date1 === date2) {
+      return 0;
     }
 
-    getTransactionCount(args: TransactionReadArg): number {
-        if (!this.dataController.cache) {
-            return 0;
-        }
-
-        return this.dataController.cache.filter(t => this.matchesArgument(t, args)).length;
+    if (date1 > date2) {
+      return 1;
     }
 
-    private matchesArgument(t: ChaseTransaction, args: TransactionReadArg): boolean {
-        let matches = true;
+    return -1;
+  }
 
-        if (args.accountId) {
-            matches = matches && t.AccountId === args.accountId!;
-        }
-
-        if (args.transactionId) {
-            matches = matches && t.TransactionId === args.transactionId!;
-        }
-
-        if (t.PostingDate && args.startDate) {
-            matches = matches && moment(t.PostingDate).isSameOrAfter(moment(args.startDate!));
-        }
-
-        if (t.PostingDate && args.endDate) {
-            matches = matches && moment(t.PostingDate).isSameOrBefore(moment(args.endDate!));
-        }
-
-        if (args.userId) {
-            matches = matches && t.AccountId === args.accountId;
-        }
-
-        return matches;
+  getTransactionCount(args: TransactionReadArg): number {
+    if (!this.dataController.cache) {
+      return 0;
     }
+
+    return this.dataController.cache.filter(t => this.matchesArgument(t, args)).length;
+  }
+
+  private matchesArgument(t: ChaseTransaction, args: TransactionReadArg): boolean {
+    let matches = true;
+
+    if (args.accountId) {
+      matches = matches && t.AccountId === args.accountId!;
+    }
+
+    if (args.transactionId) {
+      matches = matches && t.TransactionId === args.transactionId!;
+    }
+
+    if (t.PostingDate && args.startDate) {
+      matches = matches && moment(t.PostingDate).isSameOrAfter(moment(args.startDate!));
+    }
+
+    if (t.PostingDate && args.endDate) {
+      matches = matches && moment(t.PostingDate).isSameOrBefore(moment(args.endDate!));
+    }
+
+    if (args.userId) {
+      matches = matches && t.AccountId === args.accountId;
+    }
+
+    return matches;
+  }
 }
 
 export const chaseTransactionReader = new ChaseTransacitonReader(chaseTransactionFileDataController);

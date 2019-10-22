@@ -1,37 +1,31 @@
 {
-    "compilerOptions": {
-        "allowJs": true,
-        "alwaysStrict": true,
-        "baseUrl": ".",
-        "checkJs": true,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "noImplicitAny": false,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitThis": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false,
-        "sourceMap": true,
-        "outDir": "dist",
-        "removeComments": true,
-        "strict": true,
-        "strictFunctionTypes": true,
-        "strictNullChecks": false,
-        "target": "esnext",
-        "paths": {
-            "@src/*": [ "src/*" ],
-            "@models/*": [ "src/models/*" ]
-        },
-    },
-    "include": [
-        "src/**/*",
-        "app.ts",
-        "bin"
-    ],
-    "exclude": [
-        "node_modules"
-    ],
+  "compilerOptions": {
+    "allowJs": true,
+    "alwaysStrict": true,
+    "baseUrl": ".",
+    "checkJs": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "sourceMap": true,
+    "outDir": "dist",
+    "removeComments": true,
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": false,
+    "target": "esnext",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@models/*": ["src/models/*"]
+    }
+  },
+  "include": ["src/**/*", "app.ts", "bin/www.ts"],
+  "exclude": ["node_modules"]
 }
