@@ -2,7 +2,7 @@
     "compilerOptions": {
         "allowJs": true,
         "alwaysStrict": true,
-        "baseUrl": "./src/",
+        "baseUrl": ".",
         "checkJs": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
@@ -20,21 +20,18 @@
         "strict": true,
         "strictFunctionTypes": true,
         "strictNullChecks": false,
-        "target": "es2017"
+        "target": "esnext",
+        "paths": {
+            "@src/*": [ "src/*" ],
+            "@models/*": [ "src/models/*" ]
+        },
     },
     "include": [
         "src/**/*",
-        "app.ts", "bin"
+        "app.ts",
+        "bin"
     ],
     "exclude": [
         "node_modules"
     ],
-    "paths": {
-        "@src/*": [
-            "src/*"
-        ],
-        "@util/*": [
-            "utils/*"
-        ]
-    }
 }

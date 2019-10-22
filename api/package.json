@@ -19,10 +19,11 @@
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "node-ts": "^5.0.2",
-    "tsc": "^1.20150623.0",
-    "typescript": "^3.6.4"
+    "prettier": "^1.18.2",
+    "tsc": "^1.20150623.0"
   },
   "devDependencies": {
-    "@types/node": "^12.11.1"
+    "@types/node": "^12.11.1",
+    "typescript": "^3.7.0-dev.20191021"
   }
 }

@@ -1,4 +1,4 @@
-export interface TransactionArg {
+export interface TransactionReadArg {
     transactionId?: string;
     startDate?: Date;
     endDate?: Date;

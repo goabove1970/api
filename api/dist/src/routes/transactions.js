@@ -28,7 +28,7 @@ async function processReadTransactionsRequest(request) {
         startDate: request.args && request.args.startDate && moment(request.args.startDate).toDate(),
         endDate: request.args && request.args.endDate && moment(request.args.endDate).toDate()
     };
-    const transactions = persistence_controller_1.default.readTransactionsArg(readArgs);
+    const transactions = persistence_controller_1.chaseTransactionReader.readTransactionsArg(readArgs);
     response.payload = {
         count: transactions.length,
         transactions,

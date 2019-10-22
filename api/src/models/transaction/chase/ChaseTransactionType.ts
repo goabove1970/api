@@ -1,4 +1,4 @@
-export enum TransactionType {
+export enum ChaseTransactionType {
     AccountTransfer = 'ACCT_XFER',
     AchCredit = 'ACH_CREDIT',
     AchDebit = 'ACH_DEBIT',

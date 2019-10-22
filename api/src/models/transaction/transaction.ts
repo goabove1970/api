@@ -1,16 +1,9 @@
-import { TransactionOriginType } from "./transaction-origin-type";
-import { TransactionType } from "./transaction-type";
+import { ChaseTransaction } from './chase/ChaseTransaction'
 
 export interface Transaction {
     AccountId?: string;
     UserId?: string;
-
     TransactionId?: string;
-    Details: TransactionOriginType;
-    PostingDate: Date;
-    Description: string;
-    Amount?: number;
-    Type?: TransactionType;
-    Balance?: number;
-    CheckOrSlip?: string;
+    transactionOrigin?: ChaseTransaction;
+    importedDate?: Date;
 }

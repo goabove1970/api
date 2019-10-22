@@ -1,3 +1,3 @@
-import { filePersistanceController } from './file-persistence-controller';
+import { chaseTransactionReader } from './TransacitonPersistenceController';
 
-export default filePersistanceController;
+export { chaseTransactionReader };

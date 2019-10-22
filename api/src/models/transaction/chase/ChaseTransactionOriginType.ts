@@ -1,4 +1,4 @@
-export enum TransactionOriginType {
+export enum ChaseTransactionOriginType {
     Debit = 'DEBIT',
     Credit = 'CREDIT',
     Check = 'CHECK',

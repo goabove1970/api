@@ -1,8 +1,8 @@
 import { TransactionRequest, TransactionResponse } from "./request-types/transaction-requests";
 import { Router } from 'express';
 import { TransactionRequestError } from "../models/errors/errors";
-import filePersistanceController from '../controllers/persistence-controller'
-import { TransactionArg } from "controllers/persistence-controller/transaction-arg";
+import { chaseTransactionReader } from '../controllers/persistence-controller'
+import { TransactionReadArg } from "../models/transaction/TransactionReadArgs";
 import * as moment from 'moment'
 
 const router = Router();
@@ -30,17 +30,17 @@ async function processReadTransactionsRequest(request: TransactionRequest): Prom
     const response: TransactionResponse = {
         action: 'read-transactions',
         payload: {
-            
+
         }
     }
 
-    const readArgs: TransactionArg = {
+    const readArgs: TransactionReadArg = {
         startDate: request.args && request.args.startDate && moment(request.args.startDate).toDate(),
         // endDate: request.args && request.args.endDate && moment(request.args.endDate).add(24, 'hours').toDate()
         endDate: request.args && request.args.endDate && moment(request.args.endDate).toDate()
     };
-    
-    const transactions = filePersistanceController.readTransactionsArg(readArgs);
+
+    const transactions = chaseTransactionReader.readTransactionsArg(readArgs);
     response.payload = {
         count: transactions.length,
         transactions,
