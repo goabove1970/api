@@ -1,7 +1,7 @@
-import { ChaseTransaction } from "@models/transaction/chase/ChaseTransaction";
-import { FileController } from "@src/controllers/data-controller/FileController";
-import { DataController } from "@src/controllers/data-controller/DataController";
-import { ChaseTransactionParser } from "@src/controllers/parser-controller/chase/ChaseTransactionParser";
+import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
+import { FileController } from '../../../controllers/data-controller/FileController';
+import { DataController } from '../../../controllers/data-controller/DataController';
+import { ChaseTransactionParser } from '../../../controllers/parser-controller/chase/ChaseTransactionParser';
 
 export class ChaseTransactionFileDataController extends FileController<ChaseTransaction> {
   constructor(filename: string) {
@@ -11,4 +11,4 @@ export class ChaseTransactionFileDataController extends FileController<ChaseTran
 
 export const chaseTransactionFileDataController: DataController<
   ChaseTransaction
-> = new ChaseTransactionFileDataController("/Users/ievgenmelnychuk/Desktop/First/src/controllers/helper/debit.csv");
+> = new ChaseTransactionFileDataController('/Users/ievgenmelnychuk/Desktop/First/src/controllers/helper/debit.csv');

@@ -24,7 +24,7 @@
     "paths": {
       "@src/*": ["src/*"],
       "@models/*": ["src/models/*"],
-      "@controllers/*": ["src/controllers/*"]
+      "@routes/*": ["src/routes/*"]
     }
   },
   "include": ["src/**/*", "app.ts", "bin/www.ts"],

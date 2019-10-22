@@ -1,13 +1,13 @@
 import { createError } from 'http-errors';
-import { express } from 'express';
+var express = require('express');
 import * as path from 'path';
-import { cookieParser } from 'cookie-parser';
-import { logger } from 'morgan';
-import { cors } from 'cors';
+var logger = require('morgan');
+var cors = require('cors');
+var cookieParser = require('cookie-parser');
 
-import * as indexRouter from '@src/routes/index';
-import * as testAPIRouter from '@src/routes/testAPI';
-import * as transactionsRouter from '@src/routes/transactions';
+import * as indexRouter from './src/routes/index';
+import * as transactionsRouter from './src/routes/transactions';
+import { request } from 'https';
 
 export const app = express();
 
@@ -23,9 +23,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-// app.use("/users", usersRouter);
 app.use('/transactions', transactionsRouter);
-app.use('/testAPI', testAPIRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
