@@ -1,12 +1,12 @@
-import { ChaseTransaction } from "@models/transaction/chase/ChaseTransaction";
-import { TransactionReadArg } from "@models/transaction/TransactionReadArgs";
+import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
+import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import {
   TransactionPersistanceControllerBase,
-  TransactionPersistanceControllerReadonlyBase
-} from "./TransactionPersistanceControllerBase";
-import moment = require("moment");
-import { DataController } from "../data-controller/DataController";
-import { chaseTransactionFileDataController } from "../data-controller/chase/ChaseTransactionFileDataController";
+  TransactionPersistanceControllerReadonlyBase,
+} from './TransactionPersistanceControllerBase';
+import moment = require('moment');
+import { DataController } from '../../data-controller/DataController';
+import { chaseTransactionFileDataController } from '../../data-controller/chase/ChaseTransactionFileDataController';
 
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
   private dataController: DataController<ChaseTransaction>;
@@ -20,9 +20,9 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
       return undefined;
     }
 
-    const filtered = this.dataController.cache.filter(t =>
+    const filtered = this.dataController.cache.filter((t) =>
       this.matchesArgument(t, {
-        transactionId
+        transactionId,
       })
     );
 
@@ -42,7 +42,7 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
       return [];
     }
 
-    return this.dataController.cache.filter(t => this.matchesArgument(t, args));
+    return this.dataController.cache.filter((t) => this.matchesArgument(t, args));
   }
 
   getLastTransaction(args: TransactionReadArg): ChaseTransaction[] {
@@ -51,7 +51,7 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
     }
 
     const filtered = this.dataController.cache
-      .filter(t => this.matchesArgument(t, args) && t.PostingDate!!)
+      .filter((t) => this.matchesArgument(t, args) && t.PostingDate!!)
       .sort((t1: ChaseTransaction, t2: ChaseTransaction) => this.compareDates(t2, t1)); // descending
 
     const readCount = args.readCount ? args.readCount : 1;
@@ -82,7 +82,7 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
       return 0;
     }
 
-    return this.dataController.cache.filter(t => this.matchesArgument(t, args)).length;
+    return this.dataController.cache.filter((t) => this.matchesArgument(t, args)).length;
   }
 
   updateTransaction(t: ChaseTransaction, commit: boolean = true): number {
@@ -122,7 +122,7 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
   deleteTransaction(transactionId?: string, commit: boolean = true): number {
     return this.deleteMatchingTransactions(
       {
-        transactionId
+        transactionId,
       },
       commit
     );
@@ -134,7 +134,7 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
     }
 
     const oldCount = this.dataController.cache.length;
-    this.dataController.cache = this.dataController.cache.filter(t => !this.matchesArgument(t, args));
+    this.dataController.cache = this.dataController.cache.filter((t) => !this.matchesArgument(t, args));
     const newCount = this.dataController.cache.length;
     if (commit) {
       this.dataController.commitAllRecords();
@@ -181,9 +181,9 @@ export class ChaseTransacitonReader implements TransactionPersistanceControllerR
       return undefined;
     }
 
-    const filtered = this.dataController.cache.filter(t =>
+    const filtered = this.dataController.cache.filter((t) =>
       this.matchesArgument(t, {
-        transactionId
+        transactionId,
       })
     );
 
@@ -203,7 +203,7 @@ export class ChaseTransacitonReader implements TransactionPersistanceControllerR
       return [];
     }
 
-    return this.dataController.cache.filter(t => this.matchesArgument(t, args));
+    return this.dataController.cache.filter((t) => this.matchesArgument(t, args));
   }
 
   getLastTransaction(args: TransactionReadArg): ChaseTransaction[] {
@@ -212,7 +212,7 @@ export class ChaseTransacitonReader implements TransactionPersistanceControllerR
     }
 
     const filtered = this.dataController.cache
-      .filter(t => this.matchesArgument(t, args) && t.PostingDate!!)
+      .filter((t) => this.matchesArgument(t, args) && t.PostingDate!!)
       .sort((t1: ChaseTransaction, t2: ChaseTransaction) => this.compareDates(t2, t1)); // descending
 
     const readCount = args.readCount ? args.readCount : 1;
@@ -243,7 +243,7 @@ export class ChaseTransacitonReader implements TransactionPersistanceControllerR
       return 0;
     }
 
-    return this.dataController.cache.filter(t => this.matchesArgument(t, args)).length;
+    return this.dataController.cache.filter((t) => this.matchesArgument(t, args)).length;
   }
 
   private matchesArgument(t: ChaseTransaction, args: TransactionReadArg): boolean {

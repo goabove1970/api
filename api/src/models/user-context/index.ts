@@ -1,26 +1,17 @@
-import { Card } from "../../models/accounts/card";
-import { BankAccount } from "../../models/accounts/bank-account";
-import { User } from "../../models/user";
+import { Card } from '../../models/accounts/card';
+import { BankAccount } from '../../models/accounts/bank-account';
+import { UserDetails } from '../../models/user';
 
-export interface ActiveContext {
-
-}
+export interface ActiveContext {}
 
 export class UserContext {
-    private activeUser?: User;
-    private availableCards?: Card[];
-    private acconts?: BankAccount[];
+  private activeUser?: UserDetails;
+  private availableCards?: Card[];
+  private acconts?: BankAccount[];
 
-    private contructor() {
+  private contructor() {}
 
-    }
-
-    static initializeContext(userId?: string) {
-
-
-        return new UserContext();
-    }
-
-
-
+  static initializeContext(userId?: string) {
+    return new UserContext();
+  }
 }
