@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 
 import * as indexRouter from './src/routes/index';
 import * as transactionsRouter from './src/routes/transactions';
+import * as userRouter from './src/routes/users';
 import { request } from 'https';
 
 export const app = express();
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/transactions', transactionsRouter);
+app.use('/users', userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

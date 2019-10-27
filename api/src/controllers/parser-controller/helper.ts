@@ -1,4 +1,4 @@
-export function parseNumer(line: string): number | undefined {
+export function parseNumber(line: string): number | undefined {
   try {
     const number = Number.parseFloat(line);
     return number;
@@ -9,9 +9,9 @@ export function parseNumer(line: string): number | undefined {
 }
 
 export function parseAmount(line: string): number | undefined {
-  return parseNumer(line);
+  return parseNumber(line);
 }
 
 export function parseBalance(line: string): number | undefined {
-  return parseNumer(line);
+  return parseNumber(line);
 }

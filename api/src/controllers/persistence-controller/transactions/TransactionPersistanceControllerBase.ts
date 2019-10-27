@@ -1,5 +1,5 @@
-import { ChaseTransaction } from "@models/transaction/chase/ChaseTransaction";
-import { TransactionReadArg } from "@models/transaction/TransactionReadArgs";
+import { ChaseTransaction } from 'src/models/transaction/chase/ChaseTransaction';
+import { TransactionReadArg } from 'src/models/transaction/TransactionReadArgs';
 
 export abstract class TransactionPersistanceControllerReadonlyBase {
   abstract readTransaction(transactionId: string): ChaseTransaction | undefined;

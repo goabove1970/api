@@ -22,9 +22,9 @@
     "strictNullChecks": false,
     "target": "esnext",
     "paths": {
-      "@src/*": ["src/*"],
-      "@models/*": ["src/models/*"],
-      "@routes/*": ["src/routes/*"]
+      // "@src/*": ["src/*"],
+      // "@models/*": ["src/models/*"],
+      // "@routes/*": ["src/routes/*"]
     }
   },
   "include": ["src/**/*", "app.ts", "bin/www.ts"],

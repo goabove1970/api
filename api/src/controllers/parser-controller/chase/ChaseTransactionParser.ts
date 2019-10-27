@@ -1,8 +1,9 @@
-import { ParseError } from '@models/errors/parse-error';
 import { parseAmount, parseBalance } from '../../../controllers/parser-controller/helper';
 import { Parser } from '../Parser';
-import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import { parseChaseTransDetails, parseChaseTransactionType } from './ChaseParseHelper';
+import * as moment from 'moment';
+import { ChaseTransaction } from 'src/models/transaction/chase/ChaseTransaction';
+import { ParseError } from 'src/models/errors/parse-error';
 
 export class ChaseTransactionParser implements Parser<ChaseTransaction> {
   private chaseCsvHeader = 'Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #';
@@ -11,7 +12,7 @@ export class ChaseTransactionParser implements Parser<ChaseTransaction> {
     return this.chaseCsvHeader;
   }
   itemToCsv(t: ChaseTransaction): string {
-    const line = `${t.Details!.toString()},${t.PostingDate.toTimeString()},${t.Description},${
+    const line = `${t.Details!.toString()},${moment(t.PostingDate).toString()},${t.Description},${
       t.Amount ? t.Amount!.toString() : undefined
     },${t.Type!.toString()},${t.Balance ? t.Balance!.toString() : undefined},${t.CheckOrSlip}`;
     return line;
@@ -19,9 +20,9 @@ export class ChaseTransactionParser implements Parser<ChaseTransaction> {
   itemsToFileString(transactions: ChaseTransaction[]): string {
     const csvLines: string[] = [this.getFileHeader()];
     transactions.forEach((t) => csvLines.push(this.itemToCsv(t)));
-    return transactions.join(this.lineSeparator).concat(this.lineSeparator);
+    return csvLines.join(this.lineSeparator).concat(this.lineSeparator);
   }
-  parseLine(line: string): ChaseTransaction | ParseError {
+  parseLine(line: string): ChaseTransaction | undefined {
     try {
       const parts = line.split(',');
       if (parts.length >= 7) {
@@ -45,17 +46,20 @@ export class ChaseTransactionParser implements Parser<ChaseTransaction> {
       if (parseError !== undefined) {
         parseError.originalString = line;
         console.log(`ParseError: ${JSON.stringify(error, null, 4)}`);
-        return parseError;
+        throw parseError;
       }
       console.log(error);
-      return {
+      throw {
         message: `Error Parsing ransaction: ${error.message}`,
         originalString: line,
       };
+
+      return undefined;
     }
   }
   parseLines(lines: string[]): ChaseTransaction[] {
     return lines
+      .map((m) => m.replace('\r', '').replace('\r', ''))
       .filter((s) => !!s && s.length > 0)
       .map((line: string) => {
         return this.parseLine(line);

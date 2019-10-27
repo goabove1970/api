@@ -2,9 +2,23 @@ import { UserPersistanceControllerBase } from './UserPersistanceControllerBase';
 import { UserDetails, UserStatus } from '../../../models/user';
 import { DataController } from '../../../controllers/data-controller/DataController';
 import { DeepPartial } from '../../../models/DeepPartial';
-import { UserCreateArgs, UserUpdatePasswordArgs } from '../../../models/user/user-create-args';
+import {
+  UserCreateArgs,
+  UserUpdatePasswordArgs,
+  UserReadArgs,
+  UserDeleteArgs,
+  UserUpdateArgs,
+} from '../../../models/user/user-create-args';
 import * as passwordHash from 'password-hash';
-import { GuidFull } from '../../../utils/generateGuid';
+import { userFileDataController } from '../../data-controller/users/UserFileDataController';
+import {
+  validateCreateUserArgs,
+  combineNewUser,
+  validateUserUpdatePasswordArgs,
+  validateUserUpdateArgs,
+  toShortUserDetails,
+  matchesReadArgs,
+} from './helper';
 
 export class UserPersistanceController implements UserPersistanceControllerBase {
   private dataController: DataController<UserDetails>;
@@ -21,52 +35,8 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
     }
   }
 
-  private validateCreateUserArgs(args: UserCreateArgs): void {
-    if (!this.isLoginAvailable(args.login)) {
-      throw {
-        message: 'Could not create a new user, login is already in use',
-      };
-    }
-  }
-
-  private isLoginAvailable(login: string): boolean {
+  isLoginAvailable(login: string): boolean {
     return login && login.length > 0 && !this.dataController.cache.some((u) => u.login === login);
-  }
-
-  private validateUserUpdatePasswordArgs(args: UserUpdatePasswordArgs): void {
-    if (!args.userId) {
-      throw {
-        message: 'Coul not update password, user id is not specified.',
-      };
-    }
-
-    if (!args.oldPassword) {
-      throw {
-        message: 'Coul not update password, old password is not specified.',
-      };
-    }
-
-    if (!args.newPassword) {
-      throw {
-        message: 'Coul not update password, new password is not specified.',
-      };
-    }
-  }
-
-  private combineNewUser(args: UserCreateArgs): UserDetails {
-    return {
-      accountCreated: new Date(),
-      dob: args.dob,
-      email: args.email,
-      firstName: args.firstName,
-      lastName: args.lastName,
-      login: args.login,
-      lastLogin: undefined,
-      password: passwordHash.generate(args.password),
-      ssn: args.ssn,
-      userId: GuidFull(),
-      status: UserStatus.ActivationPending,
-    };
   }
 
   private findUserImpl(userId: string): UserDetails | undefined {
@@ -78,44 +48,43 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
     this.checkCache('getting user by id');
     const user = this.findUserImpl(userId);
     if (user) {
-      return this.toShortUserDetails(user);
+      return toShortUserDetails(user);
     }
     return undefined;
   }
 
-  getAllUsers(): DeepPartial<UserDetails>[] {
+  getAllUsers(args: UserReadArgs): DeepPartial<UserDetails>[] {
     this.checkCache('getting all users');
-    return this.dataController.cache.map((u) => this.toShortUserDetails(u));
+    return this.dataController.cache.filter((u) => matchesReadArgs(u, args)).map((u) => toShortUserDetails(u));
   }
 
   getUserByLogin(login?: string): DeepPartial<UserDetails> | undefined {
     this.checkCache('getting user by login');
     const user = this.dataController.cache.find((u) => u.login === login);
     if (user) {
-      return this.toShortUserDetails(user);
+      return toShortUserDetails(user);
     }
     return undefined;
   }
 
-  toShortUserDetails(user: UserDetails): DeepPartial<UserDetails> {
-    return {
-      userId: user.userId,
-      login: user.login,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      dob: user.dob,
-      ssn: user.ssn,
-      serviceComment: user.serviceComment,
-      status: user.status,
-      email: user.email,
-      accountCreated: user.accountCreated,
-    };
+  getUserByEmail(email?: string): DeepPartial<UserDetails> | undefined {
+    this.checkCache('getting user by email');
+    const user = this.dataController.cache.find((u) => u.email === email);
+    if (user) {
+      return toShortUserDetails(user);
+    }
+    return undefined;
   }
 
   createUser(args: UserCreateArgs): string {
     this.checkCache('creating new user');
-    this.validateCreateUserArgs(args);
-    const generatedUser = this.combineNewUser(args);
+    if (!this.isLoginAvailable(args.login)) {
+      throw {
+        message: 'Could not create a new user, login is already in use',
+      };
+    }
+    validateCreateUserArgs(args);
+    const generatedUser = combineNewUser(args);
     this.dataController.cache.push(generatedUser);
     this.dataController.commitAllRecords();
     return generatedUser.userId;
@@ -123,10 +92,10 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
 
   updatePassword(args: UserUpdatePasswordArgs) {
     this.checkCache('updating user password');
-    this.validateUserUpdatePasswordArgs(args);
+    validateUserUpdatePasswordArgs(args);
 
     const { userId, oldPassword, newPassword } = args;
-    const user = this.getUserById(args.userId);
+    const user = this.findUserImpl(args.userId);
     if (!user) {
       throw {
         message: 'Error updating user password, user not found',
@@ -139,10 +108,10 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
       };
     }
 
-    const verified = passwordHash.verify(user.password, oldPassword);
-    if (!(user.status & UserStatus.Active)) {
+    const verified = passwordHash.verify(oldPassword, user.password);
+    if (!verified) {
       throw {
-        message: 'Error updating user password, old password could not be erified',
+        message: 'Error updating user password, old password could not be verified',
       };
     }
 
@@ -151,26 +120,27 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
   }
 
   private updatePasswordHash(userId: string, newHash: string): void {
-    const user = this.getUserById(userId);
+    const user = this.findUserImpl(userId);
     if (user) {
       user.password = newHash;
       this.dataController.commitAllRecords();
     } else {
       throw {
-        message: 'Error updating user password, could not find user record while updating password hash',
+        message: 'Error updating user password, could not find user record',
       };
     }
   }
 
-  updateUserData(userId: string, args: UserCreateArgs): void {
+  updateUserData(args: UserUpdateArgs): void {
     this.checkCache('updating user record');
-    const user = this.findUserImpl(userId);
+    validateUserUpdateArgs(args);
+    const user = this.findUserImpl(args.userId);
     if (!user) {
       throw {
         message: 'Error updating user data, could not find user record',
       };
     }
-    if (!(user.status & UserStatus.Active)) {
+    if (!(user.status & UserStatus.Active) && !args.forceUpdate) {
       throw {
         message: 'Error updating user data, user account is inactive',
       };
@@ -191,7 +161,34 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
     if (args.ssn) {
       user.ssn = args.ssn;
     }
+    if (args.status) {
+      user.status = args.status;
+    }
 
     this.dataController.commitAllRecords();
   }
+
+  deleteUser(args: UserDeleteArgs): void {
+    this.checkCache('deleting user');
+
+    const { userId, serviceComment, deleteRecord } = args;
+    {
+      const user = this.getUserById(userId);
+      if (user) {
+        if (deleteRecord) {
+          this.dataController.cache = this.dataController.cache.filter((u) => u.userId !== userId);
+        } else {
+          user.serviceComment = user.serviceComment + `; ${serviceComment}`;
+          user.status = user.status & UserStatus.Deactivated;
+        }
+        this.dataController.commitAllRecords();
+      } else {
+        throw {
+          message: 'Error deleting user, could not find user record',
+        };
+      }
+    }
+  }
 }
+
+export const userPersistanceController = new UserPersistanceController(userFileDataController);

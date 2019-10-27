@@ -4,5 +4,9 @@ export interface ErrorBase {
 }
 
 export class TransactionRequestError implements ErrorBase {
-  message: 'could not extract request arguments';
+  message: 'could not extract transaction request arguments';
+}
+
+export class UserRequestError implements ErrorBase {
+  message: 'could not extract user request arguments';
 }

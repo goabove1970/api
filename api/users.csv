@@ -1,0 +1,4 @@
+userId,login,email,firstName,lastName,ssn,password,dob,lastLogin,accountCreated,serviceComment,status
+078ff967-40dc-a5fb-03a0-b1aace74f1ff,MichaelRee,michealRee@gmail.com,Michael,Ree,789,sha1$1976bfdc$1$c7180c063e91eb1ca1a24f9bf067630a2fb9b42b,Fri May 31 2019 00:00:00 GMT-0400,Invalid date,Invalid date,8,undefined
+8c15b704-88ad-f23c-4beb-795c12f0c1d0,DonRoss,donRoss123@gmail.com,Don,Ross,1789,sha1$4d5b6db8$1$25d9789534f9dea58bcf5aeae9a2ee7c3a08c6d7,Sun May 19 2019 00:00:00 GMT-0400,Invalid date,Sat Oct 26 2019 23:20:13 GMT-0400,undefined,1
+

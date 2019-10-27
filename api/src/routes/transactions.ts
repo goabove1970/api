@@ -1,4 +1,4 @@
-import { TransactionRequest, TransactionResponse } from './request-types/transaction-requests';
+import { TransactionRequest, TransactionResponse, ReadTransactionArgs } from './request-types/TransactionRequests';
 import { Router } from 'express';
 import { TransactionRequestError } from '../models/errors/errors';
 import { chaseTransactionReader } from '../controllers/persistence-controller';
@@ -9,7 +9,7 @@ import { TransactionReadArg } from '../models/transaction/TransactionReadArgs';
 const router = Router();
 
 router.get('/', async function(req, res, next) {
-  console.log(`Received a requst in transaction controller: ${JSON.stringify(req.body, null, 4)}`);
+  console.log(`Received a request in transaction controller: ${JSON.stringify(req.body, null, 4)}`);
   const transactionRequest = req.body as TransactionRequest;
   if (!transactionRequest) {
     return res.status(500).send(new TransactionRequestError());
@@ -20,29 +20,32 @@ router.get('/', async function(req, res, next) {
   switch (transactionRequest.action) {
     case 'read-transactions':
       console.log(`Processing ${transactionRequest.action} request`);
-      responseData = await processReadTransactionsRequest(transactionRequest);
+      responseData = await processReadTransactionsRequest(transactionRequest.args);
   }
 
   res.send(responseData);
 });
 
-async function processReadTransactionsRequest(request: TransactionRequest): Promise<TransactionResponse> {
+async function processReadTransactionsRequest(args: ReadTransactionArgs): Promise<TransactionResponse> {
   const response: TransactionResponse = {
     action: 'read-transactions',
     payload: {},
   };
 
   const readArgs: TransactionReadArg = {
-    startDate: request.args && request.args.startDate && moment(request.args.startDate).toDate(),
-    // endDate: request.args && request.args.endDate && moment(request.args.endDate).add(24, 'hours').toDate()
-    endDate: request.args && request.args.endDate && moment(request.args.endDate).toDate(),
+    startDate: args && args.startDate && moment(args.startDate).toDate(),
+    endDate: args && args.endDate && moment(args.endDate).toDate(),
   };
-
-  const transactions = chaseTransactionReader.readTransactionsArg(readArgs);
-  response.payload = {
-    count: transactions.length,
-    transactions,
-  };
+  try {
+    const transactions = chaseTransactionReader.readTransactionsArg(readArgs);
+    response.payload = {
+      count: transactions.length,
+      transactions,
+    };
+  } catch (error) {
+    console.error(error.message);
+    response.error = error.message;
+  }
   return response;
 }
 
