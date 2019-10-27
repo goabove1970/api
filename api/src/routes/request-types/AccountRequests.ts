@@ -4,20 +4,18 @@ import { UserCreateArgs } from '../../models/user/UserCreateArgs';
 import { ResponseBase } from './Requests';
 import { UserStatus } from '../../models/user/UserStatus';
 
-export type UserRequestType = 'read-users' | 'create-user' | 'delete-user' | 'update-user' | 'update-password';
+export type AccountRequestType = 'read-accounts' | 'create-account' | 'delete-account' | 'update-account';
 
-export interface UserRequest {
-  action?: UserRequestType;
+export interface AccountRequest {
+  action?: AccountRequestType;
   args?: ReadUserArgs & UserCreateArgs & UserUpdatePasswordArgs & UserDeleteArgs;
 }
 
-export interface UserResponse extends ResponseBase {
-  action?: UserRequestType;
+export interface AccountResponse extends ResponseBase {
+  action?: AccountRequestType;
 }
 
 export interface ReadUserArgs {
   userId?: string;
-  login?: string;
-  email?: string;
   statuses?: UserStatus;
 }

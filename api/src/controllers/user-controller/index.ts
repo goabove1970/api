@@ -1,13 +1,11 @@
-import {
-  UserCreateArgs,
-  UserUpdatePasswordArgs,
-  UserReadArgs,
-  UserDeleteArgs,
-  UserUpdateArgs,
-} from '../../models/user/user-create-args';
-import { UserDetails } from '../../models/user';
+import { UserUpdatePasswordArgs } from '../../models/user/UserUpdatePasswordArgs';
+import { UserDeleteArgs } from '../../models/user/UserDeleteArgs';
+import { UserReadArgs } from '../../models/user/UserReadArgs';
+import { UserCreateArgs } from '../../models/user/UserCreateArgs';
+import { UserUpdateArgs } from '../../models/user/UserUpdateArgs';
 import { DeepPartial } from '../../models/DeepPartial';
 import { userPersistanceController } from '../persistence-controller/users/UserPersistanceController';
+import { UserDetails } from '../../models/user/UserDetails';
 
 export abstract class UserControllerBase {
   abstract getUser(args: UserReadArgs): DeepPartial<UserDetails>[];

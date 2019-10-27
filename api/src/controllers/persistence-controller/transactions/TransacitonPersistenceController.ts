@@ -5,8 +5,8 @@ import {
 import moment = require('moment');
 import { DataController } from '../../data-controller/DataController';
 import { chaseTransactionFileDataController } from '../../data-controller/chase/ChaseTransactionFileDataController';
-import { ChaseTransaction } from 'src/models/transaction/chase/ChaseTransaction';
-import { TransactionReadArg } from 'src/models/transaction/TransactionReadArgs';
+import { ChaseTransaction } from '../../../models/transaction/chase/ChaseTransaction';
+import { TransactionReadArg } from '../../../models/transaction/TransactionReadArgs';
 
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
   private dataController: DataController<ChaseTransaction>;

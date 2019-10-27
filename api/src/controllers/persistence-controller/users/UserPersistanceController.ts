@@ -1,14 +1,11 @@
 import { UserPersistanceControllerBase } from './UserPersistanceControllerBase';
-import { UserDetails, UserStatus } from '../../../models/user';
 import { DataController } from '../../../controllers/data-controller/DataController';
 import { DeepPartial } from '../../../models/DeepPartial';
-import {
-  UserCreateArgs,
-  UserUpdatePasswordArgs,
-  UserReadArgs,
-  UserDeleteArgs,
-  UserUpdateArgs,
-} from '../../../models/user/user-create-args';
+import { UserUpdatePasswordArgs } from '../../../models/user/UserUpdatePasswordArgs';
+import { UserDeleteArgs } from '../../../models/user/UserDeleteArgs';
+import { UserReadArgs } from '../../../models/user/UserReadArgs';
+import { UserCreateArgs } from '../../../models/user/UserCreateArgs';
+import { UserUpdateArgs } from '../../../models/user/UserUpdateArgs';
 import * as passwordHash from 'password-hash';
 import { userFileDataController } from '../../data-controller/users/UserFileDataController';
 import {
@@ -19,6 +16,8 @@ import {
   toShortUserDetails,
   matchesReadArgs,
 } from './helper';
+import { UserDetails } from '../../../models/user/UserDetails';
+import { UserStatus } from '../../../models/user/UserStatus';
 
 export class UserPersistanceController implements UserPersistanceControllerBase {
   private dataController: DataController<UserDetails>;

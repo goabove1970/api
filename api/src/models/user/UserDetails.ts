@@ -1,3 +1,4 @@
+import { UserStatus } from './UserStatus';
 export interface UserDetails {
   firstName: string;
   lastName: string;
@@ -11,11 +12,4 @@ export interface UserDetails {
   accountCreated: Date;
   serviceComment?: string;
   status?: UserStatus;
-}
-
-export enum UserStatus {
-  Active = 1,
-  Deactivated = 2,
-  Locked = 4,
-  ActivationPending = 8,
 }

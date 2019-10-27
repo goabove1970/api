@@ -1,13 +1,12 @@
 import * as passwordHash from 'password-hash';
-import {
-  UserCreateArgs,
-  UserUpdatePasswordArgs,
-  UserReadArgs,
-  UserUpdateArgs,
-} from '../../../models/user/user-create-args';
-import { UserDetails, UserStatus } from '../../../models/user';
+import { UserUpdatePasswordArgs } from '../../../models/user/UserUpdatePasswordArgs';
+import { UserReadArgs } from '../../../models/user/UserReadArgs';
+import { UserCreateArgs } from '../../../models/user/UserCreateArgs';
+import { UserUpdateArgs } from '../../../models/user/UserUpdateArgs';
 import { GuidFull } from '../../../utils/generateGuid';
 import { DeepPartial } from '../../../models/DeepPartial';
+import { UserDetails } from '../../../models/user/UserDetails';
+import { UserStatus } from '../../../models/user/UserStatus';
 
 export function validateCreateUserArgs(args: UserCreateArgs): void {
   if (!args.firstName) {

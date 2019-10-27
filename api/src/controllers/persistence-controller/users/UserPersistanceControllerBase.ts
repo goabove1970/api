@@ -1,11 +1,9 @@
 import { DeepPartial } from '../../../models/DeepPartial';
-import { UserDetails } from '../../../models/user';
-import {
-  UserUpdatePasswordArgs,
-  UserCreateArgs,
-  UserReadArgs,
-  UserUpdateArgs,
-} from '../../../models/user/user-create-args';
+import { UserUpdatePasswordArgs } from '../../../models/user/UserUpdatePasswordArgs';
+import { UserReadArgs } from '../../../models/user/UserReadArgs';
+import { UserCreateArgs } from '../../../models/user/UserCreateArgs';
+import { UserUpdateArgs } from '../../../models/user/UserUpdateArgs';
+import { UserDetails } from '../../../models/user/UserDetails';
 
 export abstract class UserPersistanceControllerReadonlyBase {
   abstract getUserById(userId: string): DeepPartial<UserDetails> | undefined;

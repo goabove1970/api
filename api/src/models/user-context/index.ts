@@ -1,6 +1,6 @@
 import { Card } from '../../models/accounts/card';
 import { BankAccount } from '../../models/accounts/bank-account';
-import { UserDetails } from '../../models/user';
+import { UserDetails } from '../user/UserDetails';
 
 export interface ActiveContext {}
 

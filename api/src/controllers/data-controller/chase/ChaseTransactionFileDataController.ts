@@ -1,7 +1,7 @@
 import { FileController } from '../../../controllers/data-controller/FileController';
 import { DataController } from '../../../controllers/data-controller/DataController';
 import { ChaseTransactionParser } from '../../../controllers/parser-controller/chase/ChaseTransactionParser';
-import { ChaseTransaction } from 'src/models/transaction/chase/ChaseTransaction';
+import { ChaseTransaction } from '../../../models/transaction/chase/ChaseTransaction';
 
 export class ChaseTransactionFileDataController extends FileController<ChaseTransaction> {
   constructor(filename: string) {

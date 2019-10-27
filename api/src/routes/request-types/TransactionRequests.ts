@@ -1,3 +1,5 @@
+import { ResponseBase } from './Requests';
+
 export type TransactionRequestType = 'read-transactions';
 
 export interface TransactionRequest {
@@ -5,10 +7,8 @@ export interface TransactionRequest {
   args?: ReadTransactionArgs;
 }
 
-export interface TransactionResponse {
+export interface TransactionResponse extends ResponseBase {
   action?: TransactionRequestType;
-  error?: string;
-  payload?: {};
 }
 
 export interface ReadTransactionArgs {
