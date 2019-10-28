@@ -1,79 +1,68 @@
 import { Router } from 'express';
 
-import { UserRequest, UserResponse, ReadUserArgs } from './request-types/UserRequests';
-import { UserRequestError } from '../models/errors/errors';
+import { AccountRequestError } from '../models/errors/errors';
 import { DeepPartial } from '../models/DeepPartial';
-import userController from '../controllers/user-controller';
-import { UserUpdatePasswordArgs } from '../models/user/UserUpdatePasswordArgs';
-import { UserDeleteArgs } from '../models/user/UserDeleteArgs';
-import { UserCreateArgs } from '../models/user/UserCreateArgs';
-import { UserUpdateArgs } from '../models/user/UserUpdateArgs';
-import { UserDetails } from '../models/user/UserDetails';
+import accountController from '../controllers/account-controller';
+import { AccountResponse, AccountRequest } from './request-types/AccountRequests';
+import { ReadAccountArgs } from '../models/accounts/ReadAccountArgs';
+import { UserAccount } from 'src/models/accounts/Account';
+import { AccountCreateArgs } from 'src/models/accounts/AccountCreateArgs';
+import { AccountDeleteArgs } from 'src/models/accounts/AccountDeleteArgs';
+import { AccountUpdateArgs } from 'src/models/accounts/AccountUpdateArgs';
 
 const router = Router();
 
 router.get('/', async function(req, res, next) {
-  console.log(`Received a request in user controller: ${JSON.stringify(req.body, null, 4)}`);
-  const userRequest = req.body as UserRequest;
-  if (!userRequest) {
-    return res.status(500).send(new UserRequestError());
+  console.log(`Received a request in account controller: ${JSON.stringify(req.body, null, 4)}`);
+  const accountRequest = req.body as AccountRequest;
+  if (!accountRequest) {
+    return res.status(500).send(new AccountRequestError());
   }
 
-  let responseData: UserResponse = {};
+  let responseData: AccountResponse = {};
 
-  switch (userRequest.action) {
-    case 'read-users':
-      responseData = await processReadUsersRequest(userRequest.args);
+  switch (accountRequest.action) {
+    case 'read-accounts':
+      responseData = await processReadAccountsRequest(accountRequest.args);
       break;
-    case 'create-user':
-      responseData = await processCreateUserRequest(userRequest.args);
+    case 'create-account':
+      responseData = await processCreateAccountRequest(accountRequest.args);
       break;
-    case 'delete-user':
-      responseData = await processDeleteUserRequest(userRequest.args);
+    case 'delete-account':
+      responseData = await processDeleteAccountRequest(accountRequest.args);
       break;
-    case 'update-user':
-      responseData = await processUpdateUserRequest(userRequest.args);
+    case 'update-account':
+      responseData = await processUpdateAccountRequest(accountRequest.args);
       break;
-    case 'update-password':
-      responseData = await processUpdatePasswordRequest(userRequest.args);
-      break;
+    default:
+      if (!accountRequest) {
+        return res.status(500).send(new AccountRequestError(`Unknown account request type: ${accountRequest.action}`));
+      }
   }
 
   res.send(responseData);
 });
 
-async function processReadUsersRequest(request: ReadUserArgs): Promise<UserResponse> {
-  console.log(`Processing read-user request`);
-  const response: UserResponse = {
-    action: 'read-users',
+async function processReadAccountsRequest(args: ReadAccountArgs): Promise<AccountResponse> {
+  console.log(`Processing read-account request`);
+  const response: AccountResponse = {
+    action: 'read-accounts',
     payload: {},
   };
 
-  let userCollection: DeepPartial<UserDetails>[] = [];
+  let accountCollection: DeepPartial<UserAccount>[] = [];
   try {
-    if (request.statuses) {
-      userCollection = userCollection.concat(
-        userController.getUser({
-          status: request.statuses,
-        })
-      );
-    } else if (request.login) {
-      userCollection.push(userController.getUserByLogin(request.login));
-    } else if (request.userId) {
-      userCollection.push(userController.getUserById(request.userId));
-    } else if (request.email) {
-      userCollection.push(userController.getUserByEmail(request.email));
-    } else {
-      userCollection = userCollection.concat(
-        userController.getUser({
-          status: undefined,
-        })
-      );
-    }
+    accountCollection = accountCollection.concat(
+      accountController.getAccount({
+        status: args.status,
+        userId: args.userId,
+        accountId: args.accountId,
+      })
+    );
 
     response.payload = {
-      count: userCollection.length,
-      user: userCollection,
+      count: accountCollection.length,
+      accounts: accountCollection,
     };
   } catch (error) {
     console.error(error.message);
@@ -82,16 +71,16 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
   return response;
 }
 
-async function processCreateUserRequest(request: UserCreateArgs): Promise<UserResponse> {
-  console.log(`Processing create-user request`);
-  const response: UserResponse = {
-    action: 'read-users',
+async function processCreateAccountRequest(request: AccountCreateArgs): Promise<AccountResponse> {
+  console.log(`Processing create-account request`);
+  const response: AccountResponse = {
+    action: 'create-account',
     payload: {},
   };
 
   try {
     response.payload = {
-      userId: userController.createUser(request),
+      userId: accountController.createAccount(request),
     };
   } catch (error) {
     console.error(error.message);
@@ -100,16 +89,16 @@ async function processCreateUserRequest(request: UserCreateArgs): Promise<UserRe
   return response;
 }
 
-async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserResponse> {
-  console.log(`Processing delete-user request`);
-  const response: UserResponse = {
-    action: 'delete-user',
+async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<AccountResponse> {
+  console.log(`Processing delete-account request`);
+  const response: AccountResponse = {
+    action: 'delete-account',
     payload: {},
   };
 
   try {
     response.payload = {
-      userId: userController.deleteUser(request),
+      userId: accountController.deleteAccount(request),
     };
   } catch (error) {
     console.error(error.message);
@@ -118,34 +107,14 @@ async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserRe
   return response;
 }
 
-async function processUpdateUserRequest(request: UserUpdateArgs): Promise<UserResponse> {
-  console.log(`Processing update-user request`);
-  const response: UserResponse = {
-    action: 'update-user',
+async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<AccountResponse> {
+  console.log(`Processing update-account request`);
+  const response: AccountResponse = {
+    action: 'update-account',
     payload: {},
   };
   try {
-    response.payload = {
-      userId: userController.updateUserData(request),
-    };
-  } catch (error) {
-    console.error(error.message);
-    response.error = error.message;
-  }
-  return response;
-}
-
-async function processUpdatePasswordRequest(request: UserUpdatePasswordArgs): Promise<UserResponse> {
-  console.log(`Processing update-password request`);
-  const response: UserResponse = {
-    action: 'update-password',
-    payload: {},
-  };
-
-  try {
-    response.payload = {
-      userId: userController.updatePassword(request),
-    };
+    accountController.updateAccount(request);
   } catch (error) {
     console.error(error.message);
     response.error = error.message;

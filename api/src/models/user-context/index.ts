@@ -1,5 +1,5 @@
-import { Card } from '../../models/accounts/card';
-import { BankAccount } from '../../models/accounts/bank-account';
+import { Card } from '../cards/card';
+import { UserAccount } from '../accounts/Account';
 import { UserDetails } from '../user/UserDetails';
 
 export interface ActiveContext {}
@@ -7,7 +7,7 @@ export interface ActiveContext {}
 export class UserContext {
   private activeUser?: UserDetails;
   private availableCards?: Card[];
-  private acconts?: BankAccount[];
+  private acconts?: UserAccount[];
 
   private contructor() {}
 

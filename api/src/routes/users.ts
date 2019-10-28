@@ -73,7 +73,7 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
 
     response.payload = {
       count: userCollection.length,
-      user: userCollection,
+      users: userCollection,
     };
   } catch (error) {
     console.error(error.message);
@@ -85,7 +85,7 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
 async function processCreateUserRequest(request: UserCreateArgs): Promise<UserResponse> {
   console.log(`Processing create-user request`);
   const response: UserResponse = {
-    action: 'read-users',
+    action: 'create-user',
     payload: {},
   };
 

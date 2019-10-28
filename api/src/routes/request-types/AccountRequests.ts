@@ -1,21 +1,16 @@
-import { UserUpdatePasswordArgs } from '../../models/user/UserUpdatePasswordArgs';
-import { UserDeleteArgs } from '../../models/user/UserDeleteArgs';
-import { UserCreateArgs } from '../../models/user/UserCreateArgs';
 import { ResponseBase } from './Requests';
-import { UserStatus } from '../../models/user/UserStatus';
+import { ReadAccountArgs } from '../../models/accounts/ReadAccountArgs';
+import { AccountCreateArgs } from 'src/models/accounts/AccountCreateArgs';
+import { AccountUpdateArgs } from 'src/models/accounts/AccountUpdateArgs';
+import { AccountDeleteArgs } from 'src/models/accounts/AccountDeleteArgs';
 
 export type AccountRequestType = 'read-accounts' | 'create-account' | 'delete-account' | 'update-account';
 
 export interface AccountRequest {
   action?: AccountRequestType;
-  args?: ReadUserArgs & UserCreateArgs & UserUpdatePasswordArgs & UserDeleteArgs;
+  args?: ReadAccountArgs & AccountCreateArgs & AccountUpdateArgs & AccountDeleteArgs;
 }
 
 export interface AccountResponse extends ResponseBase {
   action?: AccountRequestType;
-}
-
-export interface ReadUserArgs {
-  userId?: string;
-  statuses?: UserStatus;
 }
