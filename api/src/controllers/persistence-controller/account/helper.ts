@@ -61,7 +61,7 @@ export function validateCreateAccountArgs(args: AccountCreateArgs): void {
 
   if (!args.bankAccountNumber) {
     throw {
-      message: 'Bank account date can not be empty',
+      message: 'Bank account name can not be empty',
     };
   }
 }
