@@ -1,8 +1,8 @@
-import { parseNumber } from '../../../controllers/parser-controller/helper';
+import { parseNumber } from '@controllers/parser-controller/helper';
 import { Parser } from '../Parser';
 import * as moment from 'moment';
-import { ParseError } from '../../../models/errors/parse-error';
-import { UserDetails } from '../../../models/user/UserDetails';
+import { ParseError } from '@models/errors/parse-error';
+import { UserDetails } from '@models/user/UserDetails';
 
 export class UserParser implements Parser<UserDetails> {
   private userHeader =

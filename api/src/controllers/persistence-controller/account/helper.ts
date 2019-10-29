@@ -1,10 +1,10 @@
-import { UserAccount } from '../../../models/accounts/Account';
-import { DeepPartial } from '../../../models/DeepPartial';
-import { ReadAccountArgs } from '../../../models/accounts/ReadAccountArgs';
-import { AccountCreateArgs } from '../../../models/accounts/AccountCreateArgs';
-import { GuidFull } from '../../../utils/generateGuid';
-import { AccountStatus } from '../../../models/accounts/AccountStatus';
-import { AccountUpdateArgs } from '../../../models/accounts/AccountUpdateArgs';
+import { UserAccount } from '@models/accounts/Account';
+import { DeepPartial } from '@models/DeepPartial';
+import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
+import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
+import { GuidFull } from '@utils/generateGuid';
+import { AccountStatus } from '@models/accounts/AccountStatus';
+import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { userPersistanceController } from '../users/UserPersistanceController';
 
 export const toShortAccountDetails = (account: UserAccount): DeepPartial<UserAccount> | undefined => {

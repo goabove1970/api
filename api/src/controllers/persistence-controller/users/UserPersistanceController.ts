@@ -1,11 +1,11 @@
 import { UserPersistanceControllerBase } from './UserPersistanceControllerBase';
-import { DataController } from '../../../controllers/data-controller/DataController';
-import { DeepPartial } from '../../../models/DeepPartial';
-import { UserUpdatePasswordArgs } from '../../../models/user/UserUpdatePasswordArgs';
-import { UserDeleteArgs } from '../../../models/user/UserDeleteArgs';
-import { UserReadArgs } from '../../../models/user/UserReadArgs';
-import { UserCreateArgs } from '../../../models/user/UserCreateArgs';
-import { UserUpdateArgs } from '../../../models/user/UserUpdateArgs';
+import { DataController } from '@controllers/data-controller/DataController';
+import { DeepPartial } from '@models/DeepPartial';
+import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
+import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
+import { UserReadArgs } from '@models/user/UserReadArgs';
+import { UserCreateArgs } from '@models/user/UserCreateArgs';
+import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import * as passwordHash from 'password-hash';
 import { userFileDataController } from '../../data-controller/users/UserFileDataController';
 import {
@@ -16,8 +16,8 @@ import {
   toShortUserDetails,
   matchesReadArgs,
 } from './helper';
-import { UserDetails } from '../../../models/user/UserDetails';
-import { UserStatus } from '../../../models/user/UserStatus';
+import { UserDetails } from '@models/user/UserDetails';
+import { UserStatus } from '@models/user/UserStatus';
 
 export class UserPersistanceController implements UserPersistanceControllerBase {
   private dataController: DataController<UserDetails>;
@@ -114,7 +114,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
       };
     }
 
-    const newHash = passwordHash.generate(args.newPassword);
+    const newHash = passwordHash.generate(newPassword);
     this.updatePasswordHash(userId, newHash);
   }
 

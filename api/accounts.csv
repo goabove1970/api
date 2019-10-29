@@ -1,4 +1,7 @@
 accountId,userId,routingNumber,accountNumber,bankName,createDate,status
 471f1cd5-c330-5b56-ce95-07c165e5ed61,123,233,1789,JP Morgan Chase,Sun Oct 27 2019 17:29:52 GMT-0400 (Eastern Daylight Time),8
 f70ec794-36ce-9787-6134-cb17e80a5d44,078ff967-40dc-a5fb-03a0-b1aace74f1ff,233,1789,JP Morgan Chase,Sun Oct 27 2019 21:01:43 GMT-0400 (Eastern Daylight Time),8
+14ba2100-ce98-f9a3-7937-c2c3e149a02e,078ff967-40dc-a5fb-03a0-b1aace74f1ff,233,1789,JP Morgan Chase,Mon Oct 28 2019 21:50:56 GMT-0400 (Eastern Daylight Time),8
+c9c6aa18-bd03-36c4-12a9-6decc4433fe2,078ff967-40dc-a5fb-03a0-b1aace74f1ff,233,1789,JP Morgan Chase,Mon Oct 28 2019 21:51:34 GMT-0400 (Eastern Daylight Time),8
+d0565f86-56ff-a33d-4579-d1c64de40d9d,078ff967-40dc-a5fb-03a0-b1aace74f1ff,233,1789,JP Morgan Chase,Mon Oct 28 2019 22:11:30 GMT-0400 (Eastern Daylight Time),8
 

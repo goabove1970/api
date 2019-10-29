@@ -1,3 +1,4 @@
+require('module-alias/register');
 import { createError } from 'http-errors';
 var express = require('express');
 import * as path from 'path';
@@ -5,11 +6,11 @@ var logger = require('morgan');
 var cors = require('cors');
 var cookieParser = require('cookie-parser');
 
-import * as indexRouter from './src/routes/index';
-import * as transactionsRouter from './src/routes/transactions';
-import * as userRouter from './src/routes/users';
-import * as accountRouter from './src/routes/accounts';
-import { request } from 'https';
+import * as indexRouter from '@routes/index';
+import * as transactionsRouter from '@routes/transactions';
+import * as userRouter from '@routes/users';
+import * as accountRouter from '@routes/accounts';
+// import { request } from 'https';
 
 export const app = express();
 

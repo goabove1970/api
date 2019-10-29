@@ -1,10 +1,10 @@
 import { TransactionRequest, TransactionResponse, ReadTransactionArgs } from './request-types/TransactionRequests';
 import { Router } from 'express';
-import { TransactionRequestError } from '../models/errors/errors';
-import { chaseTransactionReader } from '../controllers/persistence-controller';
+import { TransactionRequestError } from '@models/errors/errors';
+import { chaseTransactionReader } from '@controllers/persistence-controller';
 
 import * as moment from 'moment';
-import { TransactionReadArg } from '../models/transaction/TransactionReadArgs';
+import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 
 const router = Router();
 

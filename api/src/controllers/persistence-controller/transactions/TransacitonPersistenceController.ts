@@ -2,11 +2,11 @@ import {
   TransactionPersistanceControllerBase,
   TransactionPersistanceControllerReadonlyBase,
 } from './TransactionPersistanceControllerBase';
-import moment = require('moment');
+import * as moment from 'moment';
 import { DataController } from '../../data-controller/DataController';
 import { chaseTransactionFileDataController } from '../../data-controller/chase/ChaseTransactionFileDataController';
-import { ChaseTransaction } from '../../../models/transaction/chase/ChaseTransaction';
-import { TransactionReadArg } from '../../../models/transaction/TransactionReadArgs';
+import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
+import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
   private dataController: DataController<ChaseTransaction>;

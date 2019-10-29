@@ -1,8 +1,8 @@
-import { UserUpdatePasswordArgs } from '../../models/user/UserUpdatePasswordArgs';
-import { UserDeleteArgs } from '../../models/user/UserDeleteArgs';
-import { UserCreateArgs } from '../../models/user/UserCreateArgs';
+import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
+import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
+import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { ResponseBase } from './Requests';
-import { UserStatus } from '../../models/user/UserStatus';
+import { UserStatus } from '@models/user/UserStatus';
 
 export type UserRequestType = 'read-users' | 'create-user' | 'delete-user' | 'update-user' | 'update-password';
 

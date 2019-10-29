@@ -1,9 +1,9 @@
-import { parseAmount, parseBalance } from '../../../controllers/parser-controller/helper';
+import { parseAmount, parseBalance } from '@controllers/parser-controller/helper';
 import { Parser } from '../Parser';
 import { parseChaseTransDetails, parseChaseTransactionType } from './ChaseParseHelper';
 import * as moment from 'moment';
-import { ChaseTransaction } from '../../../models/transaction/chase/ChaseTransaction';
-import { ParseError } from '../../../models/errors/parse-error';
+import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
+import { ParseError } from '@models/errors/parse-error';
 
 export class ChaseTransactionParser implements Parser<ChaseTransaction> {
   private chaseCsvHeader = 'Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #';

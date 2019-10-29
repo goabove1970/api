@@ -16,18 +16,27 @@
     "debug": "~2.6.9",
     "express": "~4.16.0",
     "fs": "0.0.1-security",
+    "guid-typescript": "^1.0.9",
     "http-errors": "^1.6.3",
     "jade": "~1.11.0",
+    "module-alias": "^2.2.2",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "node-ts": "^5.0.2",
+    "password-hash": "^1.2.2",
     "prettier": "^1.18.2",
-    "tsc": "^1.20150623.0",
-    "guid-typescript": "^1.0.9",
-    "password-hash": "^1.2.2"
+    "tsc": "^1.20150623.0"
   },
   "devDependencies": {
     "@types/node": "^12.11.1",
     "typescript": "^3.7.0-dev.20191021"
+  },
+  "_moduleAliases": {
+    "@root": "dist",
+    "@src": "dist/src",
+    "@models": "dist/src/models",
+    "@routes": "dist/src/routes",
+    "@utils": "dist/src/utils",
+    "@controllers": "dist/src/controllers"
   }
 }

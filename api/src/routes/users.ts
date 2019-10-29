@@ -1,14 +1,14 @@
 import { Router } from 'express';
 
 import { UserRequest, UserResponse, ReadUserArgs } from './request-types/UserRequests';
-import { UserRequestError } from '../models/errors/errors';
-import { DeepPartial } from '../models/DeepPartial';
-import userController from '../controllers/user-controller';
-import { UserUpdatePasswordArgs } from '../models/user/UserUpdatePasswordArgs';
-import { UserDeleteArgs } from '../models/user/UserDeleteArgs';
-import { UserCreateArgs } from '../models/user/UserCreateArgs';
-import { UserUpdateArgs } from '../models/user/UserUpdateArgs';
-import { UserDetails } from '../models/user/UserDetails';
+import { UserRequestError } from '@models/errors/errors';
+import { DeepPartial } from '@models/DeepPartial';
+import userController from '@controllers/user-controller';
+import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
+import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
+import { UserCreateArgs } from '@models/user/UserCreateArgs';
+import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
+import { UserDetails } from '@models/user/UserDetails';
 
 const router = Router();
 

@@ -1,9 +1,7 @@
-import { parseNumber } from '../../../controllers/parser-controller/helper';
+import { parseNumber } from '@controllers/parser-controller/helper';
 import { Parser } from '../Parser';
-import * as moment from 'moment';
-import { ParseError } from '../../../models/errors/parse-error';
-import { UserDetails } from '../../../models/user/UserDetails';
-import { UserAccount } from 'src/models/accounts/Account';
+import { ParseError } from '@models/errors/parse-error';
+import { UserAccount } from '@models/accounts/Account';
 
 export class AccountParser implements Parser<UserAccount> {
   private accountHeader = 'accountId,userId,routingNumber,accountNumber,bankName,createDate,status';

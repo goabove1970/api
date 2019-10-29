@@ -1,8 +1,8 @@
 import { ResponseBase } from './Requests';
-import { ReadAccountArgs } from '../../models/accounts/ReadAccountArgs';
-import { AccountCreateArgs } from 'src/models/accounts/AccountCreateArgs';
-import { AccountUpdateArgs } from 'src/models/accounts/AccountUpdateArgs';
-import { AccountDeleteArgs } from 'src/models/accounts/AccountDeleteArgs';
+import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
+import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
+import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
+import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 
 export type AccountRequestType = 'read-accounts' | 'create-account' | 'delete-account' | 'update-account';
 

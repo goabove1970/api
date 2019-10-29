@@ -1,6 +1,6 @@
 import { AccountPersistanceControllerBase } from './AccountPersistanceControllerBase';
-import { DataController } from '../../../controllers/data-controller/DataController';
-import { DeepPartial } from '../../../models/DeepPartial';
+import { DataController } from '@controllers/data-controller/DataController';
+import { DeepPartial } from '@models/DeepPartial';
 import {
   matchesReadArgs,
   toShortAccountDetails,
@@ -8,13 +8,13 @@ import {
   combineNewAccount,
   validateAccountUpdateArgs,
 } from './helper';
-import { UserAccount } from '../../../models/accounts/Account';
-import { ReadAccountArgs } from '../../../models/accounts/ReadAccountArgs';
-import { AccountCreateArgs } from '../../../models/accounts/AccountCreateArgs';
-import { AccountUpdateArgs } from '../../../models/accounts/AccountUpdateArgs';
-import { AccountDeleteArgs } from '../../../models/accounts/AccountDeleteArgs';
-import { accountFileDataController } from '../../../controllers/data-controller/account/AccountFileDataController';
-import { AccountStatus } from '../../../models/accounts/AccountStatus';
+import { UserAccount } from '@models/accounts/Account';
+import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
+import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
+import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
+import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
+import { accountFileDataController } from '@controllers/data-controller/account/AccountFileDataController';
+import { AccountStatus } from '@models/accounts/AccountStatus';
 
 export class AccountPersistanceController implements AccountPersistanceControllerBase {
   private dataController: DataController<UserAccount>;

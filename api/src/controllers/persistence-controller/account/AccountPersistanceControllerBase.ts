@@ -1,10 +1,9 @@
-import { DeepPartial } from '../../../models/DeepPartial';
-import { UserAccount } from 'src/models/accounts/Account';
-import { ReadAccountArgs } from 'src/models/accounts/ReadAccountArgs';
-import { AccountCreateArgs } from 'src/models/accounts/AccountCreateArgs';
-import { AccountUpdateArgs } from 'src/models/accounts/AccountUpdateArgs';
-import { UserDeleteArgs } from 'src/models/user/UserDeleteArgs';
-import { AccountDeleteArgs } from 'src/models/accounts/AccountDeleteArgs';
+import { DeepPartial } from '@models/DeepPartial';
+import { UserAccount } from '@models/accounts/Account';
+import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
+import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
+import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
+import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 
 export abstract class AccountPersistanceControllerReadonlyBase {
   abstract getAccount(args: ReadAccountArgs): DeepPartial<UserAccount>[];

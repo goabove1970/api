@@ -1,14 +1,14 @@
 import { Router } from 'express';
 
-import { AccountRequestError } from '../models/errors/errors';
-import { DeepPartial } from '../models/DeepPartial';
-import accountController from '../controllers/account-controller';
+import { AccountRequestError } from '@models/errors/errors';
+import { DeepPartial } from '@models/DeepPartial';
+import accountController from '@controllers/account-controller';
 import { AccountResponse, AccountRequest } from './request-types/AccountRequests';
-import { ReadAccountArgs } from '../models/accounts/ReadAccountArgs';
-import { UserAccount } from 'src/models/accounts/Account';
-import { AccountCreateArgs } from 'src/models/accounts/AccountCreateArgs';
-import { AccountDeleteArgs } from 'src/models/accounts/AccountDeleteArgs';
-import { AccountUpdateArgs } from 'src/models/accounts/AccountUpdateArgs';
+import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
+import { UserAccount } from '@models/accounts/Account';
+import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
+import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
+import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 
 const router = Router();
 

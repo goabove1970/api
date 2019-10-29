@@ -1,7 +1,7 @@
 import { FileController } from '../FileController';
 import { DataController } from '../DataController';
-import { UserAccount } from '../../../models/accounts/Account';
-import { AccountParser } from '../../../controllers/parser-controller/account/AccountParser';
+import { UserAccount } from '@models/accounts/Account';
+import { AccountParser } from '@controllers/parser-controller/account/AccountParser';
 
 export class AccountFileDataController extends FileController<UserAccount> {
   constructor(filename: string) {
