@@ -14,6 +14,7 @@ import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
 import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
 import { categoryFileDataController } from '@src/controllers/data-controller/category/CategoryFileDataController';
 import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
+import { CategoryError } from '@src/models/errors/errors';
 
 export class CategoryPersistanceController implements CategoryPersistanceControllerBase {
     delete(args: DeleteCategoryArgs) {
@@ -21,25 +22,15 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
         validateDeleteCategoryArgs(args);
         const category = this.findCategoryImpl(args.categoryId);
         if (!category) {
-            throw {
-                message: 'Error deleting category, could not find category record',
-            };
+            throw new CategoryError('Error deleting category, could not find category record');
         }
         if (category.categoryType === CategoryType.Default && args.userId) {
-            throw {
-                message: 'User can not delete default categories, only custom user ctegories can be deleted by user',
-            };
+            throw new CategoryError(
+                'User can not delete default categories, only custom user ctegories can be deleted by user'
+            );
         }
         if (args.categoryId) {
             this.dataController.cache = this.dataController.cache.filter((u) => u.categoryId !== args.categoryId);
-        }
-        if (args.parentCategoryId) {
-            this.dataController.cache = this.dataController.cache.filter(
-                (u) => u.parentCategoryId !== args.parentCategoryId
-            );
-        }
-        if (args.userId) {
-            this.dataController.cache = this.dataController.cache.filter((u) => u.userId !== args.userId);
         }
         this.dataController.commitAllRecords();
     }
@@ -47,6 +38,9 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
         this.checkCache('creating category');
         this.checkDuplicateName(args.caption, args.userId);
         validateCreateCategoryArgs(args);
+        if (args.parentCategoryId && !this.findCategoryImpl(args.parentCategoryId)) {
+            throw new CategoryError('parentCategoryId does not exist');
+        }
         const newCategory = combineNewCategory(args);
         this.dataController.cache.push(newCategory);
         this.dataController.commitAllRecords();
@@ -56,11 +50,12 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
         this.checkCache('updating category');
         this.checkDuplicateName(args.caption, args.userId);
         validateCategoryUpdateArgs(args);
+        if (args.parentCategoryId && !this.findCategoryImpl(args.parentCategoryId)) {
+            throw new CategoryError('parentCategoryId does not exist');
+        }
         const category = this.findCategoryImpl(args.categoryId);
         if (!category) {
-            throw {
-                message: 'Error updating category, could not find category record',
-            };
+            throw new CategoryError('Error updating category, could not find category record');
         }
 
         if (args.parentCategoryId) {
@@ -85,21 +80,15 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
 
     private checkCache(action?: string) {
         if (!this.dataController || !this.dataController.cache) {
-            throw {
-                message: action ? `Error while ${action}, ` : '' + ' category cache not initialized',
-            };
+            throw new CategoryError(action ? `Error while ${action}, ` : '' + ' category cache not initialized');
         }
     }
 
     checkDuplicateName(categoryName: string, userId?: string): void {
         const duplicate =
-            categoryName &&
-            categoryName.length > 0 &&
-            !this.dataController.cache.some((u) => u.caption === categoryName && u.userId === userId);
+            categoryName && this.dataController.cache.some((u) => u.caption === categoryName && u.userId === userId);
         if (duplicate) {
-            throw {
-                message: 'Category with this name already exists',
-            };
+            throw new CategoryError('Category with this name already exists');
         }
     }
 

@@ -1,0 +1,5 @@
+categoryId,parentCategoryId,caption,categoryType
+4cc47801-3c3e-5ffe-cb96-e779c1c398e1,,Auto & Transport,1
+816bacf8-b9a4-b079-f1be-c296bf7bd318,4cc47801-3c3e-5ffe-cb96-e779c1c398e1,Auto Insurance,1
+b46f0d08-e03e-4370-43ec-5524323d1de7,,Auto Isurances - DELETE,1
+

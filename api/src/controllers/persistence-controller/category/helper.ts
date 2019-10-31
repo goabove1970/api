@@ -22,13 +22,16 @@ export function validateDeleteCategoryArgs(args: DeleteCategoryArgs): void {
 }
 
 export const toShortCategoryDetails = (category: Category): DeepPartial<Category> => {
-    return {
+    const details: DeepPartial<Category> = {
         userId: category.userId,
         categoryId: category.categoryId,
-        parentCategoryId: category.parentCategoryId,
         caption: category.caption,
         categoryType: category.categoryType,
     };
+    if (category.parentCategoryId) {
+        details.parentCategoryId = category.parentCategoryId;
+    }
+    return details;
 };
 
 export const combineNewCategory = (args: CreateCategoryArgs): Category => {

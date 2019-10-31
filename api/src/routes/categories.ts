@@ -10,7 +10,7 @@ import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
 const router = Router();
 
 router.get('/', async function(req, res, next) {
-    console.log(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
+    // console.log(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
     const request = req.body as CategoryRequest;
     if (!request) {
         return res.status(500).send(new CategoryError('Empty category request'));
@@ -33,7 +33,19 @@ router.get('/', async function(req, res, next) {
             responseData = await processReadCategoryRequest(request.args);
             break;
         default:
-            return res.status(500).send(new CategoryError(`Unknown category request type: ${request.action}`));
+            const enumKeys = [];
+            for (var enumMember in CategoryRequestType) {
+                enumKeys.push(CategoryRequestType[enumMember]);
+            }
+
+            const availableRequestTypes = enumKeys.join(', ');
+            return res
+                .status(500)
+                .send(
+                    new CategoryError(
+                        `Unknown category request type: ${request.action}, try [${availableRequestTypes}]`
+                    )
+                );
     }
 
     res.send(responseData);
@@ -83,7 +95,7 @@ async function processDeleteCategoryRequest(request: DeleteCategoryArgs): Promis
 
     try {
         response.payload = {
-            categoryId: controller.create(request),
+            categoryId: controller.delete(request),
         };
     } catch (error) {
         console.error(error.message);

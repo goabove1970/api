@@ -25,7 +25,7 @@ export class CategoryParser implements Parser<Category> {
     parseLine(line: string): Category | undefined {
         try {
             const parts = line.split(',');
-            if (parts.length >= 7) {
+            if (parts.length >= 4) {
                 return {
                     categoryId: parts[0],
                     parentCategoryId: parts[1],
