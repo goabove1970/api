@@ -1,8 +1,13 @@
-// import { ParseError } from "../../models/parsers/parse-error";
-// import { ChaseTransaction } from "../../models/transaction/adapters/chase/ChaseTransaction";
+import { Transaction } from '@src/models/transaction/Transaction';
 
-// export class TransactionProcessor {
-//     // addNewTransaction() {
-//     //     const guid = new
-//     // }
-// }
+export class TransactionProcessor {
+    addTransaction(transaction: Transaction): string {
+        return 'some-id';
+    }
+
+    updateTransaction(transaction: Transaction) {}
+
+    categorize(transaction: Transaction): string {
+        return 'come-id';
+    }
+}

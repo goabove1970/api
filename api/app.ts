@@ -10,6 +10,7 @@ import * as indexRouter from '@routes/index';
 import * as transactionsRouter from '@routes/transactions';
 import * as userRouter from '@routes/users';
 import * as accountRouter from '@routes/accounts';
+import * as categoryRouter from '@routes/categories';
 // import { request } from 'https';
 
 export const app = express();
@@ -29,19 +30,20 @@ app.use('/', indexRouter);
 app.use('/transactions', transactionsRouter);
 app.use('/users', userRouter);
 app.use('/accounts', accountRouter);
+app.use('/categories', categoryRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });

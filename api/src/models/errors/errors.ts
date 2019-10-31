@@ -1,22 +1,31 @@
-export interface ErrorBase {
-  error?: string;
-  errorCode?: number;
-}
-
-export class TransactionRequestError implements ErrorBase {
-  error: string = 'could not extract transaction request arguments';
-}
-
-export class UserRequestError implements ErrorBase {
-  error: string = 'could not extract user request arguments';
-}
-
-export class AccountRequestError implements ErrorBase {
-  error: string = 'could not extract account request arguments';
-
-  constructor(error?: string) {
-    if (error) {
-      this.error = error;
+export class ErrorBase {
+    constructor(errorMesage?: string) {
+        this.error = errorMesage;
     }
-  }
+    error?: string;
+    errorCode?: number;
+}
+
+export class TransactionError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process transaction request');
+    }
+}
+
+export class UserError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process user request');
+    }
+}
+
+export class AccountError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process account request');
+    }
+}
+
+export class CategoryError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process category request');
+    }
 }

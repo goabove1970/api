@@ -6,7 +6,7 @@ module.exports = {
   printWidth: 120,
   quoteProps: 'as-needed',
   singleQuote: true,
-  tabWidth: 2,
+  tabWidth: 4,
   trailingComma: 'es5',
   useTabs: false,
 };

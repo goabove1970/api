@@ -7,17 +7,17 @@ import { UserStatus } from '@models/user/UserStatus';
 export type UserRequestType = 'read-users' | 'create-user' | 'delete-user' | 'update-user' | 'update-password';
 
 export interface UserRequest {
-  action?: UserRequestType;
-  args?: ReadUserArgs & UserCreateArgs & UserUpdatePasswordArgs & UserDeleteArgs;
+    action?: UserRequestType;
+    args?: ReadUserArgs & UserCreateArgs & UserUpdatePasswordArgs & UserDeleteArgs;
 }
 
 export interface UserResponse extends ResponseBase {
-  action?: UserRequestType;
+    action?: UserRequestType;
 }
 
 export interface ReadUserArgs {
-  userId?: string;
-  login?: string;
-  email?: string;
-  statuses?: UserStatus;
+    userId?: string;
+    login?: string;
+    email?: string;
+    statuses?: UserStatus;
 }
