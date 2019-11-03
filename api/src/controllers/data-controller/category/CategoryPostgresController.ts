@@ -7,7 +7,7 @@ export class CategoryPostgresController extends DatabaseController<Category> {
         super('public.categories');
     }
 
-    readSelectResponse(names: string[], values: Value[][]): Category[] {
+    readSelectResponse(values: Value[][]): Category[] {
         const collection: Category[] = [];
         values.forEach((valueRow) => {
             collection.push({

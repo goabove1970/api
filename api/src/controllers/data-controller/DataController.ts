@@ -10,7 +10,7 @@ export abstract class DatabaseController<T> extends DataController<T> {
         this.tableName = table;
     }
 
-    abstract readSelectResponse(names: string[], values: Value[][]): T[];
+    abstract readSelectResponse(values: Value[][]): T[];
 
     query(query?: string): Promise<Result> {
         return pool.query(query);
@@ -22,8 +22,8 @@ export abstract class DatabaseController<T> extends DataController<T> {
 
     select(where?: string): Promise<T[]> {
         return pool.query(`SELECT * FROM ${this.tableName} ${where}`).then((value) => {
-            const { names, rows } = value;
-            const categories = this.readSelectResponse(names, rows);
+            const { rows } = value;
+            const categories = this.readSelectResponse(rows);
             return categories;
         });
     }
