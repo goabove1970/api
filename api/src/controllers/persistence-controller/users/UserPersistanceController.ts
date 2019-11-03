@@ -1,5 +1,4 @@
 import { UserPersistanceControllerBase } from './UserPersistanceControllerBase';
-import { CachedDataController } from '@src/controllers/data-controller/CachedDataController';
 import { DeepPartial } from '@models/DeepPartial';
 import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
@@ -7,7 +6,6 @@ import { UserReadArgs } from '@models/user/UserReadArgs';
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import * as passwordHash from 'password-hash';
-import { userFileDataController } from '../../data-controller/users/UserFileDataController';
 import {
     validateCreateUserArgs,
     combineNewUser,
@@ -18,176 +16,226 @@ import {
 } from './helper';
 import { UserDetails } from '@models/user/UserDetails';
 import { UserStatus } from '@models/user/UserStatus';
+import { DatabaseController } from '../../data-controller/DataController';
+import { DatabaseError } from '@root/src/models/errors/errors';
+import { userPostgresDataController } from '../../data-controller/users/UsersPostgresController';
 
 export class UserPersistanceController implements UserPersistanceControllerBase {
-    private dataController: CachedDataController<UserDetails>;
+    private dataController: DatabaseController<UserDetails>;
 
-    constructor(controller: CachedDataController<UserDetails>) {
+    constructor(controller: DatabaseController<UserDetails>) {
         this.dataController = controller;
     }
 
-    private checkCache(action?: string) {
-        if (!this.dataController || !this.dataController.cache) {
-            throw {
-                message: action ? `Error while ${action}, ` : '' + ' user cache not initialized',
-            };
-        }
+    checkLoginAvailable(login: string): Promise<void> {
+        const condition = `WHERE login='${login}'`;
+
+        return this.dataController
+            .select(condition)
+            .then((collection) => {
+                if (collection && collection.length > 0) {
+                    throw new DatabaseError('User with this login already exists');
+                }
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
 
-    isLoginAvailable(login: string): boolean {
-        return login && login.length > 0 && !this.dataController.cache.some((u) => u.login === login);
+    private findUserImpl(userId: string): Promise<UserDetails | undefined> {
+        const condition = `WHERE userId='${userId}'`;
+
+        return this.dataController
+            .select(condition)
+            .then((collection) => {
+                if (collection && collection.length > 0) {
+                    return collection[0];
+                }
+                return undefined;
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
 
-    private findUserImpl(userId: string): UserDetails | undefined {
-        this.checkCache('reading user by id');
-        return this.dataController.cache.find((u) => u.userId === userId);
+    getUserById(userId: string): Promise<DeepPartial<UserDetails> | undefined> {
+        return this.findUserImpl(userId)
+            .then((user) => {
+                if (!user) {
+                    return undefined;
+                }
+                return toShortUserDetails(user);
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
 
-    getUserById(userId: string): DeepPartial<UserDetails> | undefined {
-        this.checkCache('getting user by id');
-        const user = this.findUserImpl(userId);
-        if (user) {
-            return toShortUserDetails(user);
-        }
-        return undefined;
+    read(args: UserReadArgs): Promise<DeepPartial<UserDetails>[]> {
+        return this.dataController
+            .select(matchesReadArgs(args))
+            .then((c) => c.map(toShortUserDetails))
+            .catch((error) => {
+                throw error;
+            });
     }
 
-    getAllUsers(args: UserReadArgs): DeepPartial<UserDetails>[] {
-        this.checkCache('getting all users');
-        return this.dataController.cache.filter((u) => matchesReadArgs(u, args)).map((u) => toShortUserDetails(u));
+    private getUserByStringCondition(condition?: string): Promise<DeepPartial<UserDetails> | undefined> {
+        return this.dataController
+            .select(condition)
+            .then((collection) => {
+                if (collection && collection.length > 0) {
+                    return collection[0];
+                }
+                return undefined;
+            })
+            .then((user) => {
+                if (!user) {
+                    return undefined;
+                }
+                return toShortUserDetails(user);
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
 
-    getUserByLogin(login?: string): DeepPartial<UserDetails> | undefined {
-        this.checkCache('getting user by login');
-        const user = this.dataController.cache.find((u) => u.login === login);
-        if (user) {
-            return toShortUserDetails(user);
-        }
-        return undefined;
+    getUserByLogin(login?: string): Promise<DeepPartial<UserDetails> | undefined> {
+        return this.getUserByStringCondition(`WHERE login='${login}'`);
     }
 
-    getUserByEmail(email?: string): DeepPartial<UserDetails> | undefined {
-        this.checkCache('getting user by email');
-        const user = this.dataController.cache.find((u) => u.email === email);
-        if (user) {
-            return toShortUserDetails(user);
-        }
-        return undefined;
+    getUserByEmail(email?: string): Promise<DeepPartial<UserDetails> | undefined> {
+        return this.getUserByStringCondition(`WHERE email='${email}'`);
     }
 
-    createUser(args: UserCreateArgs): string {
-        this.checkCache('creating new user');
-        if (!this.isLoginAvailable(args.login)) {
-            throw {
-                message: 'Could not create a new user, login is already in use',
-            };
-        }
+    create(args: UserCreateArgs): Promise<string> {
         validateCreateUserArgs(args);
-        const generatedUser = combineNewUser(args);
-        this.dataController.cache.push(generatedUser);
-        this.dataController.commitAllRecords();
-        return generatedUser.userId;
+        return this.checkLoginAvailable(args.login)
+            .then(() => {
+                const u = combineNewUser(args);
+                this.dataController.insert(`(
+                        "userId", "firstName", "lastName", ssn,
+                        login, password, email, dob,
+                        "lastLogin",
+                        "accountCreated", "serviceComment", status)
+                    VALUES (
+                        '${u.userId}', '${u.firstName}', '${u.lastName}', ${u.ssn},
+                        '${u.login}', '${u.password}', '${u.email}', '${u.dob.toDateString()}',
+                        ${!u.lastLogin ? 'NULL' : "'" + u.lastLogin!.toDateString() + "'"},
+                        '${u.accountCreated.toDateString()}',
+                        ${!u.serviceComment ? 'NULL' : "'" + u.serviceComment! + "'"}, 
+                        ${!u.status ? 'NULL' : u.status});`);
+                return u.userId;
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
 
-    updatePassword(args: UserUpdatePasswordArgs) {
-        this.checkCache('updating user password');
+    private composeSetStatement(user: UserDetails): string {
+        return `SET
+                firstName='${user.firstName}',
+                lastName='${user.lastName}',
+                ssn=${user.ssn},
+                login='${user.login}',
+                password='${user.password}',
+                email='${user.email}',
+                dob='${user.dob.toDateString()}',
+                lastLogin=${user.lastLogin ? "'" + user.lastLogin.toDateString() + "'" : 'NULL'},
+                accountCreated='${user.accountCreated.toDateString()}',
+                serviceComment=${user.serviceComment ? "'" + user.serviceComment + "'" : 'NULL'},
+                serviceComment=${user.status ? user.status : 'NULL'}
+            WHERE 
+            userId='${user.userId}';`;
+    }
+
+    updatePassword(args: UserUpdatePasswordArgs): Promise<void> {
         validateUserUpdatePasswordArgs(args);
 
         const { userId, oldPassword, newPassword } = args;
-        const user = this.findUserImpl(args.userId);
-        if (!user) {
-            throw {
-                message: 'Error updating user password, user not found',
-            };
-        }
-
-        if (!(user.status & UserStatus.Active)) {
-            throw {
-                message: 'Error updating user password, user account is inactive',
-            };
-        }
-
-        const verified = passwordHash.verify(oldPassword, user.password);
-        if (!verified) {
-            throw {
-                message: 'Error updating user password, old password could not be verified',
-            };
-        }
-
-        const newHash = passwordHash.generate(newPassword);
-        this.updatePasswordHash(userId, newHash);
+        return this.findUserImpl(userId)
+            .then((user) => {
+                if (!user) {
+                    throw new DatabaseError('Error updating user password, user not found');
+                }
+                if (!(user.status & UserStatus.Active)) {
+                    throw new DatabaseError('Error updating user password, user account is inactive');
+                }
+                const verified = passwordHash.verify(oldPassword, user.password);
+                if (!verified) {
+                    throw new DatabaseError('Error updating user password, old password could not be verified');
+                }
+                const newHash = passwordHash.generate(newPassword);
+                user.password = newHash;
+                return user;
+            })
+            .then((user) => {
+                this.dataController.update(this.composeSetStatement(user));
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
 
-    private updatePasswordHash(userId: string, newHash: string): void {
-        const user = this.findUserImpl(userId);
-        if (user) {
-            user.password = newHash;
-            this.dataController.commitAllRecords();
-        } else {
-            throw {
-                message: 'Error updating user password, could not find user record',
-            };
-        }
-    }
-
-    updateUserData(args: UserUpdateArgs): void {
-        this.checkCache('updating user record');
+    updateUserData(args: UserUpdateArgs): Promise<void> {
         validateUserUpdateArgs(args);
-        const user = this.findUserImpl(args.userId);
-        if (!user) {
-            throw {
-                message: 'Error updating user data, could not find user record',
-            };
-        }
-        if (!(user.status & UserStatus.Active) && !args.forceUpdate) {
-            throw {
-                message: 'Error updating user data, user account is inactive',
-            };
-        }
+        return this.findUserImpl(args.userId)
+            .then((user) => {
+                if (!user) {
+                    throw new DatabaseError('Error updating user data, could not find user record');
+                }
+                if (!(user.status & UserStatus.Active) && !args.forceUpdate) {
+                    throw new DatabaseError('Error updating user data, user account is inactive');
+                }
 
-        if (args.lastName) {
-            user.lastName = args.lastName;
-        }
-        if (args.dob) {
-            user.dob = args.dob;
-        }
-        if (args.email) {
-            user.email = args.email;
-        }
-        if (args.firstName) {
-            user.firstName = args.firstName;
-        }
-        if (args.ssn) {
-            user.ssn = args.ssn;
-        }
-        if (args.status) {
-            user.status = args.status;
-        }
-
-        this.dataController.commitAllRecords();
+                if (args.lastName) {
+                    user.lastName = args.lastName;
+                }
+                if (args.dob) {
+                    user.dob = args.dob;
+                }
+                if (args.email) {
+                    user.email = args.email;
+                }
+                if (args.firstName) {
+                    user.firstName = args.firstName;
+                }
+                if (args.ssn) {
+                    user.ssn = args.ssn;
+                }
+                if (args.status) {
+                    user.status = args.status;
+                }
+                return user;
+            })
+            .then((user) => {
+                this.dataController.update(this.composeSetStatement(user));
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
 
-    deleteUser(args: UserDeleteArgs): void {
-        this.checkCache('deleting user');
-
+    delete(args: UserDeleteArgs): Promise<void> {
         const { userId, serviceComment, deleteRecord } = args;
-        {
-            const user = this.getUserById(userId);
-            if (user) {
+
+        return this.findUserImpl(userId)
+            .then((user) => {
+                if (!user) {
+                    throw new DatabaseError('Error deleting user, could not find user record');
+                }
                 if (deleteRecord) {
-                    this.dataController.cache = this.dataController.cache.filter((u) => u.userId !== userId);
+                    return this.dataController.delete(`where userId='${userId}'`).then(() => {});
                 } else {
                     user.serviceComment = user.serviceComment + `; ${serviceComment}`;
                     user.status = user.status & UserStatus.Deactivated;
+                    return this.dataController.update(this.composeSetStatement(user)).then(() => {});
                 }
-                this.dataController.commitAllRecords();
-            } else {
-                throw {
-                    message: 'Error deleting user, could not find user record',
-                };
-            }
-        }
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
 }
 
-export const userPersistanceController = new UserPersistanceController(userFileDataController);
+export const userPersistanceController = new UserPersistanceController(userPostgresDataController);

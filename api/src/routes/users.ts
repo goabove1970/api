@@ -21,6 +21,7 @@ router.get('/', async function(req, res, next) {
 
     let responseData: UserResponse = {};
 
+    console.log(`Processing ${userRequest.action} user request`);
     switch (userRequest.action) {
         case 'read-users':
             responseData = await processReadUsersRequest(userRequest.args);
@@ -43,7 +44,6 @@ router.get('/', async function(req, res, next) {
 });
 
 async function processReadUsersRequest(request: ReadUserArgs): Promise<UserResponse> {
-    console.log(`Processing read-user request`);
     const response: UserResponse = {
         action: 'read-users',
         payload: {},
@@ -53,21 +53,41 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
     try {
         if (request.statuses) {
             userCollection = userCollection.concat(
-                userController.getUser({
-                    status: request.statuses,
-                })
+                await userController
+                    .read({
+                        status: request.statuses,
+                    })
+                    .catch((error) => {
+                        throw error;
+                    })
             );
         } else if (request.login) {
-            userCollection.push(userController.getUserByLogin(request.login));
+            userCollection.push(
+                await userController.getUserByLogin(request.login).catch((error) => {
+                    throw error;
+                })
+            );
         } else if (request.userId) {
-            userCollection.push(userController.getUserById(request.userId));
+            userCollection.push(
+                await userController.getUserById(request.userId).catch((error) => {
+                    throw error;
+                })
+            );
         } else if (request.email) {
-            userCollection.push(userController.getUserByEmail(request.email));
+            userCollection.push(
+                await userController.getUserByEmail(request.email).catch((error) => {
+                    throw error;
+                })
+            );
         } else {
             userCollection = userCollection.concat(
-                userController.getUser({
-                    status: undefined,
-                })
+                await userController
+                    .read({
+                        status: undefined,
+                    })
+                    .catch((error) => {
+                        throw error;
+                    })
             );
         }
 
@@ -91,7 +111,9 @@ async function processCreateUserRequest(request: UserCreateArgs): Promise<UserRe
 
     try {
         response.payload = {
-            userId: userController.createUser(request),
+            userId: await userController.create(request).catch((error) => {
+                throw error;
+            }),
         };
     } catch (error) {
         console.error(error.message);
@@ -109,7 +131,9 @@ async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserRe
 
     try {
         response.payload = {
-            userId: userController.deleteUser(request),
+            userId: await userController.delete(request).catch((error) => {
+                throw error;
+            }),
         };
     } catch (error) {
         console.error(error.message);
@@ -126,7 +150,9 @@ async function processUpdateUserRequest(request: UserUpdateArgs): Promise<UserRe
     };
     try {
         response.payload = {
-            userId: userController.updateUserData(request),
+            userId: await userController.updateUserData(request).catch((error) => {
+                throw error;
+            }),
         };
     } catch (error) {
         console.error(error.message);
@@ -144,7 +170,9 @@ async function processUpdatePasswordRequest(request: UserUpdatePasswordArgs): Pr
 
     try {
         response.payload = {
-            userId: userController.updatePassword(request),
+            userId: await userController.updatePassword(request).catch((error) => {
+                throw error;
+            }),
         };
     } catch (error) {
         console.error(error.message);
