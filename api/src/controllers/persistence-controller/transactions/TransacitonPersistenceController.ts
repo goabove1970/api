@@ -3,15 +3,15 @@ import {
     TransactionPersistanceControllerReadonlyBase,
 } from './TransactionPersistanceControllerBase';
 import * as moment from 'moment';
-import { DataController } from '../../data-controller/DataController';
+import { CachedDataController } from '../../data-controller/CachedDataController';
 import { chaseTransactionFileDataController } from '../../data-controller/chase/ChaseTransactionFileDataController';
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
-    private dataController: DataController<ChaseTransaction>;
+    private dataController: CachedDataController<ChaseTransaction>;
 
-    constructor(controller: DataController<ChaseTransaction>) {
+    constructor(controller: CachedDataController<ChaseTransaction>) {
         this.dataController = controller;
     }
 
@@ -162,9 +162,9 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
 }
 
 export class ChaseTransacitonReader implements TransactionPersistanceControllerReadonlyBase {
-    private dataController: DataController<ChaseTransaction>;
+    private dataController: CachedDataController<ChaseTransaction>;
 
-    constructor(controller: DataController<ChaseTransaction>) {
+    constructor(controller: CachedDataController<ChaseTransaction>) {
         this.dataController = controller;
     }
 

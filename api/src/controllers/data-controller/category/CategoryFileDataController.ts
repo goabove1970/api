@@ -1,5 +1,5 @@
 import { FileController } from '../FileController';
-import { DataController } from '../DataController';
+import { CachedDataController } from '../CachedDataController';
 import { Category } from '@src/models/category/category';
 import { CategoryParser } from '@src/controllers/parser-controller/category/CategoryParser';
 
@@ -9,4 +9,6 @@ export class CategoryFileDataController extends FileController<Category> {
     }
 }
 
-export const categoryFileDataController: DataController<Category> = new CategoryFileDataController('categories.csv');
+export const categoryFileDataController: CachedDataController<Category> = new CategoryFileDataController(
+    'categories.csv'
+);

@@ -58,11 +58,17 @@ async function processReadCategoryRequest(request: ReadCategoryArgs): Promise<Ca
     };
 
     try {
-        const collection = controller.read(request);
-        response.payload = {
-            count: collection.length,
-            categories: collection,
-        };
+        await controller
+            .read(request)
+            .then((collection) => {
+                response.payload = {
+                    count: collection.length,
+                    categories: collection,
+                };
+            })
+            .catch((error) => {
+                throw error;
+            });
     } catch (error) {
         console.error(error.message);
         response.error = error.message;
@@ -77,9 +83,16 @@ async function processCreateCategoryRequest(request: CreateCategoryArgs): Promis
     };
 
     try {
-        response.payload = {
-            categoryId: controller.create(request),
-        };
+        await controller
+            .create(request)
+            .then((categoryId) => {
+                response.payload = {
+                    categoryId,
+                };
+            })
+            .catch((error) => {
+                throw error;
+            });
     } catch (error) {
         console.error(error.message);
         response.error = error.message;
@@ -94,9 +107,9 @@ async function processDeleteCategoryRequest(request: DeleteCategoryArgs): Promis
     };
 
     try {
-        response.payload = {
-            categoryId: controller.delete(request),
-        };
+        await controller.delete(request).catch((error) => {
+            throw error;
+        });
     } catch (error) {
         console.error(error.message);
         response.error = error.message;
@@ -110,9 +123,9 @@ async function processUpdateCategoryRequest(request: CreateCategoryArgs): Promis
         payload: {},
     };
     try {
-        response.payload = {
-            categoryId: controller.update(request),
-        };
+        await controller.update(request).catch((error) => {
+            throw error;
+        });
     } catch (error) {
         console.error(error.message);
         response.error = error.message;

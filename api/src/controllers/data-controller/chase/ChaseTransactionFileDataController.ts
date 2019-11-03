@@ -1,5 +1,5 @@
 import { FileController } from '@controllers/data-controller/FileController';
-import { DataController } from '@controllers/data-controller/DataController';
+import { CachedDataController } from '@src/controllers/data-controller/CachedDataController';
 import { ChaseTransactionParser } from '@controllers/parser-controller/chase/ChaseTransactionParser';
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 
@@ -9,6 +9,6 @@ export class ChaseTransactionFileDataController extends FileController<ChaseTran
   }
 }
 
-export const chaseTransactionFileDataController: DataController<
+export const chaseTransactionFileDataController: CachedDataController<
   ChaseTransaction
 > = new ChaseTransactionFileDataController('debit.csv');

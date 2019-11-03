@@ -4,20 +4,21 @@ import { Category, CategoryType } from '@src/models/category/category';
 import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
 import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
 import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
+import { DatabaseError } from '@root/src/models/errors/errors';
 
 export function validateCreateCategoryArgs(args: CreateCategoryArgs): void {
     if (!args.caption) {
-        throw {
-            message: 'Category name can not be empty',
-        };
+        throw new DatabaseError('Category name can not be empty');
     }
 }
 
 export function validateDeleteCategoryArgs(args: DeleteCategoryArgs): void {
     if (!args) {
-        throw {
-            message: 'Can not delete category, arguments are missing',
-        };
+        throw new DatabaseError('Can not delete category, arguments are missing');
+    }
+
+    if (!args.categoryId) {
+        throw new DatabaseError('Can not delete category, no category id provided');
     }
 }
 
@@ -44,48 +45,43 @@ export const combineNewCategory = (args: CreateCategoryArgs): Category => {
     };
 };
 
-export function matchesReadArgs(m: Category, args: ReadCategoryArgs): boolean {
+export function matchesReadArgs(args: ReadCategoryArgs): string {
     if (!args) {
-        return true;
+        return '';
     }
 
-    let matches = true;
-    if (args.categoryType && m.categoryType) {
-        matches = matches && m.categoryType === args.categoryType;
+    const conditions = [];
+    if (args.categoryType) {
+        conditions.push(`catgory_type=${!args.categoryType ? 'NULL' : args.categoryType.toString()}`);
     }
 
-    if (args.categoryId && m.categoryId) {
-        matches = matches && m.categoryId === args.categoryId;
+    if (args.categoryId) {
+        conditions.push(`category_id=${!args.categoryId ? 'NULL' : args.categoryId}`);
     }
 
-    if (args.userId && m.userId) {
-        matches = matches && m.userId === args.userId;
+    if (args.userId) {
+        conditions.push(`user_id=${!args.userId ? 'NULL' : args.userId}`);
     }
 
-    if (args.parentCategoryId && m.parentCategoryId) {
-        matches = matches && m.parentCategoryId === args.parentCategoryId;
+    if (args.parentCategoryId) {
+        conditions.push(`parent_category_id=${!args.parentCategoryId ? 'NULL' : args.parentCategoryId}`);
     }
 
-    return matches;
+    const finalSattement = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    return finalSattement;
 }
 
 export function validateCategoryUpdateArgs(args: CreateCategoryArgs): void {
     if (!args) {
-        throw {
-            message: 'Can not update category, no arguments passed',
-        };
+        throw new DatabaseError('Can not update category, no arguments passed');
     }
 
     if (!args.categoryId) {
-        throw {
-            message: 'Can not update category, no categoryId passed',
-        };
+        throw new DatabaseError('Can not update category, no categoryId passed');
     }
 
     if (args.categoryId === args.parentCategoryId) {
-        throw {
-            message: 'Category can not nest itself',
-        };
+        throw new DatabaseError('Category can not nest itself');
     }
 
     validateCreateCategoryArgs(args);

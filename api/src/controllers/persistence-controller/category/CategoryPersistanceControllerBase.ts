@@ -5,11 +5,11 @@ import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
 import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
 
 export abstract class CategoryPersistanceControllerReadonlyBase {
-    abstract read(args: ReadCategoryArgs): DeepPartial<Category>[];
+    abstract read(args: ReadCategoryArgs): Promise<DeepPartial<Category>[]>;
 }
 
 export abstract class CategoryPersistanceControllerBase extends CategoryPersistanceControllerReadonlyBase {
-    abstract create(args: CreateCategoryArgs): string;
-    abstract update(args: CreateCategoryArgs);
-    abstract delete(args: DeleteCategoryArgs);
+    abstract create(args: CreateCategoryArgs): Promise<string>;
+    abstract update(args: CreateCategoryArgs): Promise<void>;
+    abstract delete(args: DeleteCategoryArgs): Promise<void>;
 }

@@ -1,5 +1,5 @@
 import { AccountPersistanceControllerBase } from './AccountPersistanceControllerBase';
-import { DataController } from '@controllers/data-controller/DataController';
+import { CachedDataController } from '@src/controllers/data-controller/CachedDataController';
 import { DeepPartial } from '@models/DeepPartial';
 import {
   matchesReadArgs,
@@ -17,9 +17,9 @@ import { accountFileDataController } from '@controllers/data-controller/account/
 import { AccountStatus } from '@models/accounts/AccountStatus';
 
 export class AccountPersistanceController implements AccountPersistanceControllerBase {
-  private dataController: DataController<UserAccount>;
+  private dataController: CachedDataController<UserAccount>;
 
-  constructor(controller: DataController<UserAccount>) {
+  constructor(controller: CachedDataController<UserAccount>) {
     this.dataController = controller;
   }
 

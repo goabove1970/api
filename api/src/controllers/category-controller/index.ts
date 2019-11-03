@@ -4,29 +4,22 @@ import { DeepPartial } from '@src/models/DeepPartial';
 import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
 import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
 import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
+import { CategoryPersistanceControllerBase } from '../persistence-controller/category/CategoryPersistanceControllerBase';
 
-export abstract class CategoryControllerBase {
-    abstract read(args: ReadCategoryArgs): DeepPartial<Category>[];
-
-    abstract create(args: CreateCategoryArgs): string;
-    abstract update(args: CreateCategoryArgs);
-    abstract delete(args: DeleteCategoryArgs);
-}
-
-export class CategoryController implements CategoryControllerBase {
-    delete(args: DeleteCategoryArgs) {
+export class CategoryController implements CategoryPersistanceControllerBase {
+    delete(args: DeleteCategoryArgs): Promise<void> {
         return categoryPersistanceController.delete(args);
     }
-    read(args: ReadCategoryArgs): DeepPartial<Category>[] {
+    read(args: ReadCategoryArgs): Promise<DeepPartial<Category>[]> {
         return categoryPersistanceController.read(args);
     }
-    create(args: CreateCategoryArgs): string {
+    create(args: CreateCategoryArgs): Promise<string> {
         return categoryPersistanceController.create(args);
     }
-    update(args: CreateCategoryArgs) {
+    update(args: CreateCategoryArgs): Promise<void> {
         return categoryPersistanceController.update(args);
     }
 }
 
-const categoryController: CategoryControllerBase = new CategoryController();
+const categoryController: CategoryPersistanceControllerBase = new CategoryController();
 export default categoryController;
