@@ -138,6 +138,4 @@ export function validateUserUpdateArgs(args: UserUpdateArgs): void {
             message: 'Can not update user, no userId passed',
         };
     }
-
-    validateCreateUserArgs(args);
 }

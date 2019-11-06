@@ -43,7 +43,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
     }
 
     private findUserImpl(userId: string): Promise<UserDetails | undefined> {
-        const condition = `WHERE userId='${userId}'`;
+        const condition = `WHERE "userId"='${userId}'`;
 
         return this.dataController
             .select(condition)
@@ -113,18 +113,19 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
         return this.checkLoginAvailable(args.login)
             .then(() => {
                 const u = combineNewUser(args);
-                this.dataController.insert(`(
-                        "userId", "firstName", "lastName", ssn,
-                        login, password, email, dob,
-                        "lastLogin",
-                        "accountCreated", "serviceComment", status)
-                    VALUES (
-                        '${u.userId}', '${u.firstName}', '${u.lastName}', ${u.ssn},
-                        '${u.login}', '${u.password}', '${u.email}', '${u.dob.toDateString()}',
-                        ${!u.lastLogin ? 'NULL' : "'" + u.lastLogin!.toDateString() + "'"},
-                        '${u.accountCreated.toDateString()}',
-                        ${!u.serviceComment ? 'NULL' : "'" + u.serviceComment! + "'"}, 
-                        ${!u.status ? 'NULL' : u.status});`);
+                const query = `(
+                    "userId", "firstName", "lastName", ssn,
+                    login, password, email, dob,
+                    "lastLogin",
+                    "accountCreated", "serviceComment", status)
+                VALUES (
+                    '${u.userId}', '${u.firstName}', '${u.lastName}', ${u.ssn},
+                    '${u.login}', '${u.password}', '${u.email}', '${new Date(u.dob).toUTCString()}',
+                    ${!u.lastLogin ? 'NULL' : "'" + new Date(u.lastLogin!).toUTCString() + "'"},
+                    '${new Date(u.accountCreated).toUTCString()}',
+                    ${!u.serviceComment ? 'NULL' : "'" + u.serviceComment! + "'"}, 
+                    ${!u.status ? 'NULL' : u.status});`;
+                this.dataController.insert(query);
                 return u.userId;
             })
             .catch((error) => {
@@ -134,19 +135,19 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
 
     private composeSetStatement(user: UserDetails): string {
         return `SET
-                firstName='${user.firstName}',
-                lastName='${user.lastName}',
+                "firstName"='${user.firstName}',
+                "lastName"='${user.lastName}',
                 ssn=${user.ssn},
                 login='${user.login}',
                 password='${user.password}',
                 email='${user.email}',
-                dob='${user.dob.toDateString()}',
-                lastLogin=${user.lastLogin ? "'" + user.lastLogin.toDateString() + "'" : 'NULL'},
-                accountCreated='${user.accountCreated.toDateString()}',
-                serviceComment=${user.serviceComment ? "'" + user.serviceComment + "'" : 'NULL'},
-                serviceComment=${user.status ? user.status : 'NULL'}
+                dob='${new Date(user.dob).toUTCString()}',
+                "lastLogin"=${user.lastLogin ? "'" + new Date(user.lastLogin).toUTCString() + "'" : 'NULL'},
+                "accountCreated"='${new Date(user.accountCreated).toUTCString()}',
+                "serviceComment"=${user.serviceComment ? "'" + user.serviceComment + "'" : 'NULL'},
+                status=${user.status ? user.status : 'NULL'}
             WHERE 
-            userId='${user.userId}';`;
+                "userId"='${user.userId}';`;
     }
 
     updatePassword(args: UserUpdatePasswordArgs): Promise<void> {
@@ -225,7 +226,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                     throw new DatabaseError('Error deleting user, could not find user record');
                 }
                 if (deleteRecord) {
-                    return this.dataController.delete(`where userId='${userId}'`).then(() => {});
+                    return this.dataController.delete(`where "userId"='${userId}'`).then(() => {});
                 } else {
                     user.serviceComment = user.serviceComment + `; ${serviceComment}`;
                     user.status = user.status & UserStatus.Deactivated;
