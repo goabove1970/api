@@ -44,6 +44,7 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
             });
     }
     create(args: CreateCategoryArgs): Promise<string> {
+        const n: Category = combineNewCategory(args);
         validateCreateCategoryArgs(args);
         return this.checkDuplicateName(args.caption, args.userId)
             .then(() => this.findCategoryImpl(args.parentCategoryId))
@@ -52,9 +53,8 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
                     throw new DatabaseError('parentCategoryId does not exist');
                 }
             })
-            .then((): string => {
-                const n: Category = combineNewCategory(args);
-                this.dataController.insert(`(
+            .then(() => {
+                return this.dataController.insert(`(
                 caption, category_id, parent_category_id, user_id, category_type)
                 VALUES (
                     '${n.caption}',
@@ -62,6 +62,8 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
                     ${!n.parentCategoryId ? 'NULL' : "'" + n.parentCategoryId + "'"},
                     ${!n.userId ? 'NULL' : "'" + n.userId + "'"},
                     ${!n.categoryType ? 'NULL' : n.categoryType});`);
+            })
+            .then(() => {
                 return n.categoryId;
             })
             .catch((error) => {

@@ -4,4 +4,5 @@ export interface PgConfig {
     login?: string;
     password?: string;
     database?: string;
+    schema?: string;
 }

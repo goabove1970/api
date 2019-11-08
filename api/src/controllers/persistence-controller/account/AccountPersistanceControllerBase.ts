@@ -6,11 +6,11 @@ import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 
 export abstract class AccountPersistanceControllerReadonlyBase {
-  abstract getAccount(args: ReadAccountArgs): DeepPartial<UserAccount>[];
+    abstract read(args: ReadAccountArgs): Promise<DeepPartial<UserAccount>[]>;
 }
 
 export abstract class AccountPersistanceControllerBase extends AccountPersistanceControllerReadonlyBase {
-  abstract createAccount(args: AccountCreateArgs): string;
-  abstract updateAccount(args: AccountUpdateArgs);
-  abstract deleteAccount(args: AccountDeleteArgs): void;
+    abstract create(args: AccountCreateArgs): Promise<string>;
+    abstract update(args: AccountUpdateArgs): Promise<void>;
+    abstract delete(args: AccountDeleteArgs): Promise<void>;
 }

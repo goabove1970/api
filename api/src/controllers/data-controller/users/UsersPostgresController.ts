@@ -4,7 +4,7 @@ import { UserDetails } from '@root/src/models/user/UserDetails';
 
 export class UserPostgresController extends DatabaseController<UserDetails> {
     constructor() {
-        super('public.users');
+        super('users');
     }
 
     readSelectResponse(values: Value[][]): UserDetails[] {

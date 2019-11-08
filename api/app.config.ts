@@ -11,5 +11,6 @@ export const CONFIG: ApplicationConfig = {
         login: 'postgres',
         password: 'admin',
         database: 'postgres',
+        schema: 'public',
     },
 };

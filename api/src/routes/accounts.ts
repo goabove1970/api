@@ -48,20 +48,23 @@ async function processReadAccountsRequest(args: ReadAccountArgs): Promise<Accoun
         payload: {},
     };
 
-    let accountCollection: DeepPartial<UserAccount>[] = [];
     try {
-        accountCollection = accountCollection.concat(
-            accountController.getAccount({
+        return await accountController
+            .read({
                 status: args.status,
                 userId: args.userId,
                 accountId: args.accountId,
             })
-        );
-
-        response.payload = {
-            count: accountCollection.length,
-            accounts: accountCollection,
-        };
+            .then((res: DeepPartial<UserAccount>[]) => {
+                response.payload = {
+                    count: res.length,
+                    accounts: res,
+                };
+                return response;
+            })
+            .catch((error) => {
+                throw error;
+            });
     } catch (error) {
         console.error(error.message);
         response.error = error.message;
@@ -77,9 +80,17 @@ async function processCreateAccountRequest(request: AccountCreateArgs): Promise<
     };
 
     try {
-        response.payload = {
-            userId: accountController.createAccount(request),
-        };
+        return await accountController
+            .create(request)
+            .then((accountId) => {
+                response.payload = {
+                    accountId,
+                };
+                return response;
+            })
+            .catch((error) => {
+                throw error;
+            });
     } catch (error) {
         console.error(error.message);
         response.error = error.message;
@@ -95,9 +106,17 @@ async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<
     };
 
     try {
-        response.payload = {
-            userId: accountController.deleteAccount(request),
-        };
+        return await accountController
+            .delete(request)
+            .then(() => {
+                response.payload = {
+                    accountId: request.accountId,
+                };
+                return response;
+            })
+            .catch((error) => {
+                throw error;
+            });
     } catch (error) {
         console.error(error.message);
         response.error = error.message;
@@ -112,7 +131,17 @@ async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<
         payload: {},
     };
     try {
-        accountController.updateAccount(request);
+        return await accountController
+            .update(request)
+            .then(() => {
+                response.payload = {
+                    accountId: request.accountId,
+                };
+                return response;
+            })
+            .catch((error) => {
+                throw error;
+            });
     } catch (error) {
         console.error(error.message);
         response.error = error.message;

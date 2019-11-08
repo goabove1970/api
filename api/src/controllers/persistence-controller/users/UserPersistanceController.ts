@@ -110,9 +110,9 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
 
     create(args: UserCreateArgs): Promise<string> {
         validateCreateUserArgs(args);
+        const u = combineNewUser(args);
         return this.checkLoginAvailable(args.login)
             .then(() => {
-                const u = combineNewUser(args);
                 const query = `(
                     "userId", "firstName", "lastName", ssn,
                     login, password, email, dob,
@@ -125,7 +125,9 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                     '${new Date(u.accountCreated).toUTCString()}',
                     ${!u.serviceComment ? 'NULL' : "'" + u.serviceComment! + "'"}, 
                     ${!u.status ? 'NULL' : u.status});`;
-                this.dataController.insert(query);
+                return this.dataController.insert(query);
+            })
+            .then(() => {
                 return u.userId;
             })
             .catch((error) => {

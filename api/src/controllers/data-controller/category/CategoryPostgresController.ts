@@ -4,7 +4,7 @@ import { Value } from 'ts-postgres';
 
 export class CategoryPostgresController extends DatabaseController<Category> {
     constructor() {
-        super('public.categories');
+        super('categories');
     }
 
     readSelectResponse(values: Value[][]): Category[] {

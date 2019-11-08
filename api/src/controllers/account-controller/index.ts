@@ -5,28 +5,21 @@ import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { accountPersistanceController } from '../persistence-controller/account/AccountPersistanceController';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
+import { AccountPersistanceControllerBase } from '../persistence-controller/account/AccountPersistanceControllerBase';
 
-export abstract class AccountControllerBase {
-  abstract getAccount(args: ReadAccountArgs): DeepPartial<UserAccount>[];
-
-  abstract createAccount(args: AccountCreateArgs): string;
-  abstract updateAccount(args: AccountUpdateArgs);
-  abstract deleteAccount(args: AccountDeleteArgs): void;
-}
-
-export class AccountController implements AccountControllerBase {
-  getAccount(args: ReadAccountArgs): DeepPartial<UserAccount>[] {
-    return accountPersistanceController.getAccount(args);
-  }
-  createAccount(args: AccountCreateArgs): string {
-    return accountPersistanceController.createAccount(args);
-  }
-  updateAccount(args: AccountUpdateArgs): void {
-    accountPersistanceController.updateAccount(args);
-  }
-  deleteAccount(args: AccountDeleteArgs): void {
-    accountPersistanceController.deleteAccount(args);
-  }
+export class AccountController implements AccountPersistanceControllerBase {
+    read(args: ReadAccountArgs): Promise<DeepPartial<UserAccount>[]> {
+        return accountPersistanceController.read(args);
+    }
+    create(args: AccountCreateArgs): Promise<string> {
+        return accountPersistanceController.create(args);
+    }
+    update(args: AccountUpdateArgs): Promise<void> {
+        return accountPersistanceController.update(args);
+    }
+    delete(args: AccountDeleteArgs): Promise<void> {
+        return accountPersistanceController.delete(args);
+    }
 }
 
 const accountController: AccountController = new AccountController();

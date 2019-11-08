@@ -1,118 +1,150 @@
 import { AccountPersistanceControllerBase } from './AccountPersistanceControllerBase';
-import { CachedDataController } from '@src/controllers/data-controller/CachedDataController';
 import { DeepPartial } from '@models/DeepPartial';
 import {
-  matchesReadArgs,
-  toShortAccountDetails,
-  validateCreateAccountArgs,
-  combineNewAccount,
-  validateAccountUpdateArgs,
+    matchesReadArgs,
+    validateCreateAccountArgs,
+    combineNewAccount,
+    validateAccountUpdateArgs,
+    toShortAccountDetails,
 } from './helper';
 import { UserAccount } from '@models/accounts/Account';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
-import { accountFileDataController } from '@controllers/data-controller/account/AccountFileDataController';
 import { AccountStatus } from '@models/accounts/AccountStatus';
+import { DatabaseController } from '../../data-controller/DataController';
+import { DatabaseError } from '@root/src/models/errors/errors';
+import { accountPostgresDataController } from '../../data-controller/account/AccountPostgresController';
 
 export class AccountPersistanceController implements AccountPersistanceControllerBase {
-  private dataController: CachedDataController<UserAccount>;
+    private dataController: DatabaseController<UserAccount>;
 
-  constructor(controller: CachedDataController<UserAccount>) {
-    this.dataController = controller;
-  }
-
-  private checkCache(action?: string) {
-    if (!this.dataController || !this.dataController.cache) {
-      throw {
-        message: action ? `Error while ${action}, ` : '' + ' account cache not initialized',
-      };
-    }
-  }
-
-  private findAccountImpl(accountId: string): UserAccount | undefined {
-    this.checkCache('getting account record by id');
-    return this.dataController.cache.find((u) => u.accountId === accountId);
-  }
-
-  getAccountById(accountId: string): DeepPartial<UserAccount> | undefined {
-    this.checkCache('getting account by id');
-    const account = this.findAccountImpl(accountId);
-    if (account) {
-      return toShortAccountDetails(account);
-    }
-    return undefined;
-  }
-
-  getAccount(args: ReadAccountArgs): DeepPartial<UserAccount>[] {
-    this.checkCache('getting all account');
-    return this.dataController.cache.filter((u) => matchesReadArgs(u, args)).map((u) => toShortAccountDetails(u));
-  }
-
-  createAccount(args: AccountCreateArgs): string {
-    this.checkCache('creating new account');
-
-    validateCreateAccountArgs(args);
-    const generatedUser = combineNewAccount(args);
-    this.dataController.cache.push(generatedUser);
-    this.dataController.commitAllRecords();
-    return generatedUser.accountId;
-  }
-
-  updateAccount(args: AccountUpdateArgs): void {
-    this.checkCache('updating account record');
-    validateAccountUpdateArgs(args);
-    const account = this.findAccountImpl(args.accountId);
-    if (!account) {
-      throw {
-        message: 'Error updating account data, could not find account record',
-      };
-    }
-    if (!(account.status & AccountStatus.Active) && !args.forceUpdate) {
-      throw {
-        message: 'Error updating account data, user bank account is inactive',
-      };
+    constructor(controller: DatabaseController<UserAccount>) {
+        this.dataController = controller;
     }
 
-    if (args.userId) {
-      account.userId = args.userId;
+    private findAccountImpl(accountId: string): Promise<UserAccount | undefined> {
+        return this.dataController
+            .select(`WHERE account_id='${accountId}'`)
+            .then((c) => {
+                {
+                    return c && c.length > 0 ? c[0] : undefined;
+                }
+            })
+            .catch((error) => {
+                throw error;
+            });
     }
-    if (args.bankRoutingNumber) {
-      account.bankRoutingNumber = args.bankRoutingNumber;
-    }
-    if (args.bankAccountNumber) {
-      account.bankAccountNumber = args.bankAccountNumber;
-    }
-    if (args.bankName) {
-      account.bankName = args.bankName;
-    }
-    if (args.status) {
-      account.status = args.status;
-    }
-  }
 
-  deleteAccount(args: AccountDeleteArgs): void {
-    this.checkCache('deleting account');
-
-    const { accountId, serviceComment, deleteRecord } = args;
-    {
-      const account = this.getAccountById(accountId);
-      if (account) {
-        if (deleteRecord) {
-          this.dataController.cache = this.dataController.cache.filter((u) => u.accountId !== accountId);
-        } else {
-          account.serviceComment = account.serviceComment + `; ${serviceComment}`;
-          account.status = account.status & AccountStatus.Deactivated;
-        }
-        this.dataController.commitAllRecords();
-      } else {
-        throw {
-          message: 'Error deleting account, could not find bank account record',
-        };
-      }
+    read(args: ReadAccountArgs): Promise<DeepPartial<UserAccount>[]> {
+        return this.dataController
+            .select(matchesReadArgs(args))
+            .then((c) => c.map(toShortAccountDetails))
+            .catch((error) => {
+                throw error;
+            });
     }
-  }
+
+    create(args: AccountCreateArgs): Promise<string> {
+        const a = combineNewAccount(args);
+        return validateCreateAccountArgs(args)
+            .then(() => {
+                return this.dataController.insert(`
+                (
+                    account_id, bank_routing_number, bank_account_number,
+                    bank_name, create_date, status, service_comment, account_type)
+                    VALUES (
+                        '${a.accountId}', 
+                        ${a.bankRoutingNumber},
+                        ${a.bankAccountNumber},
+                        ${a.bankName ? "'" + a.bankName + "'" : 'NULL'},
+                        ${a.createDate ? "'" + new Date(a.createDate).toUTCString() + "'" : 'NULL'},
+                        ${a.status ? a.status : 'NULL'},
+                        ${a.serviceComment ? "'" + a.serviceComment + "'" : 'NULL'},
+                        ${a.accountType ? a.accountType : 'NULL'});`);
+            })
+            .then(() => {
+                return a.accountId;
+            })
+            .catch((error) => {
+                throw error;
+            });
+    }
+
+    update(args: AccountUpdateArgs): Promise<void> {
+        return validateAccountUpdateArgs(args)
+            .then(() => {
+                return this.findAccountImpl(args.accountId);
+            })
+            .then((account) => {
+                if (!account) {
+                    throw new DatabaseError('Error updating account data, could not find account record');
+                }
+                if (!(account.status & AccountStatus.Active) && !args.forceUpdate) {
+                    throw new DatabaseError('Error updating account data, user bank account is inactive');
+                }
+                return account;
+            })
+            .then((account) => {
+                if (args.userId) {
+                    account.userId = args.userId;
+                }
+                if (args.bankRoutingNumber) {
+                    account.bankRoutingNumber = args.bankRoutingNumber;
+                }
+                if (args.bankAccountNumber) {
+                    account.bankAccountNumber = args.bankAccountNumber;
+                }
+                if (args.bankName) {
+                    account.bankName = args.bankName;
+                }
+                if (args.status) {
+                    account.status = args.status;
+                }
+                return account;
+            })
+            .then((account) => {
+                this.dataController.update(this.composeSetStatement(account));
+            })
+            .catch((error) => {
+                throw error;
+            });
+    }
+
+    private composeSetStatement(a: UserAccount): string {
+        return `
+        SET
+            bank_routing_number=${a.bankRoutingNumber},
+            bank_account_number=${a.bankAccountNumber},
+            bank_name='${a.bankName}',
+            create_date=${a.createDate ? "'" + new Date(a.createDate).toUTCString() + "'" : 'NULL'},
+            status=${a.status ? a.status : 'NULL'},
+            service_comment=${a.serviceComment ? "'" + a.serviceComment + "'" : 'NULL'},
+            account_type=${a.accountType ? a.accountType : 'NULL'}
+        WHERE
+            account_id='${a.accountId}';`;
+    }
+
+    delete(args: AccountDeleteArgs): Promise<void> {
+        const { accountId, serviceComment, deleteRecord } = args;
+        return this.findAccountImpl(accountId)
+            .then((a) => {
+                if (!a) {
+                    throw new DatabaseError('Error deleting account, could not find bank account record');
+                }
+                if (deleteRecord) {
+                    return this.dataController.delete(`where "account_id"='${accountId}'`).then(() => {});
+                } else {
+                    a.serviceComment = a.serviceComment + `; ${serviceComment}`;
+                    a.status = a.status & AccountStatus.Deactivated;
+                    return this.dataController.update(this.composeSetStatement(a)).then(() => {});
+                }
+            })
+            .catch((error) => {
+                throw error;
+            });
+    }
 }
 
-export const accountPersistanceController = new AccountPersistanceController(accountFileDataController);
+export const accountPersistanceController = new AccountPersistanceController(accountPostgresDataController);
