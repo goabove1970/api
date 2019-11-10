@@ -11,6 +11,12 @@ export interface UserAccount {
     serviceComment?: string;
     accountType?: AccountType;
 }
+
+export interface UserAccountLink {
+    accountId?: string;
+    userId?: string;
+}
+
 export enum AccountType {
     Credit = 1,
     Debit = 2,

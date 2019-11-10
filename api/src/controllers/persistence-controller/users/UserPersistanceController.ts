@@ -2,6 +2,7 @@ import { UserPersistanceControllerBase } from './UserPersistanceControllerBase';
 import { DeepPartial } from '@models/DeepPartial';
 import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
+import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
 import { UserReadArgs } from '@models/user/UserReadArgs';
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
@@ -19,6 +20,8 @@ import { UserStatus } from '@models/user/UserStatus';
 import { DatabaseController } from '../../data-controller/DataController';
 import { DatabaseError } from '@root/src/models/errors/errors';
 import { userPostgresDataController } from '../../data-controller/users/UsersPostgresController';
+import { accountPersistanceController } from '../account/AccountPersistanceController';
+import { userAccountLinkDataController } from '../../data-controller/userAccountLink/UserAccountLinkPostgresController';
 
 export class UserPersistanceController implements UserPersistanceControllerBase {
     private dataController: DatabaseController<UserDetails>;
@@ -237,6 +240,81 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
             })
             .catch((error) => {
                 throw error;
+            });
+    }
+
+    addAccount(args: ManageAccountArgs): Promise<void> {
+        const { userId, accountId } = args;
+        return this.findUserImpl(userId)
+            .then((user) => {
+                if (!user) {
+                    throw new DatabaseError('Could not find user record to link account to user');
+                }
+            })
+            .then(() => {
+                return accountPersistanceController.read({
+                    accountId,
+                });
+            })
+            .then((account) => {
+                if (!account) {
+                    throw new DatabaseError('Could not find account record to link account to user');
+                }
+            })
+            .then(() => {
+                return userAccountLinkDataController.count(`
+                WHERE
+                    user_id='${userId}'
+                    AND account_id='${accountId}'`);
+            })
+            .then((count) => {
+                if (count > 0) {
+                    throw new DatabaseError('This account has been already linked to this user');
+                }
+            })
+            .then(() => {
+                userAccountLinkDataController.insert(`(
+                    user_id, account_id)
+                    VALUES (
+                        '${userId}',
+                        '${accountId}');`);
+            });
+    }
+
+    removeAccount(args: ManageAccountArgs): Promise<void> {
+        const { userId, accountId } = args;
+        return this.findUserImpl(userId)
+            .then((user) => {
+                if (!user) {
+                    throw new DatabaseError('Could not find user record to unlink account to user');
+                }
+            })
+            .then(() => {
+                return accountPersistanceController.read({
+                    accountId,
+                });
+            })
+            .then((account) => {
+                if (!account) {
+                    throw new DatabaseError('Could not find account record to unlink account to user');
+                }
+            })
+            .then(() => {
+                return userAccountLinkDataController.count(`
+                WHERE
+                    user_id='${userId}'
+                    AND account_id='${accountId}'`);
+            })
+            .then((count) => {
+                if (count === 0) {
+                    throw new DatabaseError('This account has been already unlinked from this user');
+                }
+            })
+            .then(() => {
+                userAccountLinkDataController.delete(`
+                    WHERE
+                        user_id='${userId}'
+                        AND account_id='${accountId}';`);
             });
     }
 }

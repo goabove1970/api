@@ -1,5 +1,6 @@
 import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
+import { ManageAccountArgs } from "@models/user/ManageAccountArgs";
 import { UserReadArgs } from '@models/user/UserReadArgs';
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
@@ -9,6 +10,9 @@ import { userPersistanceController } from '../persistence-controller/users/UserP
 import { UserPersistanceControllerBase } from '../persistence-controller/users/UserPersistanceControllerBase';
 
 export class UserController implements UserPersistanceControllerBase {
+    removeAccount(args: ManageAccountArgs): Promise<void> {
+        return userPersistanceController.removeAccount(args);
+    }
     getUserByEmail(email: string): Promise<DeepPartial<UserDetails> | undefined> {
         return userPersistanceController.getUserByEmail(email);
     }
@@ -27,6 +31,10 @@ export class UserController implements UserPersistanceControllerBase {
 
     create(args: UserCreateArgs): Promise<string> {
         return userPersistanceController.create(args);
+    }
+
+    addAccount(args: ManageAccountArgs): Promise<void> {
+        return userPersistanceController.addAccount(args);
     }
 
     updatePassword(args: UserUpdatePasswordArgs): Promise<void> {

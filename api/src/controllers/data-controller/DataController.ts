@@ -29,6 +29,15 @@ export abstract class DatabaseController<T> extends DataController<T> {
         });
     }
 
+    count(where?: string): Promise<number> {
+        return pool
+            .query(`SELECT * FROM ${CONFIG.PgConfig.schema}.${this.tableName} ${where ? where : ''};`)
+            .then((value) => {
+                const { rows } = value;
+                return rows.length;
+            });
+    }
+
     update(where?: string): Promise<Result> {
         return pool.query(`UPDATE ${CONFIG.PgConfig.schema}.${this.tableName} ${where}`);
     }

@@ -1,11 +1,12 @@
 import { Router } from 'express';
 
-import { UserRequest, UserResponse, ReadUserArgs } from './request-types/UserRequests';
+import { UserRequest, UserResponse, ReadUserArgs, UserRequestType } from './request-types/UserRequests';
 import { UserError } from '@models/errors/errors';
 import { DeepPartial } from '@models/DeepPartial';
 import userController from '@controllers/user-controller';
 import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
+import { ManageAccountArgs } from "@models/user/ManageAccountArgs";
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { UserDetails } from '@models/user/UserDetails';
@@ -23,29 +24,73 @@ router.get('/', async function(req, res, next) {
 
     console.log(`Processing ${userRequest.action} user request`);
     switch (userRequest.action) {
-        case 'read-users':
+        case UserRequestType.Read:
             responseData = await processReadUsersRequest(userRequest.args);
             break;
-        case 'create-user':
+        case UserRequestType.Create:
             responseData = await processCreateUserRequest(userRequest.args);
             break;
-        case 'delete-user':
+        case UserRequestType.Delete:
             responseData = await processDeleteUserRequest(userRequest.args);
             break;
-        case 'update-user':
+        case UserRequestType.Update:
             responseData = await processUpdateUserRequest(userRequest.args);
             break;
-        case 'update-password':
+        case UserRequestType.UpdatePassword:
             responseData = await processUpdatePasswordRequest(userRequest.args);
+            break;
+        case UserRequestType.AddAccount:
+            responseData = await processAddAccountRequest(userRequest.args);
+            break;
+        case UserRequestType.RemoveAccount:
+            responseData = await processRemoveAccountequest(userRequest.args);
             break;
     }
 
     res.send(responseData);
 });
 
+async function processRemoveAccountequest(request: ManageAccountArgs): Promise<UserResponse> {
+    const response: UserResponse = {
+        action: UserRequestType.RemoveAccount,
+        payload: {},
+    };
+
+    try {
+        response.payload = {
+            userId: await userController.removeAccount(request).catch((error) => {
+                throw error;
+            }),
+        };
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
+async function processAddAccountRequest(request: ManageAccountArgs): Promise<UserResponse> {
+    const response: UserResponse = {
+        action: UserRequestType.AddAccount,
+        payload: {},
+    };
+
+    try {
+        response.payload = {
+            userId: await userController.addAccount(request).catch((error) => {
+                throw error;
+            }),
+        };
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
 async function processReadUsersRequest(request: ReadUserArgs): Promise<UserResponse> {
     const response: UserResponse = {
-        action: 'read-users',
+        action: UserRequestType.Read,
         payload: {},
     };
 
@@ -103,9 +148,8 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
 }
 
 async function processCreateUserRequest(request: UserCreateArgs): Promise<UserResponse> {
-    console.log(`Processing create-user request`);
     const response: UserResponse = {
-        action: 'create-user',
+        action: UserRequestType.Create,
         payload: {},
     };
 
@@ -123,9 +167,8 @@ async function processCreateUserRequest(request: UserCreateArgs): Promise<UserRe
 }
 
 async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserResponse> {
-    console.log(`Processing delete-user request`);
     const response: UserResponse = {
-        action: 'delete-user',
+        action: UserRequestType.Delete,
         payload: {},
     };
 
@@ -143,9 +186,8 @@ async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserRe
 }
 
 async function processUpdateUserRequest(request: UserUpdateArgs): Promise<UserResponse> {
-    console.log(`Processing update-user request`);
     const response: UserResponse = {
-        action: 'update-user',
+        action: UserRequestType.Update,
         payload: {},
     };
     try {
@@ -162,9 +204,8 @@ async function processUpdateUserRequest(request: UserUpdateArgs): Promise<UserRe
 }
 
 async function processUpdatePasswordRequest(request: UserUpdatePasswordArgs): Promise<UserResponse> {
-    console.log(`Processing update-password request`);
     const response: UserResponse = {
-        action: 'update-password',
+        action: UserRequestType.UpdatePassword,
         payload: {},
     };
 

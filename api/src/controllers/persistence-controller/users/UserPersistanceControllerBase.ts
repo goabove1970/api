@@ -4,6 +4,7 @@ import { UserReadArgs } from '@models/user/UserReadArgs';
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { UserDetails } from '@models/user/UserDetails';
+import { ManageAccountArgs } from '@root/src/models/user/ManageAccountArgs';
 
 export abstract class UserPersistanceControllerReadonlyBase {
     abstract getUserById(userId: string): Promise<DeepPartial<UserDetails> | undefined>;
@@ -16,4 +17,6 @@ export abstract class UserPersistanceControllerBase extends UserPersistanceContr
     abstract create(user: UserCreateArgs): Promise<string>;
     abstract updatePassword(args: UserUpdatePasswordArgs): Promise<void>;
     abstract updateUserData(args: UserUpdateArgs): Promise<void>;
+    abstract addAccount(args: ManageAccountArgs): Promise<void>;
+    abstract removeAccount(args: ManageAccountArgs): Promise<void>;
 }

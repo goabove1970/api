@@ -21,7 +21,7 @@ export const toShortAccountDetails = (account: UserAccount): DeepPartial<UserAcc
 };
 
 export function matchesReadArgs(args: ReadAccountArgs): string {
-    let query = ' AS ac';
+    let query = ' AS ac ';
 
     if (!args) {
         return query;
@@ -35,7 +35,7 @@ export function matchesReadArgs(args: ReadAccountArgs): string {
     }
 
     if (args.accountId) {
-        conditions.push(`ac.account_id=${!args.accountId ? 'NULL' : args.accountId.toString()}`);
+        conditions.push(`ac.account_id=${!args.accountId ? 'NULL' : "'" + args.accountId + "'"}`);
     }
 
     if (args.status) {
