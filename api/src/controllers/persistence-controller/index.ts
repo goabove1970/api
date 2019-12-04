@@ -1,3 +1,3 @@
-import { chaseTransactionReader } from './transactions/TransacitonPersistenceController';
+import { chaseTransactionReader } from './transactions/ChaseTransacitonReader';
 
 export { chaseTransactionReader };

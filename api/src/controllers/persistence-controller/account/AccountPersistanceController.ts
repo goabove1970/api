@@ -16,6 +16,7 @@ import { AccountStatus } from '@models/accounts/AccountStatus';
 import { DatabaseController } from '../../data-controller/DataController';
 import { DatabaseError } from '@root/src/models/errors/errors';
 import { accountPostgresDataController } from '../../data-controller/account/AccountPostgresController';
+import moment = require('moment');
 
 export class AccountPersistanceController implements AccountPersistanceControllerBase {
     private dataController: DatabaseController<UserAccount>;
@@ -59,7 +60,7 @@ export class AccountPersistanceController implements AccountPersistanceControlle
                         ${a.bankRoutingNumber},
                         ${a.bankAccountNumber},
                         ${a.bankName ? "'" + a.bankName + "'" : 'NULL'},
-                        ${a.createDate ? "'" + new Date(a.createDate).toUTCString() + "'" : 'NULL'},
+                        ${a.createDate ? "'" + moment(a.createDate).toISOString() + "'" : 'NULL'},
                         ${a.status ? a.status : 'NULL'},
                         ${a.serviceComment ? "'" + a.serviceComment + "'" : 'NULL'},
                         ${a.accountType ? a.accountType : 'NULL'});`);
@@ -118,7 +119,7 @@ export class AccountPersistanceController implements AccountPersistanceControlle
             bank_routing_number=${a.bankRoutingNumber},
             bank_account_number=${a.bankAccountNumber},
             bank_name='${a.bankName}',
-            create_date=${a.createDate ? "'" + new Date(a.createDate).toUTCString() + "'" : 'NULL'},
+            create_date=${a.createDate ? "'" + moment(a.createDate).toISOString() + "'" : 'NULL'},
             status=${a.status ? a.status : 'NULL'},
             service_comment=${a.serviceComment ? "'" + a.serviceComment + "'" : 'NULL'},
             account_type=${a.accountType ? a.accountType : 'NULL'}

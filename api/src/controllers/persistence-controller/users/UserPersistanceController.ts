@@ -22,6 +22,7 @@ import { DatabaseError } from '@root/src/models/errors/errors';
 import { userPostgresDataController } from '../../data-controller/users/UsersPostgresController';
 import { accountPersistanceController } from '../account/AccountPersistanceController';
 import { userAccountLinkDataController } from '../../data-controller/userAccountLink/UserAccountLinkPostgresController';
+import moment = require('moment');
 
 export class UserPersistanceController implements UserPersistanceControllerBase {
     private dataController: DatabaseController<UserDetails>;
@@ -123,9 +124,9 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                     "accountCreated", "serviceComment", status)
                 VALUES (
                     '${u.userId}', '${u.firstName}', '${u.lastName}', ${u.ssn},
-                    '${u.login}', '${u.password}', '${u.email}', '${new Date(u.dob).toUTCString()}',
-                    ${!u.lastLogin ? 'NULL' : "'" + new Date(u.lastLogin!).toUTCString() + "'"},
-                    '${new Date(u.accountCreated).toUTCString()}',
+                    '${u.login}', '${u.password}', '${u.email}', '${moment(u.dob).toISOString()}',
+                    ${!u.lastLogin ? 'NULL' : "'" + moment(u.lastLogin!).toISOString() + "'"},
+                    '${moment(u.accountCreated).toISOString()}',
                     ${!u.serviceComment ? 'NULL' : "'" + u.serviceComment! + "'"}, 
                     ${!u.status ? 'NULL' : u.status});`;
                 return this.dataController.insert(query);
@@ -146,9 +147,9 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 login='${user.login}',
                 password='${user.password}',
                 email='${user.email}',
-                dob='${new Date(user.dob).toUTCString()}',
-                "lastLogin"=${user.lastLogin ? "'" + new Date(user.lastLogin).toUTCString() + "'" : 'NULL'},
-                "accountCreated"='${new Date(user.accountCreated).toUTCString()}',
+                dob='${moment(user.dob).toISOString()}',
+                "lastLogin"=${user.lastLogin ? "'" + moment(user.lastLogin).toISOString() + "'" : 'NULL'},
+                "accountCreated"='${moment(user.accountCreated).toISOString()}',
                 "serviceComment"=${user.serviceComment ? "'" + user.serviceComment + "'" : 'NULL'},
                 status=${user.status ? user.status : 'NULL'}
             WHERE 

@@ -3,12 +3,14 @@ import { CachedDataController } from '@src/controllers/data-controller/CachedDat
 import { ChaseTransactionParser } from '@controllers/parser-controller/chase/ChaseTransactionParser';
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 
+export const chaseTransactionParser: ChaseTransactionParser = new ChaseTransactionParser();
+
 export class ChaseTransactionFileDataController extends FileController<ChaseTransaction> {
-  constructor(filename: string) {
-    super(filename, new ChaseTransactionParser());
-  }
+    constructor(filename: string) {
+        super(filename, chaseTransactionParser);
+    }
 }
 
 export const chaseTransactionFileDataController: CachedDataController<
-  ChaseTransaction
+    ChaseTransaction
 > = new ChaseTransactionFileDataController('debit.csv');

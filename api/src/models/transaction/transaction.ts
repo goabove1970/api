@@ -1,6 +1,6 @@
 import { ChaseTransaction } from './chase/ChaseTransaction';
 
-export interface Transaction extends ChaseTransaction {
+export interface Transaction {
     accountId?: string;
     transactionId?: string;
     importedDate?: Date;
@@ -11,6 +11,9 @@ export interface Transaction extends ChaseTransaction {
     serviceType?: TransactionServiceType;
     overrideCategory?: string;
     transactionStatus?: TransactionStatus;
+    processingStatus?: ProcessingStatus;
+
+    chaseTransaction?: ChaseTransaction;
 }
 
 export enum TransactionServiceType {
@@ -20,4 +23,11 @@ export enum TransactionServiceType {
 export enum TransactionStatus {
     excludeFromBalance = 1,
     recurring = 2,
+}
+
+export enum ProcessingStatus {
+    unprocessed = 1,
+    merchantRecognized = 2,
+    merchantUnrecognized = 4,
+    merchantOverridenByUser = 8,
 }
