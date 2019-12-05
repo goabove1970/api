@@ -1,10 +1,10 @@
 import { TransactionPersistanceControllerReadonlyBase } from './TransactionPersistanceControllerBase';
-import { CachedDataController } from '../../data-controller/CachedDataController';
+import { CachedDataController } from '../CachedDataController';
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import { Transaction } from '@root/src/models/transaction/Transaction';
 import moment = require('moment');
-import { chaseTransactionFileDataController } from '../../data-controller/chase/ChaseTransactionFileDataController';
+import { chaseTransactionFileDataController } from '../chase/ChaseTransactionFileDataController';
 export class ChaseTransacitonReader implements TransactionPersistanceControllerReadonlyBase {
     read(args: TransactionReadArg): Promise<Transaction[]> {
         throw new Error('Method not implemented.');

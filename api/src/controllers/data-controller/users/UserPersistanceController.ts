@@ -17,11 +17,11 @@ import {
 } from './helper';
 import { UserDetails } from '@models/user/UserDetails';
 import { UserStatus } from '@models/user/UserStatus';
-import { DatabaseController } from '../../data-controller/DataController';
+import { DatabaseController } from '../DataController';
 import { DatabaseError } from '@root/src/models/errors/errors';
-import { userPostgresDataController } from '../../data-controller/users/UsersPostgresController';
+import { userPostgresDataController } from './UsersPostgresController';
 import { accountPersistanceController } from '../account/AccountPersistanceController';
-import { userAccountLinkDataController } from '../../data-controller/userAccountLink/UserAccountLinkPostgresController';
+import { userAccountLinkDataController } from '../userAccountLink/UserAccountLinkPostgresController';
 import moment = require('moment');
 
 export class UserPersistanceController implements UserPersistanceControllerBase {

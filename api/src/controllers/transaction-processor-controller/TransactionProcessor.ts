@@ -1,6 +1,6 @@
 import { Transaction, ProcessingStatus } from '@src/models/transaction/Transaction';
 import { TransactionReadArg, SortOrder } from '@root/src/models/transaction/TransactionReadArgs';
-import { transactionDatabaseController as transController } from '../persistence-controller/transactions/TransacitonPersistenceController';
+import { transactionDatabaseController as transController } from '../data-controller/transaction/TransacitonPersistenceController';
 import { GuidFull } from '@root/src/utils/generateGuid';
 import { chaseTransactionParser } from '../data-controller/chase/ChaseTransactionFileDataController';
 import { ChaseTransaction } from '@root/src/models/transaction/chase/ChaseTransaction';

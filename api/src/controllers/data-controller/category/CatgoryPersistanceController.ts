@@ -13,8 +13,8 @@ import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
 import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
 import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
 import { DatabaseError } from '@src/models/errors/errors';
-import { categoryPostgresDataController } from '../../data-controller/category/CategoryPostgresController';
-import { DatabaseController } from '../../data-controller/DataController';
+import { categoryPostgresDataController } from './CategoryPostgresController';
+import { DatabaseController } from '../DataController';
 
 export class CategoryPersistanceController implements CategoryPersistanceControllerBase {
     private dataController: DatabaseController<Category>;

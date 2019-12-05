@@ -1,10 +1,10 @@
-import { categoryPersistanceController } from '../persistence-controller/category/CatgoryPersistanceController';
+import { categoryPersistanceController } from '../data-controller/category/CatgoryPersistanceController';
 import { Category } from '@src/models/category/category';
 import { DeepPartial } from '@src/models/DeepPartial';
 import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
 import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
 import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
-import { CategoryPersistanceControllerBase } from '../persistence-controller/category/CategoryPersistanceControllerBase';
+import { CategoryPersistanceControllerBase } from '../data-controller/category/CategoryPersistanceControllerBase';
 
 export class CategoryController implements CategoryPersistanceControllerBase {
     delete(args: DeleteCategoryArgs): Promise<void> {

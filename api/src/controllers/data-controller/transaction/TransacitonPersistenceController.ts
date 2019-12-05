@@ -1,9 +1,9 @@
 import { TransactionPersistanceControllerBase } from './TransactionPersistanceControllerBase';
 import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
-import { DatabaseController } from '../../data-controller/DataController';
+import { DatabaseController } from '../DataController';
 import { Transaction } from '@root/src/models/transaction/Transaction';
 import { DatabaseError } from '@root/src/models/errors/errors';
-import { transactionPostgresDataController } from '../../data-controller/transaction/TransactionPostgresController';
+import { transactionPostgresDataController } from './TransactionPostgresController';
 import { validateTransactionUpdateArgs, validateTransactionCreateArgs, matchesReadArgs } from './helper';
 import moment = require('moment');
 

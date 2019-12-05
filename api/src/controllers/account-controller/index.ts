@@ -3,9 +3,9 @@ import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { UserAccount } from '@models/accounts/Account';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
-import { accountPersistanceController } from '../persistence-controller/account/AccountPersistanceController';
+import { accountPersistanceController } from '../data-controller/account/AccountPersistanceController';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
-import { AccountPersistanceControllerBase } from '../persistence-controller/account/AccountPersistanceControllerBase';
+import { AccountPersistanceControllerBase } from '../data-controller/account/AccountPersistanceControllerBase';
 
 export class AccountController implements AccountPersistanceControllerBase {
     read(args: ReadAccountArgs): Promise<DeepPartial<UserAccount>[]> {

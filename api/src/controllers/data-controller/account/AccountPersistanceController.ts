@@ -13,9 +13,9 @@ import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 import { AccountStatus } from '@models/accounts/AccountStatus';
-import { DatabaseController } from '../../data-controller/DataController';
+import { DatabaseController } from '../DataController';
 import { DatabaseError } from '@root/src/models/errors/errors';
-import { accountPostgresDataController } from '../../data-controller/account/AccountPostgresController';
+import { accountPostgresDataController } from './AccountPostgresController';
 import moment = require('moment');
 
 export class AccountPersistanceController implements AccountPersistanceControllerBase {

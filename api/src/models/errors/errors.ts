@@ -35,3 +35,9 @@ export class CategoryError extends ErrorBase {
         super(errorMesage || 'could not process category request');
     }
 }
+
+export class BusinessError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process business request');
+    }
+}

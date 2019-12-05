@@ -11,6 +11,7 @@ import * as transactionsRouter from '@routes/transactions';
 import * as userRouter from '@routes/users';
 import * as accountRouter from '@routes/accounts';
 import * as categoryRouter from '@routes/categories';
+import * as businessRouter from '@routes/businesses';
 // import { request } from 'https';
 
 export const app = express();
@@ -31,6 +32,7 @@ app.use('/transactions', transactionsRouter);
 app.use('/users', userRouter);
 app.use('/accounts', accountRouter);
 app.use('/categories', categoryRouter);
+app.use('/business', businessRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
