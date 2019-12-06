@@ -6,6 +6,7 @@ import { BusinessRequest, BusinessResponse, BusinessRequestType } from './reques
 import { BusinessReadArgs } from '../models/business/BusinessReadArgs';
 import { BusinessCreateArgs } from '../models/business/BusinessCreateArgs';
 import { BusinessDeleteArgs } from '../models/business/BusinessDeleteArgs';
+import { AddRuleArgs } from '../models/business/AddRuleArgs';
 
 const router = Router();
 
@@ -31,6 +32,9 @@ router.get('/', async function(req, res, next) {
             break;
         case BusinessRequestType.Read:
             responseData = await processReadBusinessRequest(request.args);
+            break;
+        case BusinessRequestType.AddRule:
+            responseData = await processAddRuleRequest(request.args);
             break;
         default:
             const enumKeys = [];
@@ -136,6 +140,31 @@ async function processUpdateBusinessRequest(request: BusinessReadArgs): Promise<
     try {
         return await controller
             .update(request)
+            .then(() => {
+                response.payload = {
+                    busiessId: request.businessId,
+                };
+                return response;
+            })
+            .catch((error) => {
+                throw error;
+            });
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
+async function processAddRuleRequest(request: AddRuleArgs): Promise<BusinessResponse> {
+    const response: BusinessResponse = {
+        action: BusinessRequestType.AddRule,
+        payload: {},
+    };
+
+    try {
+        return await controller
+            .addRule(request)
             .then(() => {
                 response.payload = {
                     busiessId: request.businessId,

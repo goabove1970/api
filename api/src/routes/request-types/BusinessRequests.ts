@@ -9,6 +9,7 @@ export enum BusinessRequestType {
     Create = 'create',
     Delete = 'delete',
     Update = 'update',
+    AddRule = 'add-rule',
 }
 
 export interface BusinessRequest {

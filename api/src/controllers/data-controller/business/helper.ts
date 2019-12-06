@@ -6,6 +6,7 @@ import { Business } from '@root/src/models/business/business';
 import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs';
 import { BusinessUpdateArgs } from '@root/src/models/business/BusinessUpdateArgs';
 import { businessPersistanceController } from './BusinessPersistanceController';
+import { AddRuleArgs } from '@root/src/models/business/AddRuleArgs';
 
 export const toShortBusinessDetails = (business: Business): DeepPartial<Business> | undefined => {
     return {
@@ -38,27 +39,16 @@ export function matchesReadArgs(args: BusinessReadArgs): string {
 }
 
 export function validateCreateBusinessArgs(args: BusinessCreateArgs): Promise<void> {
-    if (!args.businessId) {
-        throw new DatabaseError('Business id can not be empty');
-    }
-
     if (!args.name) {
         throw new DatabaseError('Business name can not be empty');
     }
 
     return businessPersistanceController
-        .read({ businessId: args.businessId })
+        .read({ name: args.name })
         .then((business) => {
-            if (!business) {
+            if (business !== undefined) {
                 throw {
-                    message: 'Business with provided id was not found',
-                };
-            }
-        })
-        .then(() => {
-            if (!args.name) {
-                throw {
-                    message: 'Name can not be empty',
+                    message: 'Business with this name already exists',
                 };
             }
         })
@@ -90,4 +80,18 @@ export function validateBusinessUpdateArgs(args: BusinessUpdateArgs): Promise<vo
     }
 
     return validateCreateBusinessArgs(args);
+}
+
+export function validateAddRuleArgs(args: AddRuleArgs): Promise<void> {
+    if (!args) {
+        throw {
+            message: 'Can not update Business, no arguments passed',
+        };
+    }
+
+    if (!args.businessId) {
+        throw {
+            message: 'Can not update Business, no businessId passed',
+        };
+    }
 }

@@ -5,6 +5,7 @@ import {
     validateCreateBusinessArgs,
     toShortBusinessDetails,
     validateBusinessUpdateArgs,
+    validateAddRuleArgs,
 } from './helper';
 import { DatabaseController } from '../DataController';
 import { DatabaseError } from '@root/src/models/errors/errors';
@@ -15,6 +16,7 @@ import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs
 import { BusinessUpdateArgs } from '@root/src/models/business/BusinessUpdateArgs';
 import { BusinessDeleteArgs } from '@root/src/models/business/BusinessDeleteArgs';
 import { businessPostgresDataController } from './BusinessPostgresController';
+import { AddRuleArgs } from '@root/src/models/business/AddRuleArgs';
 
 export class BusinessPersistanceController implements BusinessPersistanceControllerBase {
     private dataController: DatabaseController<Business>;
@@ -55,7 +57,7 @@ export class BusinessPersistanceController implements BusinessPersistanceControl
                     VALUES (
                         '${a.businessId}', 
                         ${a.name ? "'" + a.name + "'" : 'NULL'},
-                        ${a.defaultCategoryId ? a.defaultCategoryId : 'NULL'},
+                        ${a.defaultCategoryId ? "'" + a.defaultCategoryId + "'" : 'NULL'},
                         ${a.regexps ? "'" + a.regexps.join('||') + "'" : 'NULL'});`);
             })
             .then(() => {
@@ -87,6 +89,35 @@ export class BusinessPersistanceController implements BusinessPersistanceControl
                 if (args.regexps) {
                     business.regexps = args.regexps;
                 }
+                return business;
+            })
+            .then((account) => {
+                this.dataController.update(this.composeSetStatement(account));
+            })
+            .catch((error) => {
+                throw error;
+            });
+    }
+    addRule(args: AddRuleArgs): Promise<void> {
+        return validateAddRuleArgs(args)
+            .then(() => {
+                return this.findBusinessImpl(args.businessId);
+            })
+            .then((business) => {
+                if (!business) {
+                    throw new DatabaseError('Error updating business data, could not find business record');
+                }
+                return business;
+            })
+            .then((business) => {
+                if (args.rule) {
+                    if (business.regexps) {
+                        business.regexps.push(args.rule);
+                    } else {
+                        business.regexps = [args.rule];
+                    }
+                }
+
                 return business;
             })
             .then((account) => {

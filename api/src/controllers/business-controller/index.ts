@@ -5,8 +5,12 @@ import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs
 import { Business } from '@root/src/models/business/business';
 import { businessPersistanceController } from '../data-controller/business/BusinessPersistanceController';
 import { BusinessPersistanceControllerBase } from '../data-controller/business/BusinessPersistanceControllerBase';
+import { AddRuleArgs } from '@root/src/models/business/AddRuleArgs';
 
 export class BusinessesController implements BusinessPersistanceControllerBase {
+    addRule(args: AddRuleArgs): Promise<void> {
+        return businessPersistanceController.addRule(args);
+    }
     delete(args: BusinessDeleteArgs): Promise<void> {
         return businessPersistanceController.delete(args);
     }
