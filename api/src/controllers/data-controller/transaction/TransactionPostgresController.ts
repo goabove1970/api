@@ -32,6 +32,8 @@ export class TransactionPostgresController extends DatabaseController<Transactio
                     Balance: valueRow[16],
                     CheckOrSlip: valueRow[17],
                 },
+
+                businessId: valueRow[18],
             } as Transaction);
         });
 

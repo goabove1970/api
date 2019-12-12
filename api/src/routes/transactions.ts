@@ -5,6 +5,8 @@ import {
     TransactionRequestType,
     TransactionImportArgs,
     TransactioCsvFileImportArgs,
+    TransactionDeleteArgs,
+    TryRegexParseArgs,
 } from './request-types/TransactionRequests';
 import { Router } from 'express';
 import { TransactionError } from '@models/errors/errors';
@@ -32,10 +34,22 @@ router.get('/', async function(req, res, next) {
         case TransactionRequestType.ImportTransaction:
             responseData = await processImportTransactionRequest(transactionRequest.args as TransactionImportArgs);
             break;
+        case TransactionRequestType.Delete:
+            responseData = await processDeleteTransactionRequest(transactionRequest.args as TransactionDeleteArgs);
+            break;
         case TransactionRequestType.ImportTransactionCsvFile:
             responseData = await processImportTransactionFileRequest(
                 transactionRequest.args as TransactioCsvFileImportArgs
             );
+            break;
+        case TransactionRequestType.TestRegex:
+            responseData = await processTestRegexRequest(transactionRequest.args as TryRegexParseArgs);
+            break;
+        case TransactionRequestType.TestBusinessRegex:
+            responseData = await processTestBusinessRegexRequest(transactionRequest.args as TryRegexParseArgs);
+            break;
+        case TransactionRequestType.Recognize:
+            responseData = await processRecognizeRequest();
             break;
     }
 
@@ -81,7 +95,25 @@ async function processImportTransactionRequest(args: TransactionImportArgs): Pro
     };
 
     try {
-        const transactionId = await transactionProcessor.addTransaction(args.transaction, args.accountId);
+        const importResult = await transactionProcessor.addTransaction(args.transaction, args.accountId);
+        response.payload = {
+            ...importResult,
+        };
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
+async function processDeleteTransactionRequest(args: TransactionDeleteArgs): Promise<TransactionResponse> {
+    const response: TransactionResponse = {
+        action: TransactionRequestType.Delete,
+        payload: {},
+    };
+
+    try {
+        const transactionId = await transactionProcessor.delete(args);
         response.payload = {
             transactionId,
         };
@@ -99,9 +131,66 @@ async function processImportTransactionFileRequest(args: TransactioCsvFileImport
     };
 
     try {
-        const transactionId = await transactionProcessor.importTransactionsFromCsv(args.file, args.accountId);
+        const addResult = await transactionProcessor.importTransactionsFromCsv(args.file, args.accountId);
         response.payload = {
-            transactionId,
+            addResult,
+        };
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
+async function processTestRegexRequest(args: TryRegexParseArgs): Promise<TransactionResponse> {
+    const response: TransactionResponse = {
+        action: TransactionRequestType.TestRegex,
+        payload: {},
+    };
+
+    try {
+        const addResult = await transactionProcessor.testRegex(args.regex);
+        response.payload = {
+            count: addResult.length,
+            matchingTransactions: addResult,
+        };
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
+async function processTestBusinessRegexRequest(args: TryRegexParseArgs): Promise<TransactionResponse> {
+    const response: TransactionResponse = {
+        action: TransactionRequestType.TestBusinessRegex,
+        payload: {},
+    };
+
+    try {
+        const addResult = await transactionProcessor.testBusinessRegex(args.businessId);
+        response.payload = {
+            count: addResult.length,
+            matchingTransactions: addResult,
+        };
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
+async function processRecognizeRequest(): Promise<TransactionResponse> {
+    const response: TransactionResponse = {
+        action: TransactionRequestType.Recognize,
+        payload: {},
+    };
+
+    try {
+        const addResult = await transactionProcessor.recognize();
+        response.payload = {
+            count: addResult.length,
+            matchingTransactions: addResult,
         };
     } catch (error) {
         console.error(error.message);

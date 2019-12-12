@@ -12,7 +12,7 @@ export interface Transaction {
     overrideCategory?: string;
     transactionStatus?: TransactionStatus;
     processingStatus?: ProcessingStatus;
-
+    businessId?: string;
     chaseTransaction?: ChaseTransaction;
 }
 
@@ -30,4 +30,5 @@ export enum ProcessingStatus {
     merchantRecognized = 2,
     merchantUnrecognized = 4,
     merchantOverridenByUser = 8,
+    multipleBusinessesMatched = 16,
 }

@@ -99,10 +99,8 @@ export class BusinessPersistanceController implements BusinessPersistanceControl
             });
     }
     addRule(args: AddRuleArgs): Promise<void> {
-        return validateAddRuleArgs(args)
-            .then(() => {
-                return this.findBusinessImpl(args.businessId);
-            })
+        validateAddRuleArgs(args);
+        return this.findBusinessImpl(args.businessId)
             .then((business) => {
                 if (!business) {
                     throw new DatabaseError('Error updating business data, could not find business record');
@@ -117,11 +115,12 @@ export class BusinessPersistanceController implements BusinessPersistanceControl
                         business.regexps = [args.rule];
                     }
                 }
-
+                business.regexps = business.regexps.filter((r) => r != '');
+                business.regexps = [...new Set(business.regexps)];
                 return business;
             })
-            .then((account) => {
-                this.dataController.update(this.composeSetStatement(account));
+            .then((business) => {
+                this.dataController.update(this.composeSetStatement(business));
             })
             .catch((error) => {
                 throw error;
@@ -131,10 +130,9 @@ export class BusinessPersistanceController implements BusinessPersistanceControl
     private composeSetStatement(a: Business): string {
         return `
         SET
-            business_id=${a.businessId},
             name=${a.name ? "'" + a.name + "'" : 'NULL'},
-            default_category_id=${a.defaultCategoryId ? a.defaultCategoryId : 'NULL'}
-            regexps=${a.regexps ? "'" + a.regexps.join('||') + "'" : 'NULL'},
+            default_category_id=${a.defaultCategoryId ? "'" + a.defaultCategoryId + "'" : 'NULL'},
+            regexps=${a.regexps ? "'" + a.regexps.join('||') + "'" : 'NULL'}
         WHERE
             business_id='${a.businessId}';`;
     }

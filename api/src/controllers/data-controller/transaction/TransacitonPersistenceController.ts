@@ -6,6 +6,7 @@ import { DatabaseError } from '@root/src/models/errors/errors';
 import { transactionPostgresDataController } from './TransactionPostgresController';
 import { validateTransactionUpdateArgs, validateTransactionCreateArgs, matchesReadArgs } from './helper';
 import moment = require('moment');
+import { TransactionDeleteArgs } from '@root/src/routes/request-types/TransactionRequests';
 
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
     private dataController: DatabaseController<Transaction>;
@@ -47,6 +48,10 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
             updateFields.push(`override_posting_date='${moment(args.overridePostingDate).toISOString()}'`);
         }
 
+        if (args.businessId) {
+            updateFields.push(`business_id='${args.businessId}'`);
+        }
+
         if (args.processingStatus) {
             updateFields.push(`processing_status=${args.overrideDescription}`);
         }
@@ -82,7 +87,7 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
             override_posting_date, override_description,
             service_type, override_category_id, transaction_status,
             processing_status, details, posting_date, description,
-            amount, transaction_type, balance, check_no)
+            amount, transaction_type, balance, check_no, business_id)
             VALUES (
                 '${args.transactionId}',
                 '${args.accountId}',
@@ -105,10 +110,11 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
                 ${args.chaseTransaction.Amount ? args.chaseTransaction.Amount : 'NULL'},
                 ${args.chaseTransaction.Type ? "'" + args.chaseTransaction.Type + "'" : 'NULL'},
                 ${args.chaseTransaction.Balance ? args.chaseTransaction.Balance : 'NULL'},
-                ${args.chaseTransaction.CheckOrSlip ? "'" + args.chaseTransaction.CheckOrSlip + "'" : 'NULL'});`);
+                ${args.chaseTransaction.CheckOrSlip ? "'" + args.chaseTransaction.CheckOrSlip + "'" : 'NULL'},
+                ${args.businessId ? "'" + args.businessId + "'" : 'NULL'});`);
     }
 
-    async delete(args: TransactionReadArg): Promise<void> {
+    async delete(args: TransactionDeleteArgs): Promise<void> {
         const expression = await matchesReadArgs(args);
         this.dataController.delete(expression).catch((error) => {
             throw error;

@@ -5,11 +5,15 @@ export enum TransactionRequestType {
     ReadTransactions = 'read-transactions',
     ImportTransaction = 'import-transaction',
     ImportTransactionCsvFile = 'import-transaction-csv-file',
+    Delete = 'delete',
+    TestRegex = 'test-regex',
+    TestBusinessRegex = 'test-business-regex',
+    Recognize = 'recognize',
 }
 
 export interface TransactionRequest {
     action?: TransactionRequestType;
-    args?: ReadTransactionArgs | TransactionImportArgs | TransactioCsvFileImportArgs;
+    args?: ReadTransactionArgs | TransactionImportArgs | TransactioCsvFileImportArgs | TryRegexParseArgs;
 }
 
 export interface TransactionResponse extends ResponseBase {
@@ -32,7 +36,17 @@ export interface TransactionImportArgs {
     accountId?: string;
 }
 
+export interface TransactionDeleteArgs {
+    transaction?: Transaction;
+    accountId?: string;
+}
+
 export interface TransactioCsvFileImportArgs {
     file?: string;
     accountId?: string;
+}
+
+export interface TryRegexParseArgs {
+    regex?: string;
+    businessId?: string;
 }

@@ -13,6 +13,7 @@ export const toShortBusinessDetails = (business: Business): DeepPartial<Business
         businessId: business.businessId,
         name: business.name,
         defaultCategoryId: business.defaultCategoryId,
+        regexps: business.regexps,
     };
 };
 
@@ -46,7 +47,7 @@ export function validateCreateBusinessArgs(args: BusinessCreateArgs): Promise<vo
     return businessPersistanceController
         .read({ name: args.name })
         .then((business) => {
-            if (business !== undefined) {
+            if (business && business.length > 0) {
                 throw {
                     message: 'Business with this name already exists',
                 };
@@ -82,7 +83,7 @@ export function validateBusinessUpdateArgs(args: BusinessUpdateArgs): Promise<vo
     return validateCreateBusinessArgs(args);
 }
 
-export function validateAddRuleArgs(args: AddRuleArgs): Promise<void> {
+export function validateAddRuleArgs(args: AddRuleArgs): void {
     if (!args) {
         throw {
             message: 'Can not update Business, no arguments passed',

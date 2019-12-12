@@ -1,4 +1,3 @@
-import { DeepPartial } from '@src/models/DeepPartial';
 import { BusinessDeleteArgs } from '@root/src/models/business/BusinessDeleteArgs';
 import { BusinessReadArgs } from '@root/src/models/business/BusinessReadArgs';
 import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs';
@@ -8,22 +7,44 @@ import { BusinessPersistanceControllerBase } from '../data-controller/business/B
 import { AddRuleArgs } from '@root/src/models/business/AddRuleArgs';
 
 export class BusinessesController implements BusinessPersistanceControllerBase {
-    addRule(args: AddRuleArgs): Promise<void> {
-        return businessPersistanceController.addRule(args);
+    async getCache(): Promise<{ businesses: Business[] }> {
+        if (!this.cache) {
+            await this.updateCache();
+        }
+        return this.cache;
     }
-    delete(args: BusinessDeleteArgs): Promise<void> {
-        return businessPersistanceController.delete(args);
+    cache: { businesses: Business[] } = undefined;
+
+    async addRule(args: AddRuleArgs): Promise<void> {
+        await businessPersistanceController.addRule(args);
+        await this.updateCache();
     }
-    read(args: BusinessReadArgs): Promise<DeepPartial<Business>[]> {
+    async updateCache() {
+        this.cache = { businesses: await businessPersistanceController.read({}) };
+    }
+    async delete(args: BusinessDeleteArgs): Promise<void> {
+        await businessPersistanceController.delete(args);
+        await this.updateCache();
+    }
+    async read(args: BusinessReadArgs): Promise<Business[]> {
+        if (!args.businessId && !args.categoryId && !args.name) {
+            if (!this.cache) {
+                await this.updateCache();
+            }
+            return this.cache.businesses;
+        }
         return businessPersistanceController.read(args);
     }
-    create(args: BusinessCreateArgs): Promise<string> {
-        return businessPersistanceController.create(args);
+    async create(args: BusinessCreateArgs): Promise<string> {
+        const businessId = await businessPersistanceController.create(args);
+        await this.updateCache();
+        return businessId;
     }
-    update(args: BusinessCreateArgs): Promise<void> {
-        return businessPersistanceController.update(args);
+    async update(args: BusinessCreateArgs): Promise<void> {
+        await businessPersistanceController.update(args);
+        await this.updateCache();
     }
 }
 
-const businessesController: BusinessPersistanceControllerBase = new BusinessesController();
+const businessesController = new BusinessesController();
 export default businessesController;
