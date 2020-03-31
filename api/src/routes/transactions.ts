@@ -18,7 +18,7 @@ import { Transaction } from '../models/transaction/Transaction';
 
 const router = Router();
 
-router.get('/', async function(req, res, next) {
+const process = async function(req, res, next) {
     console.log(`Received a request in transaction controller: ${JSON.stringify(req.body, null, 4)}`);
     const transactionRequest = req.body as TransactionRequest;
     if (!transactionRequest) {
@@ -54,7 +54,10 @@ router.get('/', async function(req, res, next) {
     }
 
     res.send(responseData);
-});
+};
+
+router.post('/', process);
+router.get('/', process);
 
 async function processReadTransactionsRequest(args: ReadTransactionArgs): Promise<TransactionResponse> {
     const response: TransactionResponse = {

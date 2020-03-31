@@ -11,13 +11,15 @@
         "prettier:write": "prettier --write \"./**/*.{js,ts,tsx,json,scss,md}\""
     },
     "dependencies": {
+        "bluebird": "^3.5.5",
+        "body-parser": "^1.19.0",
         "cookie-parser": "~1.4.3",
         "cors": "^2.8.4",
         "debug": "~2.6.9",
         "express": "~4.16.0",
         "fs": "0.0.1-security",
         "guid-typescript": "^1.0.9",
-        "http-errors": "^1.6.3",
+        "http-errors": "^1.7.3",
         "module-alias": "^2.2.2",
         "moment": "^2.24.0",
         "morgan": "^1.9.1",
@@ -25,7 +27,8 @@
         "password-hash": "^1.2.2",
         "prettier": "^1.18.2",
         "ts-postgres": "^1.1.0",
-        "tsc": "^1.20150623.0"
+        "tsc": "^1.20150623.0",
+        "winston": "^3.2.1"
     },
     "devDependencies": {
         "@types/node": "^12.11.1",

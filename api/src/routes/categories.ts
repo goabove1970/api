@@ -9,7 +9,7 @@ import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
 
 const router = Router();
 
-router.get('/', async function(req, res, next) {
+const process = async function(req, res, next) {
     // console.log(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
     const request = req.body as CategoryRequest;
     if (!request) {
@@ -49,7 +49,10 @@ router.get('/', async function(req, res, next) {
     }
 
     res.send(responseData);
-});
+};
+
+router.post('/', process);
+router.get('/', process);
 
 async function processReadCategoryRequest(request: ReadCategoryArgs): Promise<CategoryResponse> {
     const response: CategoryResponse = {
