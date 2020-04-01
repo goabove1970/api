@@ -69,6 +69,7 @@ async function processReadTransactionsRequest(args: ReadTransactionArgs): Promis
         startDate: args && args.startDate && moment(args.startDate).toDate(),
         endDate: args && args.endDate && moment(args.endDate).toDate(),
         accountId: args.accountId,
+        categorization: args.categorization,
     };
     try {
         const transactionsReadResult = await transactionProcessor.read(readArgs);

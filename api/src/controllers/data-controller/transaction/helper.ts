@@ -29,6 +29,17 @@ export async function matchesReadArgs(args: TransactionReadArg): Promise<string>
         conditions.push(`account_id in ('${args.accountId}')`);
     }
 
+    if (args.categorization) {
+        switch (args.categorization) {
+            case 'categorized':
+                conditions.push('business_id is not NULL');
+                break;
+            case 'uncategorized':
+                conditions.push('business_id is NULL');
+                break;
+        }
+    }
+
     if (args.userId) {
         conditions.push(`user_id=${!args.userId ? 'NULL' : args.userId}`);
     }

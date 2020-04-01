@@ -1,3 +1,5 @@
+import { CategorizationType } from '@root/src/routes/request-types/TransactionRequests';
+
 export interface TransactionReadArg {
     transactionId?: string;
     startDate?: Date;
@@ -8,6 +10,7 @@ export interface TransactionReadArg {
     offset?: number;
     order?: SortOrder;
     countOnly?: boolean;
+    categorization?: CategorizationType;
 }
 
 export enum SortOrder {

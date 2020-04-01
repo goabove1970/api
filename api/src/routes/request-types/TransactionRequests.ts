@@ -20,6 +20,8 @@ export interface TransactionResponse extends ResponseBase {
     action?: TransactionRequestType;
 }
 
+export type CategorizationType = 'all' | 'uncategorized' | 'categorized';
+
 export interface ReadTransactionArgs {
     transactionId?: string;
     userId?: string;
@@ -29,6 +31,7 @@ export interface ReadTransactionArgs {
     count?: number;
     countOnly?: boolean;
     offset?: number;
+    categorization?: CategorizationType;
 }
 
 export interface TransactionImportArgs {
