@@ -10,7 +10,7 @@ import { AddRuleArgs } from '../models/business/AddRuleArgs';
 
 const router = Router();
 
-router.get('/', async function(req, res, next) {
+const process = async function(req, res, next) {
     // console.log(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
     const request = req.body as BusinessRequest;
     if (!request) {
@@ -53,7 +53,10 @@ router.get('/', async function(req, res, next) {
     }
 
     res.send(responseData);
-});
+};
+
+router.get('/', process);
+router.post('/', process);
 
 async function processReadBusinessRequest(request: BusinessReadArgs): Promise<BusinessResponse> {
     const response: BusinessResponse = {
