@@ -56,7 +56,7 @@ export function matchesReadArgs(args: ReadCategoryArgs): string {
     }
 
     if (args.categoryId) {
-        conditions.push(`category_id=${!args.categoryId ? 'NULL' : args.categoryId}`);
+        conditions.push(`category_id='${args.categoryId}'`);
     }
 
     if (args.userId) {
