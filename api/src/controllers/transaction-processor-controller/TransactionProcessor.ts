@@ -20,7 +20,7 @@ export interface TransactionImprtResult {
 
 export class TransactionProcessor {
     update(args: Transaction): Promise<void> {
-        return transController.delete(args);
+        return transController.update(args);
     }
 
     delete(args: TransactionDeleteArgs): Promise<void> {

@@ -7,6 +7,7 @@ import {
     TransactioCsvFileImportArgs,
     TransactionDeleteArgs,
     TryRegexParseArgs,
+    UpdateTransactionArgs,
 } from './request-types/TransactionRequests';
 import { Router } from 'express';
 import { TransactionError } from '@models/errors/errors';
@@ -51,6 +52,9 @@ const process = async function(req, res, next) {
         case TransactionRequestType.Recognize:
             responseData = await processRecognizeRequest();
             break;
+        case TransactionRequestType.Update:
+            responseData = await processUpdateTransactionRequest(transactionRequest.args as UpdateTransactionArgs);
+            break;
     }
 
     res.send(responseData);
@@ -58,6 +62,26 @@ const process = async function(req, res, next) {
 
 router.post('/', process);
 router.get('/', process);
+
+async function processUpdateTransactionRequest(args: UpdateTransactionArgs): Promise<TransactionResponse> {
+    const response: TransactionResponse = {
+        action: TransactionRequestType.Update,
+        payload: {},
+    };
+
+    const updateTransactionArgs: Transaction = {
+        categoryId: args.categoryId,
+        transactionId: args.transactionId,
+    };
+
+    try {
+        await transactionProcessor.update(updateTransactionArgs);
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
 
 async function processReadTransactionsRequest(args: ReadTransactionArgs): Promise<TransactionResponse> {
     const response: TransactionResponse = {

@@ -9,6 +9,7 @@ export enum TransactionRequestType {
     TestRegex = 'test-regex',
     TestBusinessRegex = 'test-business-regex',
     Recognize = 'recognize',
+    Update = 'update',
 }
 
 export interface TransactionRequest {
@@ -32,6 +33,11 @@ export interface ReadTransactionArgs {
     countOnly?: boolean;
     offset?: number;
     categorization?: CategorizationType;
+}
+
+export interface UpdateTransactionArgs {
+    transactionId?: string;
+    categoryId?: string;
 }
 
 export interface TransactionImportArgs {
