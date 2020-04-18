@@ -49,11 +49,11 @@ export async function matchesReadArgs(args: TransactionReadArg): Promise<string>
     }
 
     if (args.startDate) {
-        conditions.push(`transaction_id>=${"'" + moment(args.startDate).toISOString() + "'"}`);
+        conditions.push(`posting_date>=${"'" + moment(args.startDate).toISOString() + "'"}`);
     }
 
     if (args.endDate) {
-        conditions.push(`transaction_id<='${moment(args.endDate).toISOString()}'`);
+        conditions.push(`posting_date<='${moment(args.endDate).toISOString()}'`);
     }
 
     let finalSattement = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';

@@ -11,11 +11,11 @@ import {
 } from './request-types/TransactionRequests';
 import { Router } from 'express';
 import { TransactionError } from '@models/errors/errors';
-
+import { isHiddenTransaction, isExcludedFromBalanceTransaction } from '@utils/transUtils';
 import * as moment from 'moment';
 import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import { transactionProcessor } from '../controllers/transaction-processor-controller/TransactionProcessor';
-import { Transaction } from '../models/transaction/Transaction';
+import { Transaction, TransactionUpdateArgs } from '../models/transaction/Transaction';
 
 const router = Router();
 
@@ -69,9 +69,10 @@ async function processUpdateTransactionRequest(args: UpdateTransactionArgs): Pro
         payload: {},
     };
 
-    const updateTransactionArgs: Transaction = {
+    const updateTransactionArgs: TransactionUpdateArgs = {
         categoryId: args.categoryId,
         transactionId: args.transactionId,
+        statusModification: args.statusModification,
     };
 
     try {
@@ -106,7 +107,13 @@ async function processReadTransactionsRequest(args: ReadTransactionArgs): Promis
             const transactions = transactionsReadResult as Transaction[];
             response.payload = {
                 count: transactions.length,
-                transactions,
+                transactions: transactions.map((t) => {
+                    return {
+                        ...t,
+                        isHidden: isHiddenTransaction(t),
+                        isExcluded: isExcludedFromBalanceTransaction(t),
+                    };
+                }),
             };
         }
     } catch (error) {

@@ -38,6 +38,7 @@ export interface ReadTransactionArgs {
 export interface UpdateTransactionArgs {
     transactionId?: string;
     categoryId?: string;
+    statusModification?: string;
 }
 
 export interface TransactionImportArgs {

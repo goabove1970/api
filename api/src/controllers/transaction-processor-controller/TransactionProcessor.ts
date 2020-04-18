@@ -1,4 +1,4 @@
-import { Transaction, ProcessingStatus } from '@src/models/transaction/Transaction';
+import { Transaction, ProcessingStatus, TransactionUpdateArgs } from '@src/models/transaction/Transaction';
 import { TransactionReadArg, SortOrder } from '@root/src/models/transaction/TransactionReadArgs';
 import { transactionDatabaseController as transController } from '../data-controller/transaction/TransacitonPersistenceController';
 import { GuidFull } from '@root/src/utils/generateGuid';
@@ -19,7 +19,7 @@ export interface TransactionImprtResult {
 }
 
 export class TransactionProcessor {
-    update(args: Transaction): Promise<void> {
+    update(args: TransactionUpdateArgs): Promise<void> {
         return transController.update(args);
     }
 

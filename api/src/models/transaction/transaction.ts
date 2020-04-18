@@ -16,6 +16,10 @@ export interface Transaction {
     chaseTransaction?: ChaseTransaction;
 }
 
+export interface TransactionUpdateArgs extends Transaction {
+    statusModification?: string;
+}
+
 export enum TransactionServiceType {
     paidCreditCard = 1,
 }
@@ -23,6 +27,7 @@ export enum TransactionServiceType {
 export enum TransactionStatus {
     excludeFromBalance = 1,
     recurring = 2,
+    hidden = 4,
 }
 
 export enum ProcessingStatus {

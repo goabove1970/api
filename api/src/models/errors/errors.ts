@@ -30,6 +30,12 @@ export class AccountError extends ErrorBase {
     }
 }
 
+export class SpendingRequestError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process spendings request');
+    }
+}
+
 export class CategoryError extends ErrorBase {
     constructor(errorMesage?: string) {
         super(errorMesage || 'could not process category request');

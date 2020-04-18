@@ -1,7 +1,7 @@
 import { TransactionPersistanceControllerBase } from './TransactionPersistanceControllerBase';
 import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import { DatabaseController } from '../DataController';
-import { Transaction } from '@root/src/models/transaction/Transaction';
+import { Transaction, TransactionUpdateArgs, TransactionStatus } from '@root/src/models/transaction/Transaction';
 import { DatabaseError } from '@root/src/models/errors/errors';
 import { transactionPostgresDataController } from './TransactionPostgresController';
 import { validateTransactionUpdateArgs, validateTransactionCreateArgs, matchesReadArgs } from './helper';
@@ -11,7 +11,7 @@ import { TransactionDeleteArgs } from '@root/src/routes/request-types/Transactio
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
     private dataController: DatabaseController<Transaction>;
 
-    async update(args: Transaction): Promise<void> {
+    async update(args: TransactionUpdateArgs): Promise<void> {
         const transaction = await this.read({
             transactionId: args.transactionId,
         });
@@ -53,7 +53,7 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
         }
 
         if (args.processingStatus) {
-            updateFields.push(`processing_status=${args.overrideDescription}`);
+            updateFields.push(`processing_status=${args.processingStatus}`);
         }
 
         if (args.serviceType) {
@@ -62,6 +62,22 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
 
         if (args.transactionStatus) {
             updateFields.push(`transaction_status=${args.transactionStatus}`);
+        } else {
+            if (args.statusModification === 'hide') {
+                args.transactionStatus |= TransactionStatus.hidden;
+                updateFields.push(`transaction_status=${args.transactionStatus}`);
+            } else if (args.statusModification === 'unhide') {
+                args.transactionStatus &= ~TransactionStatus.hidden;
+                updateFields.push(`transaction_status=${args.transactionStatus}`);
+            }
+
+            if (args.statusModification === 'include') {
+                args.transactionStatus &= ~TransactionStatus.excludeFromBalance;
+                updateFields.push(`transaction_status=${args.transactionStatus}`);
+            } else if (args.statusModification === 'exclude') {
+                args.transactionStatus |= TransactionStatus.excludeFromBalance;
+                updateFields.push(`transaction_status=${args.transactionStatus}`);
+            }
         }
 
         if (args.userComment) {

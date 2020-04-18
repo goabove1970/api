@@ -20,6 +20,13 @@ export class AccountController implements AccountPersistanceControllerBase {
     delete(args: AccountDeleteArgs): Promise<void> {
         return accountPersistanceController.delete(args);
     }
+
+    getUserAccounts(userId?: string): Promise<DeepPartial<UserAccount[]>> {
+        const args: ReadAccountArgs = {
+            userId,
+        };
+        return this.read(args);
+    }
 }
 
 const accountController: AccountController = new AccountController();
