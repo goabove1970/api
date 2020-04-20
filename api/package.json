@@ -23,6 +23,7 @@
         "module-alias": "^2.2.2",
         "moment": "^2.24.0",
         "morgan": "^1.9.1",
+        "multiparty": "^4.2.1",
         "node-ts": "^5.0.2",
         "password-hash": "^1.2.2",
         "prettier": "^1.18.2",
