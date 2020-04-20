@@ -30,4 +30,5 @@ export interface SpendingResponse extends ResponseBase {
     endDate?: Date;
     categories?: CategorySpending[];
     subCatgories?: CategorySpending[];
+    spendingProgression?: any[];
 }

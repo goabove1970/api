@@ -16,10 +16,11 @@ import { TransactionReadArg } from '../models/transaction/TransactionReadArgs';
 import { isExcludedFromBalanceTransaction, isHiddenTransaction } from '../utils/transUtils';
 import categoryController from '../controllers/category-controller';
 import { Category } from '../models/category/category';
+import moment = require('moment');
 
 const router = Router();
 
-router.get('/', async function(req, res, next) {
+async function process(req, res, next) {
     console.log(`Received a request in spending controller: ${JSON.stringify(req.body, null, 4)}`);
     const spendingRequest = req.body as SpendingRequest;
     if (!spendingRequest) {
@@ -45,23 +46,13 @@ router.get('/', async function(req, res, next) {
     }
 
     res.send(responseData);
-});
+}
+router.get('/', process);
+router.post('/', process);
 
 function validateReadRequest(args: SpendingRequestArgs): void {
     if (!args.userId) {
         const error = 'Recevied spending request with empty userId';
-        console.error(error);
-        throw error;
-    }
-
-    if (!args.startDate) {
-        const error = 'Recevied spending request with empty startDate';
-        console.error(error);
-        throw error;
-    }
-
-    if (!args.endDate) {
-        const error = 'Recevied spending request with empty endDate';
         console.error(error);
         throw error;
     }
@@ -216,6 +207,63 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
 
                     response.categories = [];
                     response.subCatgories = [];
+                    response.spendingProgression = [];
+                    const cumulative = {
+                        debit: 0,
+                        credit: 0,
+                    };
+                    const maxDateReducer = (maxDate: Date, t: Transaction) => {
+                        if (moment(t.chaseTransaction.PostingDate).isAfter(maxDate)) {
+                            return t.chaseTransaction.PostingDate;
+                        }
+                        return maxDate;
+                    };
+                    const lastTransaction = res.transactions.reduce(
+                        maxDateReducer,
+                        moment()
+                            .subtract('years', 1000)
+                            .toDate()
+                    );
+                    const startDate = moment(lastTransaction)
+                        .startOf('day')
+                        .subtract(1, 'months');
+                    const transactions = res.transactions.filter((t) =>
+                        startDate.isBefore(t.chaseTransaction.PostingDate)
+                    );
+
+                    for (
+                        let i = startDate.startOf('day').toDate();
+                        moment(i).isBefore(lastTransaction);
+                        i = moment(i)
+                            .add(1, 'days')
+                            .startOf('day')
+                            .toDate()
+                    ) {
+                        const dayTransactions = transactions.filter((t) =>
+                            moment(t.chaseTransaction.PostingDate)
+                                .startOf('date')
+                                .isSame(i)
+                        );
+                        const daySpendings: CategorySpending = {
+                            credit: 0,
+                            debit: 0,
+                            saldo: 0,
+                            name: '',
+                        };
+                        dayTransactions.forEach((t: Transaction) => {
+                            const account = accountsMap.get(t.accountId);
+                            upadteTotal(daySpendings, account.accountType, t.chaseTransaction.Amount);
+                        });
+                        cumulative.credit += daySpendings.credit;
+                        cumulative.debit += daySpendings.debit;
+                        response.spendingProgression.push({
+                            date: i,
+                            credit: daySpendings.credit,
+                            debit: daySpendings.debit,
+                            cumulateDebit: cumulative.debit,
+                            cumulateCredit: cumulative.credit,
+                        });
+                    }
 
                     parentCategories.forEach((element) => {
                         response.categories.push(element);
@@ -242,6 +290,24 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
     return response;
 }
 
+const upadteTotal = (spending: CategorySpending, accountType: AccountType, amount: number): void => {
+    if (accountType === AccountType.Debit) {
+        // negative number is debit, positive is credit
+        if (amount > 0) {
+            spending.credit += Math.abs(amount);
+        } else {
+            spending.debit += Math.abs(amount);
+        }
+    } else if (accountType === AccountType.Credit) {
+        // negative is credit, positive is debit
+        if (amount > 0) {
+            spending.debit += Math.abs(amount);
+        } else {
+            spending.credit += Math.abs(amount);
+        }
+    }
+};
+
 const addTransaction = (
     cat: CategorySpending,
     t: Transaction,
@@ -261,22 +327,7 @@ const addTransaction = (
         } else {
             break;
         }
-
-        if (acc.accountType === AccountType.Debit) {
-            // negative number is debit, positive is credit
-            if (t.chaseTransaction.Amount > 0) {
-                categoryToUpdate.credit += Math.abs(t.chaseTransaction.Amount);
-            } else {
-                categoryToUpdate.debit += Math.abs(t.chaseTransaction.Amount);
-            }
-        } else if (acc.accountType === AccountType.Credit) {
-            // negative is credit, positive is debit
-            if (t.chaseTransaction.Amount > 0) {
-                categoryToUpdate.debit += Math.abs(t.chaseTransaction.Amount);
-            } else {
-                categoryToUpdate.credit += Math.abs(t.chaseTransaction.Amount);
-            }
-        }
+        upadteTotal(categoryToUpdate, acc.accountType, t.chaseTransaction.Amount);
         categoryToUpdate.saldo = categoryToUpdate.credit - categoryToUpdate.debit;
         categoryIdIterator = categoryToUpdate.parentCategoryId;
     }

@@ -16,6 +16,7 @@ import * as moment from 'moment';
 import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import { transactionProcessor } from '../controllers/transaction-processor-controller/TransactionProcessor';
 import { Transaction, TransactionUpdateArgs } from '../models/transaction/Transaction';
+import categoryController from '../controllers/category-controller';
 
 const router = Router();
 
@@ -115,6 +116,21 @@ async function processReadTransactionsRequest(args: ReadTransactionArgs): Promis
                     };
                 }),
             };
+            if (args.categoryId) {
+                const categories = await categoryController.read({ userId: args.userId });
+                const categoriesSet = new Set<string>();
+                categoriesSet.add(args.categoryId);
+                categories.forEach((c) => {
+                    if (c.parentCategoryId === args.categoryId) {
+                        if (!categoriesSet.has(c.categoryId)) {
+                            categoriesSet.add(c.categoryId);
+                        }
+                    }
+                });
+                response.payload.transactions = (response.payload.transactions || []).filter((t: Transaction) => {
+                    return categoriesSet.has(t.categoryId);
+                });
+            }
         }
     } catch (error) {
         console.error(error.message);

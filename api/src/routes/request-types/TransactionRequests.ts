@@ -33,6 +33,7 @@ export interface ReadTransactionArgs {
     countOnly?: boolean;
     offset?: number;
     categorization?: CategorizationType;
+    categoryId?: string;
 }
 
 export interface UpdateTransactionArgs {
