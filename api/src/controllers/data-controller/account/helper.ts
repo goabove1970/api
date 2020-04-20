@@ -18,6 +18,9 @@ export const toShortAccountDetails = (account: UserAccount): DeepPartial<UserAcc
         accountId: account.accountId,
         userId: account.userId,
         accountType: account.accountType,
+        cardExpiration: account.cardExpiration,
+        cardNumber: account.cardNumber,
+        alias: account.alias,
     };
 };
 

@@ -19,6 +19,9 @@ export class AccountPostgresController extends DatabaseController<UserAccount> {
                 status: row[5],
                 serviceComment: row[6],
                 accountType: row[7],
+                cardNumber: row[8],
+                cardExpiration: row[9],
+                alias: row[10],
             } as UserAccount);
         });
 

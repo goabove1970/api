@@ -10,6 +10,9 @@ export interface UserAccount {
     status?: AccountStatus;
     serviceComment?: string;
     accountType?: AccountType;
+    cardNumber?: string;
+    cardExpiration?: Date;
+    alias?: string;
 }
 
 export interface UserAccountLink {

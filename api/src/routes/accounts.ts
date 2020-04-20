@@ -12,7 +12,10 @@ import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 
 const router = Router();
 
-router.get('/', async function(req, res, next) {
+router.post('/', process);
+router.get('/', process);
+
+async function process(req, res, next) {
     console.log(`Received a request in account controller: ${JSON.stringify(req.body, null, 4)}`);
     const accountRequest = req.body as AccountRequest;
     if (!accountRequest) {
@@ -39,7 +42,7 @@ router.get('/', async function(req, res, next) {
     }
 
     res.send(responseData);
-});
+}
 
 async function processReadAccountsRequest(args: ReadAccountArgs): Promise<AccountResponse> {
     console.log(`Processing read-account request`);
