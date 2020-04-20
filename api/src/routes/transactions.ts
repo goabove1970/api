@@ -17,6 +17,11 @@ import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import { transactionProcessor } from '../controllers/transaction-processor-controller/TransactionProcessor';
 import { Transaction, TransactionUpdateArgs } from '../models/transaction/Transaction';
 import categoryController from '../controllers/category-controller';
+import { GuidEight } from '../utils/generateGuid';
+import { inspect } from 'util';
+var multiparty = require('multiparty');
+const fs = require('fs');
+const path = require('path');
 
 const router = Router();
 
@@ -29,6 +34,10 @@ const process = async function(req, res, next) {
 
     let responseData: TransactionResponse = {};
     console.log(`Processing ${transactionRequest.action} request`);
+    if (req.originalUrl === '/transactions-upload') {
+        transactionRequest.action = TransactionRequestType.UploadTransactionCsvFile;
+    }
+
     switch (transactionRequest.action) {
         case TransactionRequestType.ReadTransactions:
             responseData = await processReadTransactionsRequest(transactionRequest.args as ReadTransactionArgs);
@@ -63,12 +72,10 @@ const process = async function(req, res, next) {
 
 router.post('/', process);
 router.get('/', process);
+router.put('/upload', processUploadRequest);
 
 async function processUpdateTransactionRequest(args: UpdateTransactionArgs): Promise<TransactionResponse> {
-    const response: TransactionResponse = {
-        action: TransactionRequestType.Update,
-        payload: {},
-    };
+    const response: TransactionResponse = { action: TransactionRequestType.Update, payload: {} };
 
     const updateTransactionArgs: TransactionUpdateArgs = {
         categoryId: args.categoryId,
@@ -181,6 +188,10 @@ async function processImportTransactionFileRequest(args: TransactioCsvFileImport
         payload: {},
     };
 
+    if (!args.accountId) {
+        throw 'Can not import transactions to empty accountId';
+    }
+
     try {
         const addResult = await transactionProcessor.importTransactionsFromCsv(args.file, args.accountId);
         response.payload = {
@@ -191,6 +202,60 @@ async function processImportTransactionFileRequest(args: TransactioCsvFileImport
         response.error = error.message;
     }
     return response;
+}
+
+async function processUploadRequest(req, res, next) {
+    var form = new multiparty.Form();
+    var count = 0;
+    let tmpDir = './tmp';
+    if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir);
+    }
+    tmpDir = './tmp/fileUploads';
+    if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir);
+    }
+    const fileName = path.join(tmpDir, `${GuidEight()}.tmp`);
+
+    form.on('error', function(err) {
+        console.log('Error parsing form: ' + err.stack);
+    });
+    form.on('part', function(part) {
+        if (!part.filename) {
+            console.log('got field named ' + part.name);
+            part.resume();
+        }
+
+        if (part.filename) {
+            const w = fs.createWriteStream(fileName);
+            part.pipe(w);
+            count++;
+            part.resume();
+        }
+
+        part.on('error', function(err) {
+            console.error(`Error receiving transactions file: ${err.message || err}`);
+        });
+    });
+
+    form.on('close', function() {
+        console.log('Upload completed!');
+        const data = fs.readFileSync(fileName);
+        const dataStr = data.toString();
+        processImportTransactionFileRequest({
+            file: dataStr,
+        })
+            .then((importRes: any) => {
+                console.log(inspect(importRes));
+                res.send(importRes);
+            })
+            .catch(() => {
+                console.error('Error processing transaction file received');
+                res.end('Received ' + count + ' files');
+            });
+    });
+
+    form.parse(req);
 }
 
 async function processTestRegexRequest(args: TryRegexParseArgs): Promise<TransactionResponse> {
