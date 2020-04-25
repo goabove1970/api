@@ -6,6 +6,7 @@ export interface TransactionReadArg {
     endDate?: Date;
     userId?: string;
     accountId?: string;
+    accountIds?: string[];
     readCount?: number;
     offset?: number;
     order?: SortOrder;

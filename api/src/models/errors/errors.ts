@@ -1,8 +1,8 @@
 export class ErrorBase {
     constructor(errorMesage?: string) {
-        this.message = errorMesage;
+        this.errorMessage = errorMesage;
     }
-    message?: string;
+    errorMessage?: string;
     errorCode?: number;
 }
 

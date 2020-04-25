@@ -264,12 +264,14 @@ export class TransactionProcessor {
 export function originalTransactionEquals(t1: ChaseTransaction, t2: ChaseTransaction) {
     return (
         t1.Amount === t2.Amount &&
-        t1.Balance === t2.Balance &&
+        (t1.Balance || undefined) === (t2.Balance || undefined) &&
         (t1.CheckOrSlip || undefined) === (t2.CheckOrSlip || undefined) &&
         (t1.Description || undefined) === (t2.Description || undefined) &&
         (t1.Details || undefined) === (t2.Details || undefined) &&
         moment(t1.PostingDate).isSame(moment(t2.PostingDate)) &&
-        (t1.Type || undefined) === (t2.Type || undefined)
+        (t1.Type || undefined) === (t2.Type || undefined) &&
+        (t1.CreditCardTransactionType || undefined) === (t2.CreditCardTransactionType || undefined) &&
+        (t1.BankDefinedCategory || undefined) === (t2.BankDefinedCategory || undefined)
     );
 }
 

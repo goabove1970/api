@@ -21,12 +21,14 @@ export abstract class DatabaseController<T> extends DataController<T> {
         return pool.query(`DELETE FROM ${CONFIG.PgConfig.schema}.${this.tableName} ${where}`);
     }
 
-    select(where?: string): Promise<T[]> {
-        return pool.query(`SELECT * FROM ${CONFIG.PgConfig.schema}.${this.tableName} ${where}`).then((value) => {
-            const { rows } = value;
-            const categories = this.readSelectResponse(rows);
-            return categories;
-        });
+    select(where?: string, fields?: string): Promise<T[]> {
+        return pool
+            .query(`SELECT ${fields ? fields : '*'} FROM ${CONFIG.PgConfig.schema}.${this.tableName} ${where}`)
+            .then((value) => {
+                const { rows } = value;
+                const categories = this.readSelectResponse(rows);
+                return categories;
+            });
     }
 
     count(where?: string): Promise<number> {

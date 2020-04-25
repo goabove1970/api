@@ -1,5 +1,4 @@
 import { UserAccount } from '@models/accounts/Account';
-import { DeepPartial } from '@models/DeepPartial';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { GuidFull } from '@utils/generateGuid';
@@ -7,9 +6,29 @@ import { AccountStatus } from '@models/accounts/AccountStatus';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { userPersistanceController } from '../users/UserPersistanceController';
 import { CONFIG } from '@root/app.config';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import {
+    isAccountActive,
+    isAccountDeactiveted,
+    isAccountLocked,
+    isAccountActivationPending,
+    isSavings,
+    isDebit,
+    isCredit,
+    isCheching,
+} from '@root/src/utils/accountUtils';
 
-export const toShortAccountDetails = (account: UserAccount): DeepPartial<UserAccount> | undefined => {
+export interface AccountResponseModel extends UserAccount {
+    isAccountActive?: boolean;
+    isAccountDeactiveted?: boolean;
+    isAccountLocked?: boolean;
+    isAccountActivationPending?: boolean;
+    isSavings?: boolean;
+    isDebit?: boolean;
+    isCredit?: boolean;
+    isCheching?: boolean;
+}
+
+export const toShortAccountDetails = (account: UserAccount): AccountResponseModel | undefined => {
     return {
         bankRoutingNumber: account.bankRoutingNumber,
         bankAccountNumber: account.bankAccountNumber,
@@ -21,6 +40,16 @@ export const toShortAccountDetails = (account: UserAccount): DeepPartial<UserAcc
         cardExpiration: account.cardExpiration,
         cardNumber: account.cardNumber,
         alias: account.alias,
+        createDate: account.createDate,
+        serviceComment: account.serviceComment,
+        isAccountActive: isAccountActive(account),
+        isAccountDeactiveted: isAccountDeactiveted(account),
+        isAccountLocked: isAccountLocked(account),
+        isAccountActivationPending: isAccountActivationPending(account),
+        isSavings: isSavings(account),
+        isDebit: isDebit(account),
+        isCredit: isCredit(account),
+        isCheching: isCheching(account),
     };
 };
 
@@ -52,35 +81,37 @@ export function matchesReadArgs(args: ReadAccountArgs): string {
 }
 
 export function validateCreateAccountArgs(args: AccountCreateArgs): Promise<void> {
-    if (!args.userId) {
-        throw new DatabaseError('User id name can not be empty');
-    }
+    // if (!args.userId) {
+    //     throw new DatabaseError('User id name can not be empty');
+    // }
 
-    return userPersistanceController
-        .getUserById(args.userId)
-        .then((user) => {
-            if (!user) {
-                throw {
-                    message: 'User account with provided id was not found',
-                };
-            }
-        })
-        .then(() => {
-            if (!args.bankRoutingNumber) {
-                throw {
-                    message: 'Routing number can not be empty',
-                };
-            }
+    return (
+        userPersistanceController
+            .getUserById(args.userId)
+            // .then((user) => {
+            //     if (!user) {
+            //         throw {
+            //             message: 'User account with provided id was not found',
+            //         };
+            //     }
+            // })
+            .then(() => {
+                if (!args.bankRoutingNumber) {
+                    throw {
+                        message: 'Routing number can not be empty',
+                    };
+                }
 
-            if (!args.bankAccountNumber) {
-                throw {
-                    message: 'Bank account name can not be empty',
-                };
-            }
-        })
-        .catch((error) => {
-            throw error;
-        });
+                if (!args.bankAccountNumber) {
+                    throw {
+                        message: 'Bank account name can not be empty',
+                    };
+                }
+            })
+            .catch((error) => {
+                throw error;
+            })
+    );
 }
 
 export const combineNewAccount = (args: AccountCreateArgs): UserAccount => {
@@ -91,7 +122,7 @@ export const combineNewAccount = (args: AccountCreateArgs): UserAccount => {
         bankRoutingNumber: args.bankRoutingNumber,
         bankName: args.bankName,
         createDate: new Date(),
-        status: AccountStatus.ActivationPending,
+        status: AccountStatus.Active,
     };
 };
 
@@ -108,5 +139,7 @@ export function validateAccountUpdateArgs(args: AccountUpdateArgs): Promise<void
         };
     }
 
-    return validateCreateAccountArgs(args);
+    return Promise.resolve();
+
+    //return validateCreateAccountArgs(args);
 }

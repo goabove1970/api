@@ -23,6 +23,8 @@ import { userPostgresDataController } from './UsersPostgresController';
 import { accountPersistanceController } from '../account/AccountPersistanceController';
 import { userAccountLinkDataController } from '../userAccountLink/UserAccountLinkPostgresController';
 import moment = require('moment');
+import { Value } from 'ts-postgres';
+import { UserAccountLink } from '@root/src/models/accounts/Account';
 
 export class UserPersistanceController implements UserPersistanceControllerBase {
     private dataController: DatabaseController<UserDetails>;
@@ -317,6 +319,29 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                         user_id='${userId}'
                         AND account_id='${accountId}';`);
             });
+    }
+
+    getUserAccountLinks(args: ManageAccountArgs): Promise<UserAccountLink[]> {
+        const { userId } = args;
+        return this.findUserImpl(userId)
+            .then((user) => {
+                if (!user) {
+                    throw new DatabaseError('Could not find user record to unlink account to user');
+                }
+            })
+            .then(() => {
+                return userAccountLinkDataController.select(`
+                WHERE
+                    user_id='${userId}'`);
+            });
+    }
+
+    readUserAccountResponse(values: Value[][]): string[] {
+        const collection: string[] = [];
+        values.forEach((row) => {
+            collection.push(row[1] as string);
+        });
+        return collection;
     }
 }
 

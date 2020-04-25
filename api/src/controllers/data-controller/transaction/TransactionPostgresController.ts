@@ -31,6 +31,8 @@ export class TransactionPostgresController extends DatabaseController<Transactio
                     Type: valueRow[15],
                     Balance: valueRow[16],
                     CheckOrSlip: valueRow[17],
+                    CreditCardTransactionType: valueRow[19],
+                    BankDefinedCategory: valueRow[20],
                 },
 
                 businessId: valueRow[18],

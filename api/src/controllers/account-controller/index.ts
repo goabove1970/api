@@ -6,6 +6,7 @@ import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { accountPersistanceController } from '../data-controller/account/AccountPersistanceController';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 import { AccountPersistanceControllerBase } from '../data-controller/account/AccountPersistanceControllerBase';
+import userController from '../user-controller';
 
 export class AccountController implements AccountPersistanceControllerBase {
     read(args: ReadAccountArgs): Promise<DeepPartial<UserAccount>[]> {
@@ -13,6 +14,9 @@ export class AccountController implements AccountPersistanceControllerBase {
     }
     create(args: AccountCreateArgs): Promise<string> {
         return accountPersistanceController.create(args);
+    }
+    assignUser(userId: string, accountId: string): Promise<void> {
+        return userController.addAccount({ userId, accountId });
     }
     update(args: AccountUpdateArgs): Promise<void> {
         return accountPersistanceController.update(args);

@@ -1,5 +1,5 @@
 import { ChaseTransactionOriginType } from './ChaseTransactionOriginType';
-import { ChaseTransactionType } from './ChaseTransactionType';
+import { ChaseTransactionType, CreditCardTransactionType } from './ChaseTransactionType';
 
 export interface ChaseTransaction {
     Details: ChaseTransactionOriginType;
@@ -9,4 +9,6 @@ export interface ChaseTransaction {
     Type?: ChaseTransactionType;
     Balance?: number;
     CheckOrSlip?: string;
+    CreditCardTransactionType?: CreditCardTransactionType;
+    BankDefinedCategory?: string;
 }

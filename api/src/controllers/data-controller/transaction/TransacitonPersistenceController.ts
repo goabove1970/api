@@ -84,6 +84,14 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
             updateFields.push(`user_comment='${args.userComment}'`);
         }
 
+        // if (args.chaseTransaction.CreditCardTransactionType) {
+        //     updateFields.push(`credit_card_transaction_type='${args.chaseTransaction.CreditCardTransactionType}'`);
+        // }
+
+        // if (args.chaseTransaction.BankDefinedCategory) {
+        //     updateFields.push(`bank_defined_transaction='${args.chaseTransaction.BankDefinedCategory}'`);
+        // }
+
         const updateStatement = updateFields.join(',\n');
 
         this.dataController.update(`
@@ -103,7 +111,8 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
             override_posting_date, override_description,
             service_type, override_category_id, transaction_status,
             processing_status, details, posting_date, description,
-            amount, transaction_type, balance, check_no, business_id)
+            amount, transaction_type, balance, check_no, business_id,
+            credit_card_transaction_type, bank_defined_transaction)
             VALUES (
                 '${args.transactionId}',
                 '${args.accountId}',
@@ -127,7 +136,17 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
                 ${args.chaseTransaction.Type ? "'" + args.chaseTransaction.Type + "'" : 'NULL'},
                 ${args.chaseTransaction.Balance ? args.chaseTransaction.Balance : 'NULL'},
                 ${args.chaseTransaction.CheckOrSlip ? "'" + args.chaseTransaction.CheckOrSlip + "'" : 'NULL'},
-                ${args.businessId ? "'" + args.businessId + "'" : 'NULL'});`);
+                ${args.businessId ? "'" + args.businessId + "'" : 'NULL'},
+                ${
+                    args.chaseTransaction.CreditCardTransactionType
+                        ? "'" + args.chaseTransaction.CreditCardTransactionType + "'"
+                        : 'NULL'
+                },
+                ${
+                    args.chaseTransaction.BankDefinedCategory
+                        ? "'" + args.chaseTransaction.BankDefinedCategory + "'"
+                        : 'NULL'
+                });`);
     }
 
     async delete(args: TransactionDeleteArgs): Promise<void> {

@@ -1,11 +1,11 @@
 import { AccountPersistanceControllerBase } from './AccountPersistanceControllerBase';
-import { DeepPartial } from '@models/DeepPartial';
 import {
     matchesReadArgs,
     validateCreateAccountArgs,
     combineNewAccount,
     validateAccountUpdateArgs,
     toShortAccountDetails,
+    AccountResponseModel,
 } from './helper';
 import { UserAccount } from '@models/accounts/Account';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
@@ -38,9 +38,9 @@ export class AccountPersistanceController implements AccountPersistanceControlle
             });
     }
 
-    read(args: ReadAccountArgs): Promise<DeepPartial<UserAccount>[]> {
+    read(args: ReadAccountArgs): Promise<AccountResponseModel[]> {
         return this.dataController
-            .select(matchesReadArgs(args))
+            .select(matchesReadArgs(args), args.userId ? 'ac.*' : undefined)
             .then((c) => c.map(toShortAccountDetails))
             .catch((error) => {
                 throw error;
@@ -53,14 +53,26 @@ export class AccountPersistanceController implements AccountPersistanceControlle
             .then(() => {
                 return this.dataController.insert(`
                 (
-                    account_id, bank_routing_number, bank_account_number,
-                    bank_name, create_date, status, service_comment, account_type)
+                    account_id,
+                    bank_routing_number,
+                    bank_account_number,
+                    bank_name,
+                    card_number,
+                    account_alias,
+                    create_date,
+                    card_expiration,
+                    status,
+                    service_comment,
+                    account_type)
                     VALUES (
                         '${a.accountId}', 
                         ${a.bankRoutingNumber},
                         ${a.bankAccountNumber},
                         ${a.bankName ? "'" + a.bankName + "'" : 'NULL'},
+                        ${a.cardNumber ? "'" + a.cardNumber + "'" : 'NULL'},
+                        ${a.alias ? "'" + a.alias + "'" : 'NULL'},
                         ${a.createDate ? "'" + moment(a.createDate).toISOString() + "'" : 'NULL'},
+                        ${a.cardExpiration ? "'" + moment(a.cardExpiration).toISOString() + "'" : 'NULL'},
                         ${a.status ? a.status : 'NULL'},
                         ${a.serviceComment ? "'" + a.serviceComment + "'" : 'NULL'},
                         ${a.accountType ? a.accountType : 'NULL'});`);
@@ -82,9 +94,9 @@ export class AccountPersistanceController implements AccountPersistanceControlle
                 if (!account) {
                     throw new DatabaseError('Error updating account data, could not find account record');
                 }
-                if (!(account.status & AccountStatus.Active) && !args.forceUpdate) {
-                    throw new DatabaseError('Error updating account data, user bank account is inactive');
-                }
+                // if (!(account.status & AccountStatus.Active) && !args.forceUpdate) {
+                //     throw new DatabaseError('Error updating account data, user bank account is inactive');
+                // }
                 return account;
             })
             .then((account) => {
@@ -100,8 +112,23 @@ export class AccountPersistanceController implements AccountPersistanceControlle
                 if (args.bankName) {
                     account.bankName = args.bankName;
                 }
-                if (args.status) {
+                if (args.cardExpiration) {
+                    account.cardExpiration = args.cardExpiration;
+                }
+                if (args.alias) {
+                    account.alias = args.alias;
+                }
+                if (args.cardNumber) {
+                    account.cardNumber = args.cardNumber;
+                }
+                if (args.status || args.status === 0) {
                     account.status = args.status;
+                }
+                if (args.accountType || args.accountType === 0) {
+                    account.accountType = args.accountType;
+                }
+                if (args.serviceComment) {
+                    account.serviceComment = args.serviceComment;
                 }
                 return account;
             })
@@ -119,7 +146,10 @@ export class AccountPersistanceController implements AccountPersistanceControlle
             bank_routing_number=${a.bankRoutingNumber},
             bank_account_number=${a.bankAccountNumber},
             bank_name='${a.bankName}',
+            card_number='${a.cardNumber}',
+            account_alias='${a.alias}',
             create_date=${a.createDate ? "'" + moment(a.createDate).toISOString() + "'" : 'NULL'},
+            card_expiration=${a.cardExpiration ? "'" + moment(a.cardExpiration).toISOString() + "'" : 'NULL'},
             status=${a.status ? a.status : 'NULL'},
             service_comment=${a.serviceComment ? "'" + a.serviceComment + "'" : 'NULL'},
             account_type=${a.accountType ? a.accountType : 'NULL'}

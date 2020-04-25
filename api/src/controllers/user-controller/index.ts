@@ -8,6 +8,7 @@ import { DeepPartial } from '@models/DeepPartial';
 import { UserDetails } from '@models/user/UserDetails';
 import { userPersistanceController } from '../data-controller/users/UserPersistanceController';
 import { UserPersistanceControllerBase } from '../data-controller/users/UserPersistanceControllerBase';
+import { UserAccountLink } from '@root/src/models/accounts/Account';
 
 export class UserController implements UserPersistanceControllerBase {
     removeAccount(args: ManageAccountArgs): Promise<void> {
@@ -35,6 +36,10 @@ export class UserController implements UserPersistanceControllerBase {
 
     addAccount(args: ManageAccountArgs): Promise<void> {
         return userPersistanceController.addAccount(args);
+    }
+
+    getUserAccountLinks(args: ManageAccountArgs): Promise<UserAccountLink[]> {
+        return userPersistanceController.getUserAccountLinks(args);
     }
 
     updatePassword(args: UserUpdatePasswordArgs): Promise<void> {

@@ -1,4 +1,4 @@
 export interface ManageAccountArgs {
     userId: string;
-    accountId: string;
+    accountId?: string;
 }

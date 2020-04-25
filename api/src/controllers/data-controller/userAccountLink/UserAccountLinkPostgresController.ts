@@ -4,7 +4,15 @@ import { UserAccountLink } from '@root/src/models/accounts/Account';
 
 export class UserAccountLinkPostgresController extends DatabaseController<UserAccountLink> {
     readSelectResponse(values: Value[][]): UserAccountLink[] {
-        return [];
+        const collection: UserAccountLink[] = [];
+        values.forEach((row) => {
+            collection.push({
+                userId: row[0],
+                accountId: row[1],
+            } as UserAccountLink);
+        });
+
+        return collection;
     }
     constructor() {
         super('user_account');

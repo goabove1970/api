@@ -17,6 +17,7 @@ import { isExcludedFromBalanceTransaction, isHiddenTransaction } from '../utils/
 import categoryController from '../controllers/category-controller';
 import { Category } from '../models/category/category';
 import moment = require('moment');
+import { isDebitAccountType, isCreditAccountType } from '../utils/accountUtils';
 
 const router = Router();
 
@@ -58,6 +59,153 @@ function validateReadRequest(args: SpendingRequestArgs): void {
     }
 }
 
+interface MonthlyCategorySpending {
+    parentCategoryId?: string;
+    categoryId?: string;
+    categoryName?: string;
+    month?: Date;
+    monthName?: string;
+    debit?: number;
+    credit?: number;
+}
+
+function buildSpendingsByMonth(
+    transactions: Transaction[],
+    categories: Map<string, Category>,
+    accounts: Map<string, DeepPartial<UserAccount>>
+): {
+    parents: MonthlyCategorySpending[];
+    subs: MonthlyCategorySpending[];
+} {
+    let months: {
+        parents: MonthlyCategorySpending[];
+        subs: MonthlyCategorySpending[];
+    };
+
+    months = {
+        parents: [],
+        subs: [],
+    };
+
+    interface startEnd {
+        start: Date;
+        end: Date;
+    }
+    let init: startEnd = {
+        start: moment().toDate(),
+        end: moment().toDate(),
+    };
+
+    const borders = transactions.reduce((previousValue: startEnd, currentValue: Transaction) => {
+        const val = { ...previousValue };
+
+        const transDate = moment(currentValue.chaseTransaction.PostingDate);
+        if (transDate.isBefore(previousValue.start)) {
+            val.start = transDate.toDate();
+        }
+        if (transDate.isAfter(previousValue.end)) {
+            val.end = transDate.toDate();
+        }
+
+        return val;
+    }, init);
+
+    borders.start = moment(borders.start)
+        .startOf('month')
+        .toDate();
+    borders.end = moment(borders.end)
+        .endOf('month')
+        .toDate();
+
+    const allParents: MonthlyCategorySpending[] = [];
+    const allSubs: MonthlyCategorySpending[] = [];
+
+    for (let iter = moment(borders.start); iter.isBefore(borders.end); iter = iter.add(1, 'months')) {
+        ////// monthly logic begins here
+        const monthTransactions = transactions.filter(
+            (t) =>
+                t.categoryId &&
+                moment(t.chaseTransaction.PostingDate)
+                    .startOf('month')
+                    .isSame(iter.startOf('month'))
+        );
+
+        if (!monthTransactions.length || monthTransactions.length === 0) {
+            continue;
+        }
+
+        const parents = new Map<string, MonthlyCategorySpending>();
+        const subs = new Map<string, MonthlyCategorySpending>();
+
+        monthTransactions.forEach((transaction) => {
+            if (!accounts.has(transaction.accountId)) {
+                return;
+            }
+            const account = accounts.get(transaction.accountId);
+            const rootId = getRootCategoryId(transaction.categoryId, categories);
+            if (!rootId) {
+                return;
+            }
+
+            ///// handle parent category first
+
+            let parent: MonthlyCategorySpending;
+            if (parents.has(rootId)) {
+                parent = parents.get(rootId);
+            } else {
+                if (!categories.has(rootId)) {
+                    return;
+                }
+                const category = categories.get(rootId);
+                parent = {
+                    categoryId: rootId,
+                    categoryName: category.caption,
+                    debit: 0,
+                    credit: 0,
+                    monthName: iter.format('MMMM'),
+                    month: iter.toDate(),
+                };
+                parents.set(rootId, parent);
+            }
+
+            upadteTotal(parent, account.accountType, transaction.chaseTransaction.Amount);
+
+            //// handle subcategory
+
+            if (rootId !== transaction.categoryId) {
+                let sub: MonthlyCategorySpending;
+                if (subs.has(transaction.categoryId)) {
+                    sub = subs.get(transaction.categoryId);
+                } else {
+                    if (!categories.has(transaction.categoryId)) {
+                        return;
+                    }
+                    const subcategory = categories.get(transaction.categoryId);
+                    const parentCategory = categories.get(rootId);
+                    sub = {
+                        parentCategoryId: parentCategory.categoryId,
+                        categoryId: subcategory.categoryId,
+                        categoryName: subcategory.caption,
+                        debit: 0,
+                        credit: 0,
+                        monthName: iter.format('MMMM'),
+                        month: iter.toDate(),
+                    };
+                    subs.set(transaction.categoryId, sub);
+                }
+                upadteTotal(sub, account.accountType, transaction.chaseTransaction.Amount);
+            }
+        }); // end of transactions foreach
+        allParents.push(...parents.values());
+        allSubs.push(...subs.values());
+    } // end of month foreach
+
+    months.parents = allParents;
+    months.subs = allSubs;
+
+    return months;
+}
+
 async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<SpendingResponse> {
     console.log(`Processing read request in spending router`);
     validateReadRequest(args);
@@ -67,6 +215,7 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
         endDate: args.endDate,
         subCatgories: [],
         categories: [],
+        spendingsByMonth: [],
     };
 
     try {
@@ -74,15 +223,16 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
             .getUserAccounts(args.userId)
             .then((accounts: DeepPartial<UserAccount>[]) => {
                 const trans: Promise<Transaction[] | number>[] = [];
-                for (let i = 0; i < accounts.length; i++) {
-                    const trarg: TransactionReadArg = {
-                        startDate: args.startDate,
-                        endDate: args.endDate,
-                        accountId: accounts[i].accountId,
-                    };
-                    const t = transactionProcessor.read(trarg);
-                    trans.push(t);
-                }
+                const acctids = accounts.map((a) => a.accountId);
+
+                const trarg: TransactionReadArg = {
+                    startDate: args.startDate,
+                    endDate: args.endDate,
+                    accountIds: acctids,
+                };
+                const t = transactionProcessor.read(trarg);
+                trans.push(t);
+
                 return Promise.all(trans)
                     .then((res: (number | Transaction[])[]) => {
                         let trans: Transaction[] = [];
@@ -138,7 +288,11 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
                             accountsMap.set(c.accountId, c);
                         }
                     });
-                    res.transactions.forEach((t) => {
+                    const includedTransactions = res.transactions.filter(
+                        (t) => !isHiddenTransaction(t) && !isExcludedFromBalanceTransaction(t)
+                    );
+
+                    includedTransactions.forEach((t) => {
                         if (isHiddenTransaction(t) || isExcludedFromBalanceTransaction(t)) {
                             return;
                         }
@@ -208,6 +362,7 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
                     response.categories = [];
                     response.subCatgories = [];
                     response.spendingProgression = [];
+                    response.spendingsByMonth = buildSpendingsByMonth(includedTransactions, categoriesMap, accountsMap);
                     const cumulative = {
                         debit: 0,
                         credit: 0,
@@ -221,7 +376,7 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
                     const lastTransaction = res.transactions.reduce(
                         maxDateReducer,
                         moment()
-                            .subtract('years', 1000)
+                            .subtract(1000, 'years')
                             .toDate()
                     );
                     const startDate = moment(lastTransaction)
@@ -290,20 +445,20 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
     return response;
 }
 
-const upadteTotal = (spending: CategorySpending, accountType: AccountType, amount: number): void => {
-    if (accountType === AccountType.Debit) {
+const upadteTotal = (spending: { credit?: number; debit?: number }, accountType: AccountType, amount: number): void => {
+    if (isDebitAccountType(accountType)) {
         // negative number is debit, positive is credit
         if (amount > 0) {
             spending.credit += Math.abs(amount);
         } else {
             spending.debit += Math.abs(amount);
         }
-    } else if (accountType === AccountType.Credit) {
-        // negative is credit, positive is debit
+    } else if (isCreditAccountType(accountType)) {
+        // negative number is debit, positive is credit
         if (amount > 0) {
-            spending.debit += Math.abs(amount);
-        } else {
             spending.credit += Math.abs(amount);
+        } else {
+            spending.debit += Math.abs(amount);
         }
     }
 };
@@ -343,6 +498,26 @@ const getRootCategory = (allCategories: Map<string, Category>, forCategory?: Cat
     } else {
         return undefined; // broken chain of categories
     }
+};
+
+const getRootCategoryId = (forCategory: string, allCategories: Map<string, Category>): string | undefined => {
+    if (!forCategory) {
+        return undefined;
+    }
+    if (!allCategories) {
+        return undefined;
+    }
+
+    if (!allCategories.has(forCategory)) {
+        return undefined;
+    }
+
+    const parent = allCategories.get(forCategory);
+    if (!parent.parentCategoryId) {
+        return forCategory;
+    }
+
+    return getRootCategoryId(parent.parentCategoryId, allCategories);
 };
 
 export = router;
