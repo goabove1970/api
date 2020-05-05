@@ -6,6 +6,12 @@ export class ErrorBase {
     errorCode?: number;
 }
 
+export class SessionError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process session request');
+    }
+}
+
 export class DatabaseError extends ErrorBase {
     constructor(errorMesage?: string) {
         super(errorMesage || 'could not process database request');

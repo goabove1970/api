@@ -4,16 +4,22 @@ import { UserRequest, UserResponse, ReadUserArgs, UserRequestType } from './requ
 import { UserError } from '@models/errors/errors';
 import { DeepPartial } from '@models/DeepPartial';
 import userController from '@controllers/user-controller';
-import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
+import {
+    UserUpdatePasswordArgs,
+    UserLoginArgs,
+    UserLogoutArgs,
+    UserExtendSessionArgs,
+} from '@models/user/UserUpdatePasswordArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
-import { ManageAccountArgs } from "@models/user/ManageAccountArgs";
+import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { UserDetails } from '@models/user/UserDetails';
+import sessionServiceController from '../controllers/session-controller/session-service-controller';
 
 const router = Router();
 
-router.get('/', async function(req, res, next) {
+const process = async function(req, res, next) {
     console.log(`Received a request in user controller: ${JSON.stringify(req.body, null, 4)}`);
     const userRequest = req.body as UserRequest;
     if (!userRequest) {
@@ -21,7 +27,6 @@ router.get('/', async function(req, res, next) {
     }
 
     let responseData: UserResponse = {};
-
     console.log(`Processing ${userRequest.action} user request`);
     switch (userRequest.action) {
         case UserRequestType.Read:
@@ -43,14 +48,26 @@ router.get('/', async function(req, res, next) {
             responseData = await processAddAccountRequest(userRequest.args);
             break;
         case UserRequestType.RemoveAccount:
-            responseData = await processRemoveAccountequest(userRequest.args);
+            responseData = await processRemoveAccountRequest(userRequest.args);
+            break;
+        case UserRequestType.Login:
+            responseData = await processLoginRequest(userRequest.args);
+            break;
+        case UserRequestType.Logout:
+            responseData = await processLogoutRequest(userRequest.args);
+            break;
+        case UserRequestType.ExtendSession:
+            responseData = await processExtendSessionRequest(userRequest.args);
             break;
     }
 
     res.send(responseData);
-});
+};
 
-async function processRemoveAccountequest(request: ManageAccountArgs): Promise<UserResponse> {
+router.get('/', process);
+router.post('/', process);
+
+async function processRemoveAccountRequest(request: ManageAccountArgs): Promise<UserResponse> {
     const response: UserResponse = {
         action: UserRequestType.RemoveAccount,
         payload: {},
@@ -65,6 +82,90 @@ async function processRemoveAccountequest(request: ManageAccountArgs): Promise<U
     } catch (error) {
         console.error(error.message);
         response.error = error.message;
+    }
+    return response;
+}
+
+async function processLoginRequest(request: UserLoginArgs): Promise<UserResponse> {
+    const response: UserResponse = {
+        action: UserRequestType.Login,
+        payload: {},
+    };
+
+    try {
+        response.payload = await userController
+            .validateUser(request)
+            .then((userData: UserDetails) => {
+                if (userData !== undefined) {
+                    return sessionServiceController
+                        .init({
+                            userId: userData.userId,
+                        })
+                        .then((sessionData) => {
+                            return {
+                                sessionData,
+                                userData,
+                            };
+                        });
+                }
+                throw 'Could not validate user credentials';
+            })
+            .then(async ({ sessionData, userData }) => {
+                if (sessionData.error) {
+                    throw `Could not initilize new session, code: ${sessionData.errorCode}, error: ${sessionData.error}`;
+                }
+                await userController.updateLastLogin(userData.userId);
+                return {
+                    ...response.payload,
+                    session: sessionData.payload,
+                };
+            })
+            .catch((error) => {
+                throw error;
+            });
+    } catch (error) {
+        console.error(error.message || error);
+        response.error = error.message || error;
+    }
+    return response;
+}
+
+async function processExtendSessionRequest(request: UserExtendSessionArgs): Promise<UserResponse> {
+    const response: UserResponse = {
+        action: UserRequestType.ExtendSession,
+        payload: {},
+    };
+
+    try {
+        const session = await sessionServiceController.extend({ sessionId: request.sessionId });
+        if (session.error) {
+            throw `Can not extend session. Code: ${session.errorCode}. Error message: ${session.error}.`;
+        }
+        response.payload = {
+            session: session.payload,
+        };
+    } catch (error) {
+        console.error(error.message || error);
+        response.error = error.message || error;
+    }
+    return response;
+}
+
+async function processLogoutRequest(request: UserLogoutArgs): Promise<UserResponse> {
+    const response: UserResponse = {
+        action: UserRequestType.Logout,
+        payload: {},
+    };
+
+    try {
+        response.payload = await sessionServiceController
+            .terminate({
+                sessionId: request.sessionId,
+            })
+            .then((r) => r.payload);
+    } catch (error) {
+        console.error(error.message || error);
+        response.error = error.message || error;
     }
     return response;
 }

@@ -1,4 +1,4 @@
-import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
+import { UserUpdatePasswordArgs, UserLoginArgs } from '@models/user/UserUpdatePasswordArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
 import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
 import { UserReadArgs } from '@models/user/UserReadArgs';
@@ -38,6 +38,10 @@ export class UserController implements UserPersistanceControllerBase {
         return userPersistanceController.addAccount(args);
     }
 
+    validateUser(args: UserLoginArgs): Promise<UserDetails | undefined> {
+        return userPersistanceController.validtePassword(args);
+    }
+
     getUserAccountLinks(args: ManageAccountArgs): Promise<UserAccountLink[]> {
         return userPersistanceController.getUserAccountLinks(args);
     }
@@ -48,6 +52,10 @@ export class UserController implements UserPersistanceControllerBase {
 
     updateUserData(args: UserUpdateArgs): Promise<void> {
         return userPersistanceController.updateUserData(args);
+    }
+
+    updateLastLogin(userId: string): Promise<void> {
+        return userPersistanceController.updateLastLogin(userId);
     }
 
     delete(args: UserDeleteArgs): Promise<void> {

@@ -3,8 +3,8 @@ import { AccountType } from './Account';
 export interface AccountUpdateArgs {
     accountId?: string;
     userId?: string;
-    bankRoutingNumber?: number;
-    bankAccountNumber?: number;
+    bankRoutingNumber?: string;
+    bankAccountNumber?: string;
     bankName?: string;
     status?: AccountStatus;
     accountType?: AccountType;

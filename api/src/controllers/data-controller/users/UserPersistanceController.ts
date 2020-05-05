@@ -1,6 +1,6 @@
 import { UserPersistanceControllerBase } from './UserPersistanceControllerBase';
 import { DeepPartial } from '@models/DeepPartial';
-import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
+import { UserUpdatePasswordArgs, UserLoginArgs } from '@models/user/UserUpdatePasswordArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
 import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
 import { UserReadArgs } from '@models/user/UserReadArgs';
@@ -86,7 +86,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
             });
     }
 
-    private getUserByStringCondition(condition?: string): Promise<DeepPartial<UserDetails> | undefined> {
+    private getUserByStringCondition(condition?: string): Promise<UserDetails | undefined> {
         return this.dataController
             .select(condition)
             .then((collection) => {
@@ -99,18 +99,19 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 if (!user) {
                     return undefined;
                 }
-                return toShortUserDetails(user);
+                //return toShortUserDetails(user);
+                return user;
             })
             .catch((error) => {
                 throw error;
             });
     }
 
-    getUserByLogin(login?: string): Promise<DeepPartial<UserDetails> | undefined> {
+    getUserByLogin(login?: string): Promise<UserDetails | undefined> {
         return this.getUserByStringCondition(`WHERE login='${login}'`);
     }
 
-    getUserByEmail(email?: string): Promise<DeepPartial<UserDetails> | undefined> {
+    getUserByEmail(email?: string): Promise<UserDetails | undefined> {
         return this.getUserByStringCondition(`WHERE email='${email}'`);
     }
 
@@ -163,7 +164,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
 
         const { userId, oldPassword, newPassword } = args;
         return this.findUserImpl(userId)
-            .then((user) => {
+            .then((user: UserDetails) => {
                 if (!user) {
                     throw new DatabaseError('Error updating user password, user not found');
                 }
@@ -180,6 +181,24 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
             })
             .then((user) => {
                 this.dataController.update(this.composeSetStatement(user));
+            })
+            .catch((error) => {
+                throw error;
+            });
+    }
+
+    validtePassword(args: UserLoginArgs): Promise<UserDetails | undefined> {
+        const { login, password } = args;
+        return this.getUserByLogin(login)
+            .then((user: UserDetails) => {
+                if (!user) {
+                    throw new DatabaseError('Error validating user password, user not found');
+                }
+                // we store hash, not the actual password
+                if (passwordHash.verify(password, user.password)) {
+                    return user;
+                }
+                return undefined;
             })
             .catch((error) => {
                 throw error;
@@ -215,6 +234,23 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 if (args.status) {
                     user.status = args.status;
                 }
+                return user;
+            })
+            .then((user) => {
+                this.dataController.update(this.composeSetStatement(user));
+            })
+            .catch((error) => {
+                throw error;
+            });
+    }
+
+    updateLastLogin(userId: string): Promise<void> {
+        return this.findUserImpl(userId)
+            .then((user) => {
+                if (!user) {
+                    throw new DatabaseError('Error updating user last login, could not find user record');
+                }
+                user.lastLogin = moment().toDate();
                 return user;
             })
             .then((user) => {

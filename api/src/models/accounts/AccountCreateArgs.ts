@@ -1,6 +1,6 @@
 export interface AccountCreateArgs {
-  userId?: string;
-  bankRoutingNumber?: number;
-  bankAccountNumber?: number;
-  bankName?: string;
+    userId?: string;
+    bankRoutingNumber?: string;
+    bankAccountNumber?: string;
+    bankName?: string;
 }

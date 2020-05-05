@@ -66,8 +66,8 @@ export class AccountPersistanceController implements AccountPersistanceControlle
                     account_type)
                     VALUES (
                         '${a.accountId}', 
-                        ${a.bankRoutingNumber},
-                        ${a.bankAccountNumber},
+                        '${a.bankRoutingNumber}',
+                        '${a.bankAccountNumber}',
                         ${a.bankName ? "'" + a.bankName + "'" : 'NULL'},
                         ${a.cardNumber ? "'" + a.cardNumber + "'" : 'NULL'},
                         ${a.alias ? "'" + a.alias + "'" : 'NULL'},

@@ -3,8 +3,8 @@ import { AccountStatus } from './AccountStatus';
 export interface UserAccount {
     accountId?: string;
     userId?: string;
-    bankRoutingNumber?: number;
-    bankAccountNumber?: number;
+    bankRoutingNumber?: string;
+    bankAccountNumber?: string;
     bankName?: string;
     createDate?: Date;
     status?: AccountStatus;

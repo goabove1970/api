@@ -12,16 +12,16 @@ export class AccountPostgresController extends DatabaseController<UserAccount> {
         values.forEach((row) => {
             collection.push({
                 accountId: row[0],
-                bankRoutingNumber: row[1],
-                bankAccountNumber: row[2],
-                bankName: row[3],
-                createDate: row[4],
-                status: row[5],
-                serviceComment: row[6],
-                accountType: row[7],
-                cardNumber: row[8],
-                cardExpiration: row[9],
-                alias: row[10],
+                bankName: row[1],
+                createDate: row[2],
+                status: row[3],
+                serviceComment: row[4],
+                accountType: row[5],
+                cardNumber: row[6],
+                cardExpiration: row[7],
+                alias: row[8],
+                bankRoutingNumber: row[9],
+                bankAccountNumber: row[10],
             } as UserAccount);
         });
 

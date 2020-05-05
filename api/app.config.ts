@@ -2,6 +2,12 @@ import { PgConfig } from './src/controllers/data-controller/database/PgConfig';
 
 export interface ApplicationConfig {
     PgConfig?: PgConfig;
+    SessionServiceConfig?: ServiceConfig;
+}
+
+export interface ServiceConfig {
+    url?: string;
+    port?: number;
 }
 
 export const CONFIG: ApplicationConfig = {
@@ -12,5 +18,9 @@ export const CONFIG: ApplicationConfig = {
         password: 'admin',
         database: 'postgres',
         schema: 'public',
+    },
+    SessionServiceConfig: {
+        url: '127.0.0.1',
+        port: 9200,
     },
 };
