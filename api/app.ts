@@ -14,6 +14,7 @@ import * as sessionRouter from '@routes/session';
 import * as categoryRouter from '@routes/categories';
 import * as businessRouter from '@routes/businesses';
 import * as spendingsRouter from '@routes/spendings';
+import * as bankConnectionsRouter from '@routes/banks-connections';
 import logger from '@src/logger';
 
 export const app = express();
@@ -34,6 +35,7 @@ app.use('/session', sessionRouter);
 app.use('/categories', categoryRouter);
 app.use('/business', businessRouter);
 app.use('/spendings', spendingsRouter);
+app.use('/bank-connections', bankConnectionsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

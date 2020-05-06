@@ -3,6 +3,7 @@ import { PgConfig } from './src/controllers/data-controller/database/PgConfig';
 export interface ApplicationConfig {
     PgConfig?: PgConfig;
     SessionServiceConfig?: ServiceConfig;
+    BankServiceConfig?: ServiceConfig;
 }
 
 export interface ServiceConfig {
@@ -22,5 +23,9 @@ export const CONFIG: ApplicationConfig = {
     SessionServiceConfig: {
         url: '127.0.0.1',
         port: 9200,
+    },
+    BankServiceConfig: {
+        url: '127.0.0.1',
+        port: 9300,
     },
 };
