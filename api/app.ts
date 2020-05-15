@@ -6,7 +6,6 @@ var cors = require('cors');
 var cookieParser = require('cookie-parser');
 var createError = require('http-errors');
 
-import * as indexRouter from '@routes/index';
 import * as transactionsRouter from '@routes/transactions';
 import * as userRouter from '@routes/users';
 import * as accountRouter from '@routes/accounts';
@@ -27,7 +26,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use('/', indexRouter);
 app.use('/transactions', transactionsRouter);
 app.use('/users', userRouter);
 app.use('/accounts', accountRouter);
