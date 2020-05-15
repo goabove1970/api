@@ -1,6 +1,6 @@
 {
     "name": "dinero-main-api",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "private": true,
     "scripts": {
         "start": "node ./dist/bin/www",
@@ -9,7 +9,8 @@
         "compile": "npm run build:ts",
         "prettier:check": "prettier --check \"./**/*.{js,ts,tsx,json,scss,md}\"",
         "prettier:write": "prettier --write \"./**/*.{js,ts,tsx,json,scss,md}\"",
-        "pack": "node ./pack.js"
+        "pack": "node ./pack.js",
+        "patch": "./scripts/bump-patch.sh"
     },
     "dependencies": {
         "bluebird": "^3.5.5",
