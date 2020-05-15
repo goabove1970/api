@@ -12,20 +12,36 @@ export interface ServiceConfig {
 }
 
 export const CONFIG: ApplicationConfig = {
+    // PgConfig: {
+    //     host: '127.0.0.1',
+    //     port: 5432,
+    //     login: 'postgres',
+    //     password: 'admin',
+    //     database: 'postgres',
+    //     schema: 'public',
+    // },
     PgConfig: {
-        host: '127.0.0.1',
+        host: 'dinero-db.cmi7wgy95mjp.us-east-2.rds.amazonaws.com',
         port: 5432,
         login: 'postgres',
-        password: 'admin',
+        password: 'G62LHttp9FF9',
         database: 'postgres',
         schema: 'public',
     },
     SessionServiceConfig: {
-        url: '127.0.0.1',
-        port: 9200,
+        url: 'dinero-session-manager.us-east-2.elasticbeanstalk.com',
+        port: undefined,
     },
+    // SessionServiceConfig: {
+    //     url: 'localhost',
+    //     port: 9200,
+    // },
     BankServiceConfig: {
-        url: '127.0.0.1',
-        port: 9300,
+        url: 'dinero-bank-manager.us-east-2.elasticbeanstalk.com',
+        port: undefined,
     },
+    // BankServiceConfig: {
+    //     url: '127.0.0.1',
+    //     port: 9300,
+    // },
 };
