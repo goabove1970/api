@@ -28,6 +28,9 @@ export class TransactionProcessor {
     }
 
     read(args: TransactionReadArg): Promise<number | Transaction[]> {
+        if (!args.accountId && (!args.accountIds || args.accountIds.length === 0)) {
+            return Promise.resolve([]);
+        }
         return transController.read(args);
     }
 
