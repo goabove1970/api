@@ -14,6 +14,10 @@ const passThourgh = async function(req, res) {
     let responseData: TransactionResponse = {};
     console.log(`Processing ${request.action} transaction request`);
     responseData = await transactionPassThrough.passThrough(request.args, request.action);
+
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'content-type');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.send(responseData);
 };
 
