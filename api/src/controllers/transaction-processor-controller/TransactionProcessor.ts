@@ -117,25 +117,37 @@ export class TransactionProcessor {
         }
 
         // assuming it may take up to 5 days for transaction to post,
-        // we will start from a date of the last existing transaction in database, minues 5 days
+        // we will start from a date of the last existing transaction in database, minus 5 days
 
-        const lastTransactionDate = lastExistingPosted[0].chaseTransaction.PostingDate;
-        const beginningDate = new Date(lastTransactionDate);
-        beginningDate.setDate(beginningDate.getDate() - 5);
-        const today = new Date();
+        // sort pennding transactions by posting date
+        pending = pending
+            .filter((c) => c.chaseTransaction.PostingDate !== undefined)
+            .sort((p1, p2) =>
+                moment(p1.chaseTransaction.PostingDate).isBefore(moment(p2.chaseTransaction.PostingDate)) ? -1 : 1
+            );
+        if (!pending || pending.length === 0) {
+            return [];
+        }
+        const lastTransactionDate = moment(pending[0].chaseTransaction.PostingDate).isBefore(
+            moment(lastExistingPosted[0].chaseTransaction.PostingDate)
+        )
+            ? pending[0].chaseTransaction.PostingDate
+            : lastExistingPosted[0].chaseTransaction.PostingDate;
+        const beginningDate = moment(lastTransactionDate).subtract(5, 'days');
+        const today = moment();
 
         let toBeAdded: Transaction[] = [];
 
-        for (let date = new Date(beginningDate); date <= today; date.setDate(date.getDate() + 1)) {
+        for (let date = beginningDate; date.startOf('day').isSameOrBefore(today.startOf('day')); date.add(1, 'day')) {
             const dbRecords = lastExistingPosted.filter((t) =>
                 moment(t.chaseTransaction.PostingDate)
                     .startOf('day')
-                    .isSame(moment(date).startOf('day'))
+                    .isSame(date.startOf('day'))
             );
             const pendingRecords = pendingPosted.filter((t) => {
                 const collDate = moment(t.chaseTransaction.PostingDate).startOf('day');
 
-                const iteratorDate = moment(date).startOf('day');
+                const iteratorDate = date.startOf('day');
                 return collDate.isSame(iteratorDate);
             });
 

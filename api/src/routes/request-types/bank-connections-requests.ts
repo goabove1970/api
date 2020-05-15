@@ -1,20 +1,12 @@
 import { ResponseBase } from './Requests';
 
-export enum BankSyncRequestType {
-    AddBankConnection = 'add-bank-connection',
-    RemoveBankConnection = 'remove-bank-connection',
-    UpdateBankConnection = 'update-bank-connection',
-    GetBankConnections = 'get-bank-connections',
-    Synchonize = 'sync',
-}
-
 export interface BankSyncRequest {
-    action?: BankSyncRequestType;
+    action?: string;
     args?: BankSyncArgs;
 }
 
 export interface BankConnectionResponse extends ResponseBase {
-    action?: BankSyncRequestType;
+    action?: string;
 }
 
 export interface BankConnectionStats {

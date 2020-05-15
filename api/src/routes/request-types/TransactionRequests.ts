@@ -12,9 +12,15 @@ export enum TransactionRequestType {
     Update = 'update',
 }
 
+export type TransactionRequestTypeArgs =
+    | ReadTransactionArgs
+    | TransactionImportArgs
+    | TransactioCsvFileImportArgs
+    | TryRegexParseArgs;
+
 export interface TransactionRequest {
     action?: TransactionRequestType;
-    args?: ReadTransactionArgs | TransactionImportArgs | TransactioCsvFileImportArgs | TryRegexParseArgs;
+    args?: TransactionRequestTypeArgs;
 }
 
 export interface TransactionResponse extends ResponseBase {

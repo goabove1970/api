@@ -1,14 +1,14 @@
-import { BankSyncArgs, BankConnectionResponse } from '@root/src/routes/request-types/bank-connections-requests';
 import * as http from 'http';
 import { CONFIG, ServiceConfig } from '@root/app.config';
+import { TransactionRequestTypeArgs, TransactionResponse } from '@root/src/routes/request-types/TransactionRequests';
 
-export class BankSyncService {
+export class TransactionPassThroughService {
     config: ServiceConfig;
     constructor(config: ServiceConfig) {
         this.config = config;
     }
 
-    passThrough(args: BankSyncArgs, action: string): Promise<BankConnectionResponse> {
+    passThrough(args: TransactionRequestTypeArgs, action: string): Promise<TransactionResponse> {
         const reqBody = { action, args };
         const bodyString = JSON.stringify(reqBody);
 
@@ -16,7 +16,7 @@ export class BankSyncService {
             method: 'POST',
             hostname: this.config.url,
             port: this.config.port,
-            path: '/bank-connections',
+            path: '/transactions',
             headers: {
                 'content-type': 'application/json',
                 'content-length': Buffer.byteLength(bodyString),
@@ -36,7 +36,7 @@ export class BankSyncService {
 
                 res.on('end', () => {
                     const dataStr = buffer.toString();
-                    const data = JSON.parse(dataStr) as BankConnectionResponse;
+                    const data = JSON.parse(dataStr) as TransactionResponse;
                     resolve(data);
                 });
             });
@@ -52,5 +52,5 @@ export class BankSyncService {
     }
 }
 
-const bankSyncController = new BankSyncService(CONFIG.BankServiceConfig);
-export default bankSyncController;
+const transactionPassThrough = new TransactionPassThroughService(CONFIG.BankServiceConfig);
+export default transactionPassThrough;

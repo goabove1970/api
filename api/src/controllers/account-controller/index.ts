@@ -31,6 +31,18 @@ export class AccountController implements AccountPersistanceControllerBase {
         };
         return this.read(args);
     }
+
+    async getMap(userId?: string): Promise<Map<string, UserAccount>> {
+        const accounts = await this.getUserAccounts(userId);
+        const accountsMap = new Map<string, UserAccount>();
+        accounts.forEach((c) => {
+            const existing = accountsMap.has(c.accountId);
+            if (!existing) {
+                accountsMap.set(c.accountId, c);
+            }
+        });
+        return accountsMap;
+    }
 }
 
 const accountController: AccountController = new AccountController();

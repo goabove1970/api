@@ -15,6 +15,12 @@ export interface SpendingRequest {
     args?: SpendingRequestArgs;
 }
 
+export interface MonthlyBalance {
+    debit: number;
+    credit: number;
+    month: Date;
+}
+
 export interface CategorySpending {
     debit: number;
     credit: number;
@@ -32,4 +38,5 @@ export interface SpendingResponse extends ResponseBase {
     subCatgories?: CategorySpending[];
     spendingProgression?: any[];
     spendingsByMonth?: any;
+    annualBalances?: MonthlyBalance[];
 }
