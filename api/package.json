@@ -9,6 +9,7 @@
         "compile": "npm run build:ts",
         "prettier:check": "prettier --check \"./**/*.{js,ts,tsx,json,scss,md}\"",
         "prettier:write": "prettier --write \"./**/*.{js,ts,tsx,json,scss,md}\"",
+        "up": "node ./upload.js",
         "pack": "node ./pack.js",
         "release": "node ./release.js",
         "patch": "./scripts/bump-patch.sh",
