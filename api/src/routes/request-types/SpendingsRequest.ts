@@ -1,4 +1,8 @@
 import { ResponseBase } from './Requests';
+import { MonthlyBalance } from '@root/src/models/spendings/MonthlyBalance';
+import { SpendingProgressionItem } from '@root/src/models/spendings/SpendingProgressionItem';
+import { CategorySpending } from '@root/src/models/spendings/CategorySpending';
+import { SpendingsByMonth } from '@root/src/models/spendings/SpendingsByMonth';
 
 export type SpendingRequestType = 'read';
 
@@ -15,28 +19,13 @@ export interface SpendingRequest {
     args?: SpendingRequestArgs;
 }
 
-export interface MonthlyBalance {
-    debit: number;
-    credit: number;
-    month: Date;
-}
-
-export interface CategorySpending {
-    debit: number;
-    credit: number;
-    saldo: number;
-    name: string;
-    categoryId?: string;
-    parentCategoryId?: string;
-}
-
 export interface SpendingResponse extends ResponseBase {
     action?: SpendingRequestType;
     startDate?: Date;
     endDate?: Date;
     categories?: CategorySpending[];
     subCatgories?: CategorySpending[];
-    spendingProgression?: any[];
-    spendingsByMonth?: any;
+    spendingProgression?: SpendingProgressionItem[];
+    spendingsByMonth?: SpendingsByMonth;
     annualBalances?: MonthlyBalance[];
 }
