@@ -1,4 +1,4 @@
-import { Transaction, TransactionStatus } from '../models/transaction/Transaction';
+import { Transaction, TransactionStatus } from '@src/models/transaction/transaction';
 
 export const isHiddenTransaction = (t: Transaction): boolean => {
     if (!t) {

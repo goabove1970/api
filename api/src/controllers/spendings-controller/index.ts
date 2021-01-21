@@ -1,4 +1,4 @@
-import { Transaction } from "@root/src/models/transaction/Transaction";
+import { Transaction } from "@root/src/models/transaction/transaction";
 import { Category } from "@root/src/models/category/category";
 import { DeepPartial } from "@root/src/models/DeepPartial";
 import { UserAccount, AccountType } from "@root/src/models/accounts/Account";

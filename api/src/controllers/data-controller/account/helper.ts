@@ -1,10 +1,9 @@
 import { UserAccount } from '@models/accounts/Account';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
-import { GuidFull } from '@utils/generateGuid';
+import { GuidFull } from '@root/src/utils/generateGuid';
 import { AccountStatus } from '@models/accounts/AccountStatus';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
-import { userPersistanceController } from '../users/UserPersistanceController';
 import { CONFIG } from '@root/app.config';
 import {
     isAccountActive,
@@ -80,38 +79,18 @@ export function matchesReadArgs(args: ReadAccountArgs): string {
     return finalSattement;
 }
 
-export function validateCreateAccountArgs(args: AccountCreateArgs): Promise<void> {
-    // if (!args.userId) {
-    //     throw new DatabaseError('User id name can not be empty');
-    // }
+export function validateCreateAccountArgs(args: AccountCreateArgs): void {
+    if (!args.bankRoutingNumber) {
+        throw {
+            message: 'Routing number can not be empty',
+        };
+    }
 
-    return (
-        userPersistanceController
-            .getUserById(args.userId)
-            // .then((user) => {
-            //     if (!user) {
-            //         throw {
-            //             message: 'User account with provided id was not found',
-            //         };
-            //     }
-            // })
-            .then(() => {
-                if (!args.bankRoutingNumber) {
-                    throw {
-                        message: 'Routing number can not be empty',
-                    };
-                }
-
-                if (!args.bankAccountNumber) {
-                    throw {
-                        message: 'Bank account name can not be empty',
-                    };
-                }
-            })
-            .catch((error) => {
-                throw error;
-            })
-    );
+    if (!args.bankAccountNumber) {
+        throw {
+            message: 'Bank account name can not be empty',
+        };
+    }
 }
 
 export const combineNewAccount = (args: AccountCreateArgs): UserAccount => {

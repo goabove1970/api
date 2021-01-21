@@ -20,23 +20,29 @@ import { UserStatus } from '@models/user/UserStatus';
 import { DatabaseController } from '../DataController';
 import { DatabaseError } from '@root/src/models/errors/errors';
 import { userPostgresDataController } from './UsersPostgresController';
-import { accountPersistanceController } from '../account/AccountPersistanceController';
-import { userAccountLinkDataController } from '../userAccountLink/UserAccountLinkPostgresController';
 import moment = require('moment');
 import { Value } from 'ts-postgres';
 import { UserAccountLink } from '@root/src/models/accounts/Account';
+import { AccountPersistanceController, accountPersistanceController } from '../account/AccountPersistanceController';
+import { userAccountLinkDataController } from '../userAccountLink/UserAccountLinkPostgresController';
 
 export class UserPersistanceController implements UserPersistanceControllerBase {
-    private dataController: DatabaseController<UserDetails>;
+    userDataController: DatabaseController<UserDetails>;
+    accountPersistanceController: AccountPersistanceController;
+    userAccountLinkDataController: DatabaseController<UserAccountLink>;
 
-    constructor(controller: DatabaseController<UserDetails>) {
-        this.dataController = controller;
+    constructor(userDatabaseController: DatabaseController<UserDetails>,
+        accountPersistanceController: AccountPersistanceController,
+        userAccountLinkDataController: DatabaseController<UserAccountLink>) {
+        this.userDataController = userDatabaseController;
+        this.accountPersistanceController = accountPersistanceController;
+        this.userAccountLinkDataController = userAccountLinkDataController;
     }
 
     checkLoginAvailable(login: string): Promise<void> {
         const condition = `WHERE login='${login}'`;
 
-        return this.dataController
+        return this.userDataController
             .select(condition)
             .then((collection) => {
                 if (collection && collection.length > 0) {
@@ -48,10 +54,25 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
             });
     }
 
-    private findUserImpl(userId: string): Promise<UserDetails | undefined> {
+    checkEmailAvailable(login: string): Promise<void> {
+        const condition = `WHERE email='${login}'`;
+
+        return this.userDataController
+            .select(condition)
+            .then((collection) => {
+                if (collection && collection.length > 0) {
+                    throw new DatabaseError('User with this email already exists');
+                }
+            })
+            .catch((error) => {
+                throw error;
+            });
+    }
+
+    findUserImpl(userId: string): Promise<UserDetails | undefined> {
         const condition = `WHERE "userId"='${userId}'`;
 
-        return this.dataController
+        return this.userDataController
             .select(condition)
             .then((collection) => {
                 if (collection && collection.length > 0) {
@@ -78,7 +99,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
     }
 
     read(args: UserReadArgs): Promise<DeepPartial<UserDetails>[]> {
-        return this.dataController
+        return this.userDataController
             .select(matchesReadArgs(args))
             .then((c) => c.map(toShortUserDetails))
             .catch((error) => {
@@ -86,8 +107,8 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
             });
     }
 
-    private getUserByStringCondition(condition?: string): Promise<UserDetails | undefined> {
-        return this.dataController
+    getUserByStringCondition(condition?: string): Promise<UserDetails | undefined> {
+        return this.userDataController
             .select(condition)
             .then((collection) => {
                 if (collection && collection.length > 0) {
@@ -118,8 +139,11 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
     create(args: UserCreateArgs): Promise<string> {
         validateCreateUserArgs(args);
         const u = combineNewUser(args);
-        return this.checkLoginAvailable(args.login)
-            .then(() => {
+        const validations = Promise.all([
+            this.checkLoginAvailable(args.login),
+            this.checkEmailAvailable(args.email)
+        ]);
+        return validations.then(() => {
                 const query = `(
                     "userId", "firstName", "lastName", ssn,
                     login, password, email, dob,
@@ -132,7 +156,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                     '${moment(u.accountCreated).toISOString()}',
                     ${!u.serviceComment ? 'NULL' : "'" + u.serviceComment! + "'"}, 
                     ${!u.status ? 'NULL' : u.status});`;
-                return this.dataController.insert(query);
+                return this.userDataController.insert(query);
             })
             .then(() => {
                 return u.userId;
@@ -142,7 +166,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
             });
     }
 
-    private composeSetStatement(user: UserDetails): string {
+    composeSetStatement(user: UserDetails): string {
         return `SET
                 "firstName"='${user.firstName}',
                 "lastName"='${user.lastName}',
@@ -161,7 +185,6 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
 
     updatePassword(args: UserUpdatePasswordArgs): Promise<void> {
         validateUserUpdatePasswordArgs(args);
-
         const { userId, oldPassword, newPassword } = args;
         return this.findUserImpl(userId)
             .then((user: UserDetails) => {
@@ -180,7 +203,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 return user;
             })
             .then((user) => {
-                this.dataController.update(this.composeSetStatement(user));
+                this.userDataController.update(this.composeSetStatement(user));
             })
             .catch((error) => {
                 throw error;
@@ -237,7 +260,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 return user;
             })
             .then((user) => {
-                this.dataController.update(this.composeSetStatement(user));
+                this.userDataController.update(this.composeSetStatement(user));
             })
             .catch((error) => {
                 throw error;
@@ -254,7 +277,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 return user;
             })
             .then((user) => {
-                this.dataController.update(this.composeSetStatement(user));
+                this.userDataController.update(this.composeSetStatement(user));
             })
             .catch((error) => {
                 throw error;
@@ -270,11 +293,11 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                     throw new DatabaseError('Error deleting user, could not find user record');
                 }
                 if (deleteRecord) {
-                    return this.dataController.delete(`where "userId"='${userId}'`).then(() => {});
+                    return this.userDataController.delete(`where "userId"='${userId}'`).then(() => {});
                 } else {
                     user.serviceComment = user.serviceComment + `; ${serviceComment}`;
                     user.status = user.status & UserStatus.Deactivated;
-                    return this.dataController.update(this.composeSetStatement(user)).then(() => {});
+                    return this.userDataController.update(this.composeSetStatement(user)).then(() => {});
                 }
             })
             .catch((error) => {
@@ -301,7 +324,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 }
             })
             .then(() => {
-                return userAccountLinkDataController.count(`
+                return this.userAccountLinkDataController.count(`
                 WHERE
                     user_id='${userId}'
                     AND account_id='${accountId}'`);
@@ -312,7 +335,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 }
             })
             .then(() => {
-                userAccountLinkDataController.insert(`(
+                this.userAccountLinkDataController.insert(`(
                     user_id, account_id)
                     VALUES (
                         '${userId}',
@@ -339,7 +362,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 }
             })
             .then(() => {
-                return userAccountLinkDataController.count(`
+                return this.userAccountLinkDataController.count(`
                 WHERE
                     user_id='${userId}'
                     AND account_id='${accountId}'`);
@@ -350,7 +373,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 }
             })
             .then(() => {
-                userAccountLinkDataController.delete(`
+                this.userAccountLinkDataController.delete(`
                     WHERE
                         user_id='${userId}'
                         AND account_id='${accountId}';`);
@@ -366,7 +389,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 }
             })
             .then(() => {
-                return userAccountLinkDataController.select(`
+                return this.userAccountLinkDataController.select(`
                 WHERE
                     user_id='${userId}'`);
             });
@@ -381,4 +404,6 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
     }
 }
 
-export const userPersistanceController = new UserPersistanceController(userPostgresDataController);
+export const userPersistanceController = new UserPersistanceController(userPostgresDataController,
+    accountPersistanceController,
+    userAccountLinkDataController);

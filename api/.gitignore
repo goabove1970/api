@@ -4,3 +4,7 @@ node_modules
 dist
 dist/**
 dist/*
+test_coverage_dir/*
+package-lock.json
+.prettierrc.js
+src/controllers/data-controller/.DS_Store

@@ -6,62 +6,67 @@ import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { DeepPartial } from '@models/DeepPartial';
 import { UserDetails } from '@models/user/UserDetails';
-import { userPersistanceController } from '../data-controller/users/UserPersistanceController';
+import { UserPersistanceController, userPersistanceController } from '../data-controller/users/UserPersistanceController';
 import { UserPersistanceControllerBase } from '../data-controller/users/UserPersistanceControllerBase';
 import { UserAccountLink } from '@root/src/models/accounts/Account';
 
 export class UserController implements UserPersistanceControllerBase {
+    persistanceController: UserPersistanceController;
+    constructor(persistanceController: UserPersistanceController) {
+        this.persistanceController = persistanceController;
+    }
+
     removeAccount(args: ManageAccountArgs): Promise<void> {
-        return userPersistanceController.removeAccount(args);
+        return this.persistanceController.removeAccount(args);
     }
     getUserByEmail(email: string): Promise<DeepPartial<UserDetails> | undefined> {
-        return userPersistanceController.getUserByEmail(email);
+        return this.persistanceController.getUserByEmail(email);
     }
 
     read(args: UserReadArgs): Promise<DeepPartial<UserDetails>[]> {
-        return userPersistanceController.read(args);
+        return this.persistanceController.read(args);
     }
 
     getUserById(userId: string): Promise<DeepPartial<UserDetails> | undefined> {
-        return userPersistanceController.getUserById(userId);
+        return this.persistanceController.getUserById(userId);
     }
 
     getUserByLogin(login: string): Promise<DeepPartial<UserDetails> | undefined> {
-        return userPersistanceController.getUserByLogin(login);
+        return this.persistanceController.getUserByLogin(login);
     }
 
     create(args: UserCreateArgs): Promise<string> {
-        return userPersistanceController.create(args);
+        return this.persistanceController.create(args);
     }
 
     addAccount(args: ManageAccountArgs): Promise<void> {
-        return userPersistanceController.addAccount(args);
+        return this.persistanceController.addAccount(args);
     }
 
     validateUser(args: UserLoginArgs): Promise<UserDetails | undefined> {
-        return userPersistanceController.validtePassword(args);
+        return this.persistanceController.validtePassword(args);
     }
 
     getUserAccountLinks(args: ManageAccountArgs): Promise<UserAccountLink[]> {
-        return userPersistanceController.getUserAccountLinks(args);
+        return this.persistanceController.getUserAccountLinks(args);
     }
 
     updatePassword(args: UserUpdatePasswordArgs): Promise<void> {
-        return userPersistanceController.updatePassword(args);
+        return this.persistanceController.updatePassword(args);
     }
 
     updateUserData(args: UserUpdateArgs): Promise<void> {
-        return userPersistanceController.updateUserData(args);
+        return this.persistanceController.updateUserData(args);
     }
 
     updateLastLogin(userId: string): Promise<void> {
-        return userPersistanceController.updateLastLogin(userId);
+        return this.persistanceController.updateLastLogin(userId);
     }
 
     delete(args: UserDeleteArgs): Promise<void> {
-        return userPersistanceController.delete(args);
+        return this.persistanceController.delete(args);
     }
 }
 
-const userController: UserController = new UserController();
+const userController: UserController = new UserController(userPersistanceController);
 export default userController;

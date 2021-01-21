@@ -1,5 +1,6 @@
-export class ErrorBase {
+export class ErrorBase extends Error {
     constructor(errorMesage?: string) {
+        super();
         this.errorMessage = errorMesage;
     }
     errorMessage?: string;

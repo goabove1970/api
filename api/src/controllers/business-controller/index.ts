@@ -1,7 +1,7 @@
 import { BusinessDeleteArgs } from '@root/src/models/business/BusinessDeleteArgs';
 import { BusinessReadArgs } from '@root/src/models/business/BusinessReadArgs';
 import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs';
-import { Business } from '@root/src/models/business/business';
+import { Business } from '@root/src/models/business/Business';
 import { businessPersistanceController } from '../data-controller/business/BusinessPersistanceController';
 import { BusinessPersistanceControllerBase } from '../data-controller/business/BusinessPersistanceControllerBase';
 import { AddRuleArgs } from '@root/src/models/business/AddRuleArgs';

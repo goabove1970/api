@@ -2,7 +2,7 @@ import { DeepPartial } from '@models/DeepPartial';
 import { GuidFull } from '@utils/generateGuid';
 import { DatabaseError } from '@root/src/models/errors/errors';
 import { BusinessReadArgs } from '@root/src/models/business/BusinessReadArgs';
-import { Business } from '@root/src/models/business/business';
+import { Business } from '@root/src/models/business/Business';
 import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs';
 import { BusinessUpdateArgs } from '@root/src/models/business/BusinessUpdateArgs';
 import { businessPersistanceController } from './BusinessPersistanceController';

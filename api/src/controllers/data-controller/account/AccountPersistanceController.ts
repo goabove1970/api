@@ -18,15 +18,16 @@ import { DatabaseError } from '@root/src/models/errors/errors';
 import { accountPostgresDataController } from './AccountPostgresController';
 import moment = require('moment');
 
-export class AccountPersistanceController implements AccountPersistanceControllerBase {
-    private dataController: DatabaseController<UserAccount>;
+export class AccountPersistanceController extends AccountPersistanceControllerBase {
+    accountDataController: DatabaseController<UserAccount>;
 
     constructor(controller: DatabaseController<UserAccount>) {
-        this.dataController = controller;
+        super();
+        this.accountDataController = controller;
     }
 
-    private findAccountImpl(accountId: string): Promise<UserAccount | undefined> {
-        return this.dataController
+    findAccountImpl(accountId: string): Promise<UserAccount | undefined> {
+        return this.accountDataController
             .select(`WHERE account_id='${accountId}'`)
             .then((c) => {
                 {
@@ -39,7 +40,7 @@ export class AccountPersistanceController implements AccountPersistanceControlle
     }
 
     read(args: ReadAccountArgs): Promise<AccountResponseModel[]> {
-        return this.dataController
+        return this.accountDataController
             .select(matchesReadArgs(args), args.userId ? 'ac.*' : undefined)
             .then((c) => c.map(toShortAccountDetails))
             .catch((error) => {
@@ -48,10 +49,11 @@ export class AccountPersistanceController implements AccountPersistanceControlle
     }
 
     create(args: AccountCreateArgs): Promise<string> {
-        const a = combineNewAccount(args);
-        return validateCreateAccountArgs(args)
-            .then(() => {
-                return this.dataController.insert(`
+        const a: UserAccount = combineNewAccount(args);
+        validateCreateAccountArgs(args);
+        return this.accountDataController
+            .insert(
+                `
                 (
                     account_id,
                     bank_routing_number,
@@ -75,8 +77,8 @@ export class AccountPersistanceController implements AccountPersistanceControlle
                         ${a.cardExpiration ? "'" + moment(a.cardExpiration).toISOString() + "'" : 'NULL'},
                         ${a.status ? a.status : 'NULL'},
                         ${a.serviceComment ? "'" + a.serviceComment + "'" : 'NULL'},
-                        ${a.accountType ? a.accountType : 'NULL'});`);
-            })
+                        ${a.accountType ? a.accountType : 'NULL'});`
+            )
             .then(() => {
                 return a.accountId;
             })
@@ -133,14 +135,14 @@ export class AccountPersistanceController implements AccountPersistanceControlle
                 return account;
             })
             .then((account) => {
-                this.dataController.update(this.composeSetStatement(account));
+                this.accountDataController.update(this.composeSetStatement(account));
             })
             .catch((error) => {
                 throw error;
             });
     }
 
-    private composeSetStatement(a: UserAccount): string {
+    composeSetStatement(a: UserAccount): string {
         return `
         SET
             bank_routing_number=${a.bankRoutingNumber},
@@ -165,11 +167,11 @@ export class AccountPersistanceController implements AccountPersistanceControlle
                     throw new DatabaseError('Error deleting account, could not find bank account record');
                 }
                 if (deleteRecord) {
-                    return this.dataController.delete(`where "account_id"='${accountId}'`).then(() => {});
+                    return this.accountDataController.delete(`where "account_id"='${accountId}'`).then(() => {});
                 } else {
                     a.serviceComment = a.serviceComment + `; ${serviceComment}`;
                     a.status = a.status & AccountStatus.Deactivated;
-                    return this.dataController.update(this.composeSetStatement(a)).then(() => {});
+                    return this.accountDataController.update(this.composeSetStatement(a)).then(() => {});
                 }
             })
             .catch((error) => {
@@ -177,5 +179,4 @@ export class AccountPersistanceController implements AccountPersistanceControlle
             });
     }
 }
-
 export const accountPersistanceController = new AccountPersistanceController(accountPostgresDataController);
