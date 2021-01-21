@@ -18,11 +18,11 @@ import {
 import { UserDetails } from '@models/user/UserDetails';
 import { UserStatus } from '@models/user/UserStatus';
 import { DatabaseController } from '../DataController';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import { DatabaseError } from '@models/errors/errors';
 import { userPostgresDataController } from './UsersPostgresController';
 import moment = require('moment');
 import { Value } from 'ts-postgres';
-import { UserAccountLink } from '@root/src/models/accounts/Account';
+import { UserAccountLink } from '@models/accounts/Account';
 import { AccountPersistanceController, accountPersistanceController } from '../account/AccountPersistanceController';
 import { userAccountLinkDataController } from '../userAccountLink/UserAccountLinkPostgresController';
 

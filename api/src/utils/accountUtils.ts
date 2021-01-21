@@ -1,5 +1,5 @@
-import { UserAccount, AccountType } from '../models/accounts/Account';
-import { AccountStatus } from '../models/accounts/AccountStatus';
+import { UserAccount, AccountType } from '@models/accounts/Account';
+import { AccountStatus } from '@models/accounts/AccountStatus';
 
 export const isAccountActivationPending = (t: UserAccount): boolean => {
     if (!t) {

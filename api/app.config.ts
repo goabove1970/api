@@ -1,4 +1,4 @@
-import { PgConfig } from './src/controllers/data-controller/database/PgConfig';
+import { PgConfig } from '@controllers/data-controller/database/PgConfig';
 
 export interface ApplicationConfig {
     PgConfig?: PgConfig;

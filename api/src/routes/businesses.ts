@@ -1,12 +1,12 @@
 import { Router } from 'express';
 
 import { BusinessError } from '@models/errors/errors';
-import controller from '@src/controllers/business-controller';
+import controller from '@controllers/business-controller';
 import { BusinessRequest, BusinessResponse, BusinessRequestType } from './request-types/BusinessRequests';
-import { BusinessReadArgs } from '../models/business/BusinessReadArgs';
-import { BusinessCreateArgs } from '../models/business/BusinessCreateArgs';
-import { BusinessDeleteArgs } from '../models/business/BusinessDeleteArgs';
-import { AddRuleArgs } from '../models/business/AddRuleArgs';
+import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
+import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
+import { BusinessDeleteArgs } from '@models/business/BusinessDeleteArgs';
+import { AddRuleArgs } from '@models/business/AddRuleArgs';
 
 const router = Router();
 

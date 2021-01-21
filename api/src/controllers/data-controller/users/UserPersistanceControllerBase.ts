@@ -4,7 +4,7 @@ import { UserReadArgs } from '@models/user/UserReadArgs';
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { UserDetails } from '@models/user/UserDetails';
-import { ManageAccountArgs } from '@root/src/models/user/ManageAccountArgs';
+import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
 
 export abstract class UserPersistanceControllerReadonlyBase {
     abstract getUserById(userId: string): Promise<DeepPartial<UserDetails> | undefined>;

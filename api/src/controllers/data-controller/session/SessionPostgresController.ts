@@ -1,6 +1,6 @@
 import { DatabaseController } from '../DataController';
 import { Value } from 'ts-postgres';
-import { Session } from '@root/src/models/session';
+import { Session } from '@models/session';
 
 export class SessionPostgresController extends DatabaseController<Session> {
   constructor() {

@@ -1,6 +1,6 @@
 import { DatabaseController } from '../DataController';
 import { Value } from 'ts-postgres';
-import { UserDetails } from '@root/src/models/user/UserDetails';
+import { UserDetails } from '@models/user/UserDetails';
 
 export class UserPostgresController extends DatabaseController<UserDetails> {
     constructor() {

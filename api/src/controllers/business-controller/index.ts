@@ -1,10 +1,10 @@
-import { BusinessDeleteArgs } from '@root/src/models/business/BusinessDeleteArgs';
-import { BusinessReadArgs } from '@root/src/models/business/BusinessReadArgs';
-import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs';
-import { Business } from '@root/src/models/business/Business';
+import { BusinessDeleteArgs } from '@models/business/BusinessDeleteArgs';
+import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
+import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
+import { Business } from '@models/business/Business';
 import { businessPersistanceController } from '../data-controller/business/BusinessPersistanceController';
 import { BusinessPersistanceControllerBase } from '../data-controller/business/BusinessPersistanceControllerBase';
-import { AddRuleArgs } from '@root/src/models/business/AddRuleArgs';
+import { AddRuleArgs } from '@models/business/AddRuleArgs';
 
 export class BusinessesController implements BusinessPersistanceControllerBase {
     async getCache(): Promise<{ businesses: Business[] }> {

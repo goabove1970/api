@@ -1,8 +1,8 @@
 import { ResponseBase } from './Requests';
-import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs';
-import { BusinessUpdateArgs } from '@root/src/models/business/BusinessUpdateArgs';
-import { BusinessDeleteArgs } from '@root/src/models/business/BusinessDeleteArgs';
-import { BusinessReadArgs } from '@root/src/models/business/BusinessReadArgs';
+import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
+import { BusinessUpdateArgs } from '@models/business/BusinessUpdateArgs';
+import { BusinessDeleteArgs } from '@models/business/BusinessDeleteArgs';
+import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
 
 export enum BusinessRequestType {
     Read = 'read',

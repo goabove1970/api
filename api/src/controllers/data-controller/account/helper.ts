@@ -1,7 +1,7 @@
 import { UserAccount } from '@models/accounts/Account';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
-import { GuidFull } from '@root/src/utils/generateGuid';
+import { GuidFull } from '@utils/generateGuid';
 import { AccountStatus } from '@models/accounts/AccountStatus';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { CONFIG } from '@root/app.config';
@@ -14,7 +14,7 @@ import {
     isDebit,
     isCredit,
     isCheching,
-} from '@root/src/utils/accountUtils';
+} from '@utils/accountUtils';
 
 export interface AccountResponseModel extends UserAccount {
     isAccountActive?: boolean;

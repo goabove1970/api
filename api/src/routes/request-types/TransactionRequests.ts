@@ -1,5 +1,5 @@
 import { ResponseBase } from './Requests';
-import { Transaction } from '@root/src/models/transaction/transaction';
+import { Transaction } from '@models/transaction/transaction';
 
 export enum TransactionRequestType {
     ReadTransactions = 'read-transactions',

@@ -1,21 +1,21 @@
-import { Transaction } from "@root/src/models/transaction/transaction";
-import { Category } from "@root/src/models/category/category";
-import { DeepPartial } from "@root/src/models/DeepPartial";
-import { UserAccount, AccountType } from "@root/src/models/accounts/Account";
-import { MonthlyCategorySpending } from "../../models/spendings/MonthlyCategorySpending";
+import { Transaction } from "@models/transaction/transaction";
+import { Category } from "@models/category/category";
+import { DeepPartial } from "@models/DeepPartial";
+import { UserAccount, AccountType } from "@models/accounts/Account";
+import { MonthlyCategorySpending } from "@models/spendings/MonthlyCategorySpending";
 import moment = require("moment");
-import { isDebitAccountType, isCreditAccountType } from "@root/src/utils/accountUtils";
-import { SpendingRequestArgs, SpendingResponse } from "@root/src/routes/request-types/SpendingsRequest";
-import { MonthlyBalance } from "@root/src/models/spendings/MonthlyBalance";
-import accountController from "../account-controller";
-import categoryController from "../category-controller";
-import { TransactionReadArg } from "@root/src/models/transaction/TransactionReadArgs";
-import { transactionProcessor } from "../transaction-processor-controller/TransactionProcessor";
-import { isHiddenTransaction, isExcludedFromBalanceTransaction } from "@root/src/utils/transUtils";
-import { SpendingProgressionItem } from "@root/src/models/spendings/SpendingProgressionItem";
-import { BaseSpending } from "@root/src/models/spendings/BaseSpending";
-import { CategorySpending } from "@root/src/models/spendings/CategorySpending";
-import { SpendingsByMonth } from "@root/src/models/spendings/SpendingsByMonth";
+import { isDebitAccountType, isCreditAccountType } from "@utils/accountUtils";
+import { SpendingRequestArgs, SpendingResponse } from "@routes/request-types/SpendingsRequest";
+import { MonthlyBalance } from "@models/spendings/MonthlyBalance";
+import accountController from "@controllers/account-controller";
+import categoryController from "@controllers/category-controller";
+import { TransactionReadArg } from "@models/transaction/TransactionReadArgs";
+import { transactionProcessor } from "@controllers/transaction-processor-controller/TransactionProcessor";
+import { isHiddenTransaction, isExcludedFromBalanceTransaction } from "@utils/transUtils";
+import { SpendingProgressionItem } from "@models/spendings/SpendingProgressionItem";
+import { BaseSpending } from "@models/spendings/BaseSpending";
+import { CategorySpending } from "@models/spendings/CategorySpending";
+import { SpendingsByMonth } from "@models/spendings/SpendingsByMonth";
 
 export interface CategorizationResult {
     parents: Map<string, CategorySpending>;

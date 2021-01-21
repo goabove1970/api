@@ -2,10 +2,10 @@ import { SessionPersistanceControllerBase } from './SessionPersistanceController
 import { DatabaseController } from '../DataController';
 import { sessionPostgresDataController } from './SessionPostgresController';
 import moment = require('moment');
-import { Session } from '@root/src/models/session';
+import { Session } from '@models/session';
 import { validateSessionUpdateArgs, validateSessionCreateArgs, matchesReadArgs } from './helper';
-import { SessionArgs } from '@root/src/routes/request-types/session-request';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import { SessionArgs } from '@routes/request-types/session-request';
+import { DatabaseError } from '@models/errors/errors';
 
 export class SessionPersistenceController implements SessionPersistanceControllerBase {
     private dataController: DatabaseController<Session>;

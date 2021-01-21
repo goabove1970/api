@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { SessionError } from '../models/errors/errors';
+import { SessionError } from '@models/errors/errors';
 import { BankSyncRequest, BankConnectionResponse } from './request-types/bank-connections-requests';
-import bankSyncController from '../controllers/bank-sync-controller';
+import bankSyncController from '@controllers/bank-sync-controller';
 
 const router = Router();
 

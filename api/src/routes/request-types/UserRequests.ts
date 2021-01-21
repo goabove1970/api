@@ -9,7 +9,7 @@ import {
     UserLoginArgs,
     UserLogoutArgs,
     UserExtendSessionArgs,
-} from '@root/src/models/user/UserUpdatePasswordArgs';
+} from '@models/user/UserUpdatePasswordArgs';
 
 export enum UserRequestType {
     Read = 'read',

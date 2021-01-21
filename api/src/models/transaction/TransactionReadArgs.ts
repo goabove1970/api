@@ -1,4 +1,4 @@
-import { CategorizationType } from '@root/src/routes/request-types/TransactionRequests';
+import { CategorizationType } from '@routes/request-types/TransactionRequests';
 
 export interface TransactionReadArg {
     transactionId?: string;

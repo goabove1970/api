@@ -1,12 +1,12 @@
-import { Transaction, ProcessingStatus, TransactionUpdateArgs } from '@src/models/transaction/transaction';
-import { TransactionReadArg, SortOrder } from '@root/src/models/transaction/TransactionReadArgs';
+import { Transaction, ProcessingStatus, TransactionUpdateArgs } from '@models/transaction/transaction';
+import { TransactionReadArg, SortOrder } from '@models/transaction/TransactionReadArgs';
 import { transactionDatabaseController as transController } from '../data-controller/transaction/TransacitonPersistenceController';
-import { GuidFull } from '@root/src/utils/generateGuid';
+import { GuidFull } from '@utils/generateGuid';
 import { chaseTransactionParser } from '../data-controller/chase/ChaseTransactionFileDataController';
-import { ChaseTransaction } from '@root/src/models/transaction/chase/ChaseTransaction';
+import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import moment = require('moment');
 import businessesController from '../business-controller';
-import { TransactionDeleteArgs } from '@root/src/routes/request-types/TransactionRequests';
+import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
 
 export interface TransactionImprtResult {
     parsed: number;

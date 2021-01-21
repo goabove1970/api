@@ -14,7 +14,7 @@ import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 import { AccountStatus } from '@models/accounts/AccountStatus';
 import { DatabaseController } from '../DataController';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import { DatabaseError } from '@models/errors/errors';
 import { accountPostgresDataController } from './AccountPostgresController';
 import moment = require('moment');
 

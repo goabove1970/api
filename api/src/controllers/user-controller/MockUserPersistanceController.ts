@@ -1,10 +1,10 @@
-import { DeepPartial } from '@root/src/models/DeepPartial';
-import { DatabaseError } from '@root/src/models/errors/errors';
-import { UserCreateArgs } from '@root/src/models/user/UserCreateArgs';
-import { UserDetails } from '@root/src/models/user/UserDetails';
-import { UserReadArgs } from '@root/src/models/user/UserReadArgs';
-import { UserStatus } from '@root/src/models/user/UserStatus';
-import { UserLoginArgs, UserUpdatePasswordArgs } from '@root/src/models/user/UserUpdatePasswordArgs';
+import { DeepPartial } from '@models/DeepPartial';
+import { DatabaseError } from '@models/errors/errors';
+import { UserCreateArgs } from '@models/user/UserCreateArgs';
+import { UserDetails } from '@models/user/UserDetails';
+import { UserReadArgs } from '@models/user/UserReadArgs';
+import { UserStatus } from '@models/user/UserStatus';
+import { UserLoginArgs, UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
 import {
     combineNewUser,
     toShortUserDetails,

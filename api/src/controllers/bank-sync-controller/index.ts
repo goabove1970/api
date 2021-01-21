@@ -1,4 +1,4 @@
-import { BankSyncArgs, BankConnectionResponse } from '@root/src/routes/request-types/bank-connections-requests';
+import { BankSyncArgs, BankConnectionResponse } from '@routes/request-types/bank-connections-requests';
 import * as http from 'http';
 import { CONFIG, ServiceConfig } from '@root/app.config';
 

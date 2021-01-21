@@ -1,6 +1,6 @@
 import { DatabaseController } from '../DataController';
 import { Value } from 'ts-postgres';
-import { UserAccountLink } from '@root/src/models/accounts/Account';
+import { UserAccountLink } from '@models/accounts/Account';
 
 export class UserAccountLinkPostgresController extends DatabaseController<UserAccountLink> {
     readSelectResponse(values: Value[][]): UserAccountLink[] {

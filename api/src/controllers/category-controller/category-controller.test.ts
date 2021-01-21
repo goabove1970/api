@@ -3,7 +3,7 @@ import { CategoryPersistanceController } from '@controllers/data-controller/cate
 import { mockableCategoryArgs, MockCategoryPersistanceController } from './MockCategoryPersistanceController';
 import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
 import { CategoryType } from '@models/category/category';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import { DatabaseError } from '@models/errors/errors';
 
 const clearCollection = () => {
     mockableCategoryArgs.mockCategoryCollection = [];

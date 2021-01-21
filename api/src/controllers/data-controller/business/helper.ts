@@ -1,12 +1,12 @@
 import { DeepPartial } from '@models/DeepPartial';
 import { GuidFull } from '@utils/generateGuid';
-import { DatabaseError } from '@root/src/models/errors/errors';
-import { BusinessReadArgs } from '@root/src/models/business/BusinessReadArgs';
-import { Business } from '@root/src/models/business/Business';
-import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs';
-import { BusinessUpdateArgs } from '@root/src/models/business/BusinessUpdateArgs';
+import { DatabaseError } from '@models/errors/errors';
+import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
+import { Business } from '@models/business/Business';
+import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
+import { BusinessUpdateArgs } from '@models/business/BusinessUpdateArgs';
 import { businessPersistanceController } from './BusinessPersistanceController';
-import { AddRuleArgs } from '@root/src/models/business/AddRuleArgs';
+import { AddRuleArgs } from '@models/business/AddRuleArgs';
 
 export const toShortBusinessDetails = (business: Business): DeepPartial<Business> | undefined => {
     return {

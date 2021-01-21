@@ -1,4 +1,4 @@
-import { Category } from '@src/models/category/category';
+import { Category } from '@models/category/category';
 import { DatabaseController } from '../DataController';
 import { Value } from 'ts-postgres';
 

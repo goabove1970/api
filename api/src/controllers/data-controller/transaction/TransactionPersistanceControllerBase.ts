@@ -1,5 +1,5 @@
 import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
-import { Transaction } from '@root/src/models/transaction/transaction';
+import { Transaction } from '@models/transaction/transaction';
 
 export abstract class TransactionPersistanceControllerReadonlyBase {
     abstract read(args: TransactionReadArg): Promise<Transaction[] | number>;

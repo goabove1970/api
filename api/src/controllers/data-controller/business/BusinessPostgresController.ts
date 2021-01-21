@@ -1,6 +1,6 @@
 import { DatabaseController } from '../DataController';
 import { Value } from 'ts-postgres';
-import { Business } from '@root/src/models/business/Business';
+import { Business } from '@models/business/Business';
 
 export class BusinessPostgresController extends DatabaseController<Business> {
     constructor() {

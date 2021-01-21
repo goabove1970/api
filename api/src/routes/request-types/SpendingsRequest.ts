@@ -1,8 +1,8 @@
 import { ResponseBase } from './Requests';
-import { MonthlyBalance } from '@root/src/models/spendings/MonthlyBalance';
-import { SpendingProgressionItem } from '@root/src/models/spendings/SpendingProgressionItem';
-import { CategorySpending } from '@root/src/models/spendings/CategorySpending';
-import { SpendingsByMonth } from '@root/src/models/spendings/SpendingsByMonth';
+import { MonthlyBalance } from '@models/spendings/MonthlyBalance';
+import { SpendingProgressionItem } from '@models/spendings/SpendingProgressionItem';
+import { CategorySpending } from '@models/spendings/CategorySpending';
+import { SpendingsByMonth } from '@models/spendings/SpendingsByMonth';
 
 export type SpendingRequestType = 'read';
 

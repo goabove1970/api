@@ -15,7 +15,7 @@ import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { UserDetails } from '@models/user/UserDetails';
-import sessionServiceController from '../controllers/session-controller/session-service-controller';
+import sessionServiceController from '@controllers/session-controller/session-service-controller';
 
 const router = Router();
 

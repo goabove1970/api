@@ -2,10 +2,10 @@ import { Router } from 'express';
 
 import { CategoryError } from '@models/errors/errors';
 import { CategoryRequest, CategoryRequestType, CategoryResponse } from './request-types/CategoryRequest';
-import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
-import controller from '@src/controllers/category-controller';
-import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
-import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
+import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
+import controller from '@controllers/category-controller';
+import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
+import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import * as http from 'http';
 import { CONFIG, ServiceConfig } from '@root/app.config';
-import { TransactionRequestTypeArgs, TransactionResponse } from '@root/src/routes/request-types/TransactionRequests';
+import { TransactionRequestTypeArgs, TransactionResponse } from '@routes/request-types/TransactionRequests';
 
 export class TransactionPassThroughService {
     config: ServiceConfig;

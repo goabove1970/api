@@ -8,15 +8,15 @@ import {
     validateAddRuleArgs,
 } from './helper';
 import { DatabaseController } from '../DataController';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import { DatabaseError } from '@models/errors/errors';
 import { BusinessPersistanceControllerBase } from './BusinessPersistanceControllerBase';
-import { Business } from '@root/src/models/business/Business';
-import { BusinessReadArgs } from '@root/src/models/business/BusinessReadArgs';
-import { BusinessCreateArgs } from '@root/src/models/business/BusinessCreateArgs';
-import { BusinessUpdateArgs } from '@root/src/models/business/BusinessUpdateArgs';
-import { BusinessDeleteArgs } from '@root/src/models/business/BusinessDeleteArgs';
+import { Business } from '@models/business/Business';
+import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
+import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
+import { BusinessUpdateArgs } from '@models/business/BusinessUpdateArgs';
+import { BusinessDeleteArgs } from '@models/business/BusinessDeleteArgs';
 import { businessPostgresDataController } from './BusinessPostgresController';
-import { AddRuleArgs } from '@root/src/models/business/AddRuleArgs';
+import { AddRuleArgs } from '@models/business/AddRuleArgs';
 
 export class BusinessPersistanceController implements BusinessPersistanceControllerBase {
     private dataController: DatabaseController<Business>;

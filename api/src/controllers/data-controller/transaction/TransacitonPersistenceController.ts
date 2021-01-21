@@ -1,12 +1,12 @@
 import { TransactionPersistanceControllerBase } from './TransactionPersistanceControllerBase';
 import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import { DatabaseController } from '../DataController';
-import { Transaction, TransactionUpdateArgs, TransactionStatus } from '@root/src/models/transaction/transaction';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import { Transaction, TransactionUpdateArgs, TransactionStatus } from '@models/transaction/transaction';
+import { DatabaseError } from '@models/errors/errors';
 import { transactionPostgresDataController } from './TransactionPostgresController';
 import { validateTransactionUpdateArgs, validateTransactionCreateArgs, matchesReadArgs } from './helper';
 import moment = require('moment');
-import { TransactionDeleteArgs } from '@root/src/routes/request-types/TransactionRequests';
+import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
 
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
     private dataController: DatabaseController<Transaction>;

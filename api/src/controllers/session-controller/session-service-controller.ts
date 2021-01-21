@@ -1,4 +1,4 @@
-import { SessionArgs, SessionResponse } from '@root/src/routes/request-types/session-request';
+import { SessionArgs, SessionResponse } from '@routes/request-types/session-request';
 import * as http from 'http';
 import { CONFIG, ServiceConfig } from '@root/app.config';
 

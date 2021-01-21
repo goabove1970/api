@@ -1,5 +1,5 @@
-import { SessionArgs } from '@root/src/routes/request-types/session-request';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import { SessionArgs } from '@routes/request-types/session-request';
+import { DatabaseError } from '@models/errors/errors';
 
 export async function matchesReadArgs(args: SessionArgs): Promise<string> {
     if (!args) {

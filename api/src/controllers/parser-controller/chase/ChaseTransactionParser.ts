@@ -4,7 +4,7 @@ import { parseChaseTransDetails, parseChaseTransactionType, parseCreditCardTrans
 import * as moment from 'moment';
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import { ParseError } from '@models/errors/parse-error';
-import { ChaseTransactionOriginType } from '@root/src/models/transaction/chase/ChaseTransactionOriginType';
+import { ChaseTransactionOriginType } from '@models/transaction/chase/ChaseTransactionOriginType';
 
 export class ChaseTransactionParser implements Parser<ChaseTransaction> {
     private chaseCsvHeader = 'Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #';

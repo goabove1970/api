@@ -6,7 +6,7 @@ import {
     SpendingResponse,
     SpendingRequestArgs,
 } from './request-types/SpendingsRequest';
-import { spendingsController } from '../controllers/spendings-controller';
+import { spendingsController } from '@controllers/spendings-controller';
 
 const router = Router();
 

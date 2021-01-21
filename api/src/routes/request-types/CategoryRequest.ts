@@ -1,9 +1,9 @@
 import { ResponseBase } from './Requests';
-import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
-import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
-import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
-import { DeepPartial } from '@src/models/DeepPartial';
-import { Category } from '@src/models/category/category';
+import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
+import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
+import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
+import { DeepPartial } from '@models/DeepPartial';
+import { Category } from '@models/category/category';
 
 export enum CategoryRequestType {
     Read = 'read',

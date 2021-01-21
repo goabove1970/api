@@ -1,6 +1,6 @@
 import { TransactionReadArg, SortOrder } from '@models/transaction/TransactionReadArgs';
-import { DatabaseError } from '@root/src/models/errors/errors';
-import { Transaction } from '@root/src/models/transaction/transaction';
+import { DatabaseError } from '@models/errors/errors';
+import { Transaction } from '@models/transaction/transaction';
 import { transactionDatabaseController } from './TransacitonPersistenceController';
 import moment = require('moment');
 

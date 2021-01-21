@@ -1,8 +1,8 @@
 import { Router } from 'express';
 
-import sessionServiceController from '../controllers/session-controller/session-service-controller';
+import sessionServiceController from '@controllers/session-controller/session-service-controller';
 import { SessionResponse, SessionRequest, SessionRequestType } from './request-types/session-request';
-import { SessionError } from '../models/errors/errors';
+import { SessionError } from '@models/errors/errors';
 
 const router = Router();
 
