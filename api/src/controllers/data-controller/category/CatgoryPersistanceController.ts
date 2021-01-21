@@ -8,16 +8,16 @@ import {
     toShortCategoryDetails,
     matchesReadArgs,
 } from './helper';
-import { Category, CategoryType } from '@src/models/category/category';
-import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
-import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
-import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
-import { DatabaseError } from '@src/models/errors/errors';
+import { Category, CategoryType } from '@models/category/category';
+import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
+import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
+import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
+import { DatabaseError } from '@models/errors/errors';
 import { categoryPostgresDataController } from './CategoryPostgresController';
 import { DatabaseController } from '../DataController';
 
 export class CategoryPersistanceController implements CategoryPersistanceControllerBase {
-    private dataController: DatabaseController<Category>;
+    dataController: DatabaseController<Category>;
 
     constructor(controller: DatabaseController<Category>) {
         this.dataController = controller;
@@ -137,7 +137,7 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
             });
     }
 
-    private findCategoryImpl(categoryId: string): Promise<Category | undefined> {
+    findCategoryImpl(categoryId: string): Promise<Category | undefined> {
         return this.dataController
             .select(`WHERE category_id='${categoryId}'`)
             .then((c) => {

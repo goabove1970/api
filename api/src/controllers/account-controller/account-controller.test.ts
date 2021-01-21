@@ -1,8 +1,8 @@
-import { AccountCreateArgs } from "@root/src/models/accounts/AccountCreateArgs";
-import { ReadAccountArgs } from "@root/src/models/accounts/ReadAccountArgs";
-import { AccountPersistanceController } from "../data-controller/account/AccountPersistanceController";
-import { AccountController } from "./account-controller";
-import { mockableAccountArgs, MockAccountPersistanceController } from "./MockAccountPersistanceController";
+import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
+import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
+import { AccountPersistanceController } from '@controllers/data-controller/account/AccountPersistanceController';
+import { AccountController } from './account-controller';
+import { mockableAccountArgs, MockAccountPersistanceController } from './MockAccountPersistanceController';
 
 describe('MockAccountController', () => {
     let mockAccountPersistanceController: AccountPersistanceController;
@@ -28,7 +28,7 @@ describe('MockAccountController', () => {
         expect(acct_id).not.toBeNull();
         expect(acct_id.length).toBeGreaterThan(0);
 
-        const indexOf = mockableAccountArgs.mockAccountCollection.find(acct => acct.accountId === acct_id);
+        const indexOf = mockableAccountArgs.mockAccountCollection.find((acct) => acct.accountId === acct_id);
         expect(indexOf).not.toEqual(-1);
 
         expect(mockableAccountArgs.mockAccountCollection.length).toBeGreaterThan(0);

@@ -1,10 +1,10 @@
 import { GuidFull } from '@utils/generateGuid';
 import { DeepPartial } from '@models/DeepPartial';
-import { Category, CategoryType } from '@src/models/category/category';
-import { ReadCategoryArgs } from '@src/models/category/GetCategoryArgs';
-import { CreateCategoryArgs } from '@src/models/category/CreateCategoryArgs';
-import { DeleteCategoryArgs } from '@src/models/category/DeleteCategoryArgs';
-import { DatabaseError } from '@root/src/models/errors/errors';
+import { Category, CategoryType } from '@models/category/category';
+import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
+import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
+import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
+import { DatabaseError } from '@models/errors/errors';
 
 export function validateCreateCategoryArgs(args: CreateCategoryArgs): void {
     if (!args.caption) {

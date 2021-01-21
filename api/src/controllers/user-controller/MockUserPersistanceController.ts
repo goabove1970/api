@@ -12,14 +12,14 @@ import {
     validateUserUpdateArgs,
     validateUserUpdatePasswordArgs,
 } from '../data-controller/users/helper';
-import { UserPersistanceController } from '../data-controller/users/UserPersistanceController';
+import { UserPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
 import * as passwordHash from 'password-hash';
-import { UserUpdateArgs } from '@root/src/models/user/UserUpdateArgs';
+import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import moment = require('moment');
-import { UserDeleteArgs } from '@root/src/models/user/UserDeleteArgs';
-import { ManageAccountArgs } from '@root/src/models/user/ManageAccountArgs';
-import { UserAccountLink } from '@root/src/models/accounts/Account';
-import { AccountController } from '../account-controller/account-controller';
+import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
+import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
+import { UserAccountLink } from '@models/accounts/Account';
+import { AccountController } from '@controllers/account-controller/account-controller';
 
 export const mockUserArguments: {
     mockUserCollection: UserDetails[];

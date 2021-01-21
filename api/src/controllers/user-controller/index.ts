@@ -6,9 +6,9 @@ import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { DeepPartial } from '@models/DeepPartial';
 import { UserDetails } from '@models/user/UserDetails';
-import { UserPersistanceController, userPersistanceController } from '../data-controller/users/UserPersistanceController';
-import { UserPersistanceControllerBase } from '../data-controller/users/UserPersistanceControllerBase';
-import { UserAccountLink } from '@root/src/models/accounts/Account';
+import { UserPersistanceController, userPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
+import { UserPersistanceControllerBase } from '@controllers/data-controller/users/UserPersistanceControllerBase';
+import { UserAccountLink } from '@models/accounts/Account';
 
 export class UserController implements UserPersistanceControllerBase {
     persistanceController: UserPersistanceController;

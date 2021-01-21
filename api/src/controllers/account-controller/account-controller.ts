@@ -5,8 +5,8 @@ import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { AccountPersistanceController, accountPersistanceController } from '../data-controller/account/AccountPersistanceController';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
-import { AccountPersistanceControllerBase } from '../data-controller/account/AccountPersistanceControllerBase';
-import userController from '../user-controller';
+import { AccountPersistanceControllerBase } from '@controllers/data-controller/account/AccountPersistanceControllerBase';
+import userController from '@controllers/user-controller';
 
 export class AccountController extends AccountPersistanceControllerBase {
     private accountController: AccountPersistanceController;

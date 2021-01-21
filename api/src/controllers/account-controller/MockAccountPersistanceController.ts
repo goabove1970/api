@@ -1,10 +1,10 @@
-import { UserAccount } from '@root/src/models/accounts/Account';
-import { AccountCreateArgs } from '@root/src/models/accounts/AccountCreateArgs';
-import { ReadAccountArgs } from '@root/src/models/accounts/ReadAccountArgs';
-import { DeepPartial } from '@root/src/models/DeepPartial';
+import { UserAccount } from '@models/accounts/Account';
+import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
+import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
+import { DeepPartial } from '@models/DeepPartial';
 import 'jest';
-import { AccountPersistanceController } from '../data-controller/account/AccountPersistanceController';
-import { combineNewAccount, validateCreateAccountArgs } from '../data-controller/account/helper';
+import { AccountPersistanceController } from '@controllers/data-controller/account/AccountPersistanceController';
+import { combineNewAccount, validateCreateAccountArgs } from '@controllers/data-controller/account/helper';
 
 export const mockableAccountArgs: { mockAccountCollection: UserAccount[] } = {
     mockAccountCollection: [],

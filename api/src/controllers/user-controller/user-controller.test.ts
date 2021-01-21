@@ -1,17 +1,17 @@
-import { AccountCreateArgs } from '@root/src/models/accounts/AccountCreateArgs';
-import { DatabaseError } from '@root/src/models/errors/errors';
-import { ManageAccountArgs } from '@root/src/models/user/ManageAccountArgs';
-import { UserCreateArgs } from '@root/src/models/user/UserCreateArgs';
-import { UserDeleteArgs } from '@root/src/models/user/UserDeleteArgs';
-import { UserUpdatePasswordArgs } from '@root/src/models/user/UserUpdatePasswordArgs';
+import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
+import { DatabaseError } from '@models/errors/errors';
+import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
+import { UserCreateArgs } from '@models/user/UserCreateArgs';
+import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
+import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
 import { UserController } from '.';
-import { AccountController } from '../account-controller/account-controller';
+import { AccountController } from '@controllers/account-controller/account-controller';
 import {
     mockableAccountArgs,
     MockAccountPersistanceController,
-} from '../account-controller/MockAccountPersistanceController';
-import { AccountPersistanceController } from '../data-controller/account/AccountPersistanceController';
-import { UserPersistanceController } from '../data-controller/users/UserPersistanceController';
+} from '@controllers/account-controller/MockAccountPersistanceController';
+import { AccountPersistanceController } from '@controllers/data-controller/account/AccountPersistanceController';
+import { UserPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
 import { mockUserArguments, MockUserPersistanceController } from './MockUserPersistanceController';
 
 describe('MockUserController', () => {
@@ -92,7 +92,6 @@ describe('MockUserController', () => {
         const userId = await mockUserController.create(createUserArgs1);
         expect(userId).not.toBeNull();
         expect(userId.length).toBeGreaterThan(0);
-        console.log('inserted the first user');
         expect(() => {
             mockUserController.create(createUserArgs2);
         }).toThrowError(new DatabaseError('User with this login already exists'));
@@ -128,7 +127,6 @@ describe('MockUserController', () => {
         const userId = await mockUserController.create(createUserArgs1);
         expect(userId).not.toBeNull();
         expect(userId.length).toBeGreaterThan(0);
-        console.log('inserted the first user');
         expect(() => {
             mockUserController.create(createUserArgs2);
         }).toThrowError(new DatabaseError('User with this email already exists'));
@@ -172,7 +170,7 @@ describe('MockUserController', () => {
         expect(user).not.toBeNull();
     });
 
-    describe(`Password manipulations`, async () => {
+    describe(`Password manipulations`, () => {
         it(`should not store original password`, async () => {
             const createUserArgs: UserCreateArgs = {
                 accountCreated: new Date(2021, 1, 20),
@@ -207,8 +205,7 @@ describe('MockUserController', () => {
     
             mockUserArguments.mockUserCollection = [];
     
-            const userId = await mockUserController.create(createUserArgs1);
-            console.log(`Created user ${userId}`);
+            await mockUserController.create(createUserArgs1);
             const updatePassArgs: UserUpdatePasswordArgs = {
                 userId: 'non-existing-user-id',
                 oldPassword: 'blah',
@@ -241,13 +238,11 @@ describe('MockUserController', () => {
             mockUserArguments.mockUserCollection = [];
     
             const userId = await mockUserController.create(createUserArgs1);
-            console.log(`Created user ${userId}`);
     
             const deleteUserArgs: UserDeleteArgs = {
                 userId: userId
             };
             await mockUserController.delete(deleteUserArgs);
-            console.log(`Deactivated user ${userId}`);
     
             const updatePassArgs: UserUpdatePasswordArgs = {
                 userId,
@@ -281,7 +276,6 @@ describe('MockUserController', () => {
             mockUserArguments.mockUserCollection = [];
     
             const userId = await mockUserController.create(createUserArgs1);
-            console.log(`Created user ${userId}`);
     
             const updatePassArgs: UserUpdatePasswordArgs = {
                 userId,
