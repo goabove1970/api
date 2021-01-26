@@ -10,7 +10,7 @@ import { MonthlyBalance } from "@models/spendings/MonthlyBalance";
 import accountController from "@controllers/account-controller";
 import categoryController from "@controllers/category-controller";
 import { TransactionReadArg } from "@models/transaction/TransactionReadArgs";
-import { transactionProcessor } from "@controllers/transaction-processor-controller/TransactionProcessor";
+import { transactionController } from "@root/src/controllers/transaction-controller/TransactionController";
 import { isHiddenTransaction, isExcludedFromBalanceTransaction } from "@utils/transUtils";
 import { SpendingProgressionItem } from "@models/spendings/SpendingProgressionItem";
 import { BaseSpending } from "@models/spendings/BaseSpending";
@@ -207,7 +207,7 @@ export class SpendingsController {
         // - Parent and Child spending categories
         // - Spending By Month
         // - Spending Progression
-        const transactions = ((await transactionProcessor.read(trarg)) as Transaction[]).filter(
+        const transactions = ((await transactionController.read(trarg)) as Transaction[]).filter(
             (t) => !isHiddenTransaction(t) && !isExcludedFromBalanceTransaction(t)
         );
 
@@ -471,7 +471,7 @@ export class SpendingsController {
             endDate: moment().toDate(),
             accountIds: acctids,
         };
-        let trans = ((await transactionProcessor.read(yearlyTransactionsArgs)) as Transaction[]).filter(
+        let trans = ((await transactionController.read(yearlyTransactionsArgs)) as Transaction[]).filter(
             (t) => !isHiddenTransaction(t) && !isExcludedFromBalanceTransaction(t)
         );
 

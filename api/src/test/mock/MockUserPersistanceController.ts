@@ -11,7 +11,7 @@ import {
     validateCreateUserArgs,
     validateUserUpdateArgs,
     validateUserUpdatePasswordArgs,
-} from '../data-controller/users/helper';
+} from '@controllers/data-controller/users/helper';
 import { UserPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
 import * as passwordHash from 'password-hash';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';

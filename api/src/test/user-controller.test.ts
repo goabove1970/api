@@ -4,17 +4,17 @@ import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
 import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
 import { UserUpdatePasswordArgs } from '@models/user/UserUpdatePasswordArgs';
-import { UserController } from '.';
+import { UserController } from '@controllers/user-controller';
 import { AccountController } from '@controllers/account-controller/account-controller';
 import {
     mockableAccountArgs,
     MockAccountPersistanceController,
-} from '@controllers/account-controller/MockAccountPersistanceController';
+} from '@mock/MockAccountPersistanceController';
 import { AccountPersistanceController } from '@controllers/data-controller/account/AccountPersistanceController';
 import { UserPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
-import { mockUserArguments, MockUserPersistanceController } from './MockUserPersistanceController';
+import { mockUserArguments, MockUserPersistanceController } from '@mock/MockUserPersistanceController';
 
-describe('MockUserController', () => {
+describe('UserController', () => {
     let mockAccountPersistanceController: AccountPersistanceController;
     let mockAccountController: AccountController;
 

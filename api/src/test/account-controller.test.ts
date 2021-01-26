@@ -1,10 +1,10 @@
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { AccountPersistanceController } from '@controllers/data-controller/account/AccountPersistanceController';
-import { AccountController } from './account-controller';
-import { mockableAccountArgs, MockAccountPersistanceController } from './MockAccountPersistanceController';
+import { AccountController } from '@controllers/account-controller/account-controller';
+import { mockableAccountArgs, MockAccountPersistanceController } from '@mock/MockAccountPersistanceController';
 
-describe('MockAccountController', () => {
+describe('AccountController', () => {
     let mockAccountPersistanceController: AccountPersistanceController;
     let mockAccountController: AccountController;
 

@@ -39,7 +39,8 @@
             "@root/(.*)": "<rootDir>/$1",
             "@utils/(.*)": "<rootDir>/src/utils/$1",
             "@models/(.*)": "<rootDir>/src/models/$1",
-            "@controllers/(.*)": "<rootDir>/src/controllers/$1"
+            "@controllers/(.*)": "<rootDir>/src/controllers/$1",
+            "@mock/(.*)": "<rootDir>/src/test/mock/$1"
         },
         "modulePaths": [
             "<rootDir>/src/"
@@ -105,6 +106,7 @@
         "@models": "dist/src/models",
         "@routes": "dist/src/routes",
         "@utils": "dist/src/utils",
-        "@controllers": "dist/src/controllers"
+        "@controllers": "dist/src/controllers",
+        "@mock": "dist/src/test/mock"
     }
 }

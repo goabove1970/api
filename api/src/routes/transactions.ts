@@ -1,7 +1,7 @@
 import { TransactionRequest, TransactionResponse } from './request-types/TransactionRequests';
 import { Router } from 'express';
 import { TransactionError } from '@models/errors/errors';
-import transactionPassThrough from '@controllers/transaction-processor-controller';
+import transactionPassThrough from '@controllers/transaction-controller';
 
 const router = Router();
 

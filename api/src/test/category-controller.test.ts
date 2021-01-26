@@ -1,10 +1,10 @@
-import { CategoryController } from '.';
+import { CategoryController } from '@controllers/category-controller';
 import { CategoryPersistanceController } from '@controllers/data-controller/category/CatgoryPersistanceController';
-import { mockableCategoryArgs, MockCategoryPersistanceController } from './MockCategoryPersistanceController';
+import { mockableCategoryArgs, MockCategoryPersistanceController } from '@mock/MockCategoryPersistanceController';
 import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
 import { CategoryType } from '@models/category/category';
 import { DatabaseError } from '@models/errors/errors';
-import { DeleteCategoryArgs } from '@root/src/models/category/DeleteCategoryArgs';
+import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
 
 const clearCollection = () => {
     mockableCategoryArgs.mockCategoryCollection = [];
@@ -14,7 +14,7 @@ const getCollection = () => {
     return mockableCategoryArgs.mockCategoryCollection;
 };
 
-describe('MockCategoryController', () => {
+describe('CategoryController', () => {
     let mockPersistanceController: CategoryPersistanceController;
     let mockController: CategoryController;
 

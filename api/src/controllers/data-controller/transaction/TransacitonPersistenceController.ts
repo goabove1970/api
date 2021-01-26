@@ -1,110 +1,163 @@
 import { TransactionPersistanceControllerBase } from './TransactionPersistanceControllerBase';
-import { TransactionReadArg } from '@models/transaction/TransactionReadArgs';
+import { SortOrder, TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import { DatabaseController } from '../DataController';
 import { Transaction, TransactionUpdateArgs, TransactionStatus } from '@models/transaction/transaction';
-import { DatabaseError } from '@models/errors/errors';
 import { transactionPostgresDataController } from './TransactionPostgresController';
-import { validateTransactionUpdateArgs, validateTransactionCreateArgs, matchesReadArgs } from './helper';
 import moment = require('moment');
 import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
 
 export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
-    private dataController: DatabaseController<Transaction>;
+    dataController: DatabaseController<Transaction>;
 
-    async update(args: TransactionUpdateArgs): Promise<void> {
-        const transaction = await this.read({
-            transactionId: args.transactionId,
-        });
-
-        if (!transaction) {
-            throw new DatabaseError('transaction not found');
-        }
-
-        validateTransactionUpdateArgs(args);
-
-        const updateFields: string[] = [];
-
-        if (args.accountId) {
-            updateFields.push(`account_id='${args.accountId}'`);
-        }
-
-        if (args.categoryId) {
-            updateFields.push(`category_id='${args.categoryId}'`);
-        }
-
-        if (args.importedDate) {
-            updateFields.push(`imported_date='${moment(args.importedDate).toISOString()}'`);
-        }
-
-        if (args.overrideCategory) {
-            updateFields.push(`override_category_id='${args.overrideCategory}'`);
-        }
-
-        if (args.overrideDescription) {
-            updateFields.push(`override_description='${args.overrideDescription}'`);
-        }
-
-        if (args.overridePostingDate) {
-            updateFields.push(`override_posting_date='${moment(args.overridePostingDate).toISOString()}'`);
-        }
-
-        if (args.businessId) {
-            updateFields.push(`business_id='${args.businessId}'`);
-        }
-
-        if (args.processingStatus) {
-            updateFields.push(`processing_status=${args.processingStatus}`);
-        }
-
-        if (args.serviceType) {
-            updateFields.push(`service_type=${args.serviceType}`);
-        }
-
-        if (args.transactionStatus) {
-            updateFields.push(`transaction_status=${args.transactionStatus}`);
-        } else {
-            if (args.statusModification === 'hide') {
-                args.transactionStatus |= TransactionStatus.hidden;
-                updateFields.push(`transaction_status=${args.transactionStatus}`);
-            } else if (args.statusModification === 'unhide') {
-                args.transactionStatus &= ~TransactionStatus.hidden;
-                updateFields.push(`transaction_status=${args.transactionStatus}`);
-            }
-
-            if (args.statusModification === 'include') {
-                args.transactionStatus &= ~TransactionStatus.excludeFromBalance;
-                updateFields.push(`transaction_status=${args.transactionStatus}`);
-            } else if (args.statusModification === 'exclude') {
-                args.transactionStatus |= TransactionStatus.excludeFromBalance;
-                updateFields.push(`transaction_status=${args.transactionStatus}`);
-            }
-        }
-
-        if (args.userComment) {
-            updateFields.push(`user_comment='${args.userComment}'`);
-        }
-
-        // if (args.chaseTransaction.CreditCardTransactionType) {
-        //     updateFields.push(`credit_card_transaction_type='${args.chaseTransaction.CreditCardTransactionType}'`);
-        // }
-
-        // if (args.chaseTransaction.BankDefinedCategory) {
-        //     updateFields.push(`bank_defined_transaction='${args.chaseTransaction.BankDefinedCategory}'`);
-        // }
-
-        const updateStatement = updateFields.join(',\n');
-
-        this.dataController.update(`
-                SET
-                    ${updateStatement}
-                WHERE 
-                    transaction_id='${args.transactionId}';`);
+    constructor(controller: DatabaseController<Transaction>) {
+        this.dataController = controller;
     }
 
-    async add(args: Transaction): Promise<void> {
-        validateTransactionCreateArgs(args);
+    matchesReadArgs(args: TransactionReadArg): Promise<string> {
+        if (!args) {
+            return Promise.resolve('');
+        }
 
-        this.dataController.insert(`
+        let conditionsPromise: Promise<string[]> = undefined;
+        if (args.accountId) {
+            conditionsPromise = new Promise(() => {
+                return [`account_id in ('${args.accountId}')`];
+            });
+        } else if (args.accountIds) {
+            conditionsPromise = new Promise(() => {
+                const expr = args.accountIds.map((e) => `'${e}'`).join(', ');
+                return [`account_id in ('${expr}')`];
+            });
+        }
+
+        return conditionsPromise
+            .then((initConditions: string[]) => {
+                const conditions: string[] = initConditions;
+                if (args.categorization) {
+                    switch (args.categorization) {
+                        case 'categorized':
+                            conditions.push('category_id is not NULL');
+                            break;
+                        case 'uncategorized':
+                            conditions.push('category_id is NULL');
+                            break;
+                    }
+                }
+
+                if (args.transactionId) {
+                    conditions.push(`transaction_id='${args.transactionId}'`);
+                }
+
+                if (args.startDate) {
+                    conditions.push(`posting_date>=${"'" + moment(args.startDate).toISOString() + "'"}`);
+                }
+
+                if (args.endDate) {
+                    conditions.push(`posting_date<='${moment(args.endDate).toISOString()}'`);
+                }
+
+                return conditions;
+            })
+            .then((conditions: string[]) => {
+                let finalSattement = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+                if (args.order) {
+                    if ((args.order! as SortOrder) === SortOrder.accending) {
+                        finalSattement = `${finalSattement} order by posting_date asc`;
+                    } else {
+                        finalSattement = `${finalSattement} order by posting_date desc`;
+                    }
+                }
+
+                if (args.offset) {
+                    finalSattement = `${finalSattement} offset ${args.offset}`;
+                }
+
+                if (args.readCount) {
+                    finalSattement = `${finalSattement} limit ${args.readCount}`;
+                }
+
+                return finalSattement;
+            });
+    }
+
+    update(args: TransactionUpdateArgs): Promise<void> {
+        return new Promise(() => {
+            const updateFields: string[] = [];
+
+            if (args.accountId) {
+                updateFields.push(`account_id='${args.accountId}'`);
+            }
+
+            if (args.categoryId) {
+                updateFields.push(`category_id='${args.categoryId}'`);
+            }
+
+            if (args.importedDate) {
+                updateFields.push(`imported_date='${moment(args.importedDate).toISOString()}'`);
+            }
+
+            if (args.overrideCategory) {
+                updateFields.push(`override_category_id='${args.overrideCategory}'`);
+            }
+
+            if (args.overrideDescription) {
+                updateFields.push(`override_description='${args.overrideDescription}'`);
+            }
+
+            if (args.overridePostingDate) {
+                updateFields.push(`override_posting_date='${moment(args.overridePostingDate).toISOString()}'`);
+            }
+
+            if (args.businessId) {
+                updateFields.push(`business_id='${args.businessId}'`);
+            }
+
+            if (args.processingStatus) {
+                updateFields.push(`processing_status=${args.processingStatus}`);
+            }
+
+            if (args.serviceType) {
+                updateFields.push(`service_type=${args.serviceType}`);
+            }
+
+            if (args.transactionStatus) {
+                updateFields.push(`transaction_status=${args.transactionStatus}`);
+            } else {
+                if (args.statusModification === 'hide') {
+                    args.transactionStatus |= TransactionStatus.hidden;
+                    updateFields.push(`transaction_status=${args.transactionStatus}`);
+                } else if (args.statusModification === 'unhide') {
+                    args.transactionStatus &= ~TransactionStatus.hidden;
+                    updateFields.push(`transaction_status=${args.transactionStatus}`);
+                }
+
+                if (args.statusModification === 'include') {
+                    args.transactionStatus &= ~TransactionStatus.excludeFromBalance;
+                    updateFields.push(`transaction_status=${args.transactionStatus}`);
+                } else if (args.statusModification === 'exclude') {
+                    args.transactionStatus |= TransactionStatus.excludeFromBalance;
+                    updateFields.push(`transaction_status=${args.transactionStatus}`);
+                }
+            }
+
+            if (args.userComment) {
+                updateFields.push(`user_comment='${args.userComment}'`);
+            }
+
+            const updateStatement = updateFields.join(',\n');
+
+            this.dataController.update(`
+                    SET
+                        ${updateStatement}
+                    WHERE 
+                        transaction_id='${args.transactionId}';`);
+        });
+    }
+
+    add(args: Transaction): Promise<void> {
+        return new Promise(() => {
+            this.dataController.insert(`
         (
             transaction_id, account_id,
             imported_date, category_id, user_comment,
@@ -147,30 +200,29 @@ export class TransacitonPersistenceController implements TransactionPersistanceC
                         ? "'" + args.chaseTransaction.BankDefinedCategory + "'"
                         : 'NULL'
                 });`);
-    }
-
-    async delete(args: TransactionDeleteArgs): Promise<void> {
-        const expression = await matchesReadArgs(args);
-        this.dataController.delete(expression).catch((error) => {
-            throw error;
         });
     }
 
-    async read(args: TransactionReadArg): Promise<Transaction[] | number> {
-        const expression = await matchesReadArgs(args);
-        if (args.countOnly) {
-            return this.dataController.count(expression).catch((error) => {
+    delete(args: TransactionDeleteArgs): Promise<void> {
+        return this.matchesReadArgs(args).then((expression) => {
+            this.dataController.delete(expression).catch((error) => {
                 throw error;
             });
-        }
-        return this.dataController.select(expression).catch((error) => {
-            throw error;
         });
     }
 
-    constructor(controller: DatabaseController<Transaction>) {
-        this.dataController = controller;
+    read(args: TransactionReadArg): Promise<Transaction[] | number> {
+        return this.matchesReadArgs(args).then((expression) => {
+            let result: Promise<Transaction[] | number>;
+            if (args.countOnly) {
+                result = this.dataController.count(expression);
+            }
+            result = this.dataController.select(expression);
+            return result;
+        });
     }
 }
 
-export const transactionDatabaseController = new TransacitonPersistenceController(transactionPostgresDataController);
+export const transactionDatabaseController = new TransacitonPersistenceController(
+    transactionPostgresDataController
+);

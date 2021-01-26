@@ -1,12 +1,17 @@
 import { Transaction, ProcessingStatus, TransactionUpdateArgs } from '@models/transaction/transaction';
 import { TransactionReadArg, SortOrder } from '@models/transaction/TransactionReadArgs';
-import { transactionDatabaseController as transController } from '../data-controller/transaction/TransacitonPersistenceController';
+import {
+    TransacitonPersistenceController,
+    transactionDatabaseController,
+} from '@controllers/data-controller/transaction/TransacitonPersistenceController';
 import { GuidFull } from '@utils/generateGuid';
-import { chaseTransactionParser } from '../data-controller/chase/ChaseTransactionFileDataController';
+import { chaseTransactionParser } from '@controllers/data-controller/chase/ChaseTransactionFileDataController';
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import moment = require('moment');
-import businessesController from '../business-controller';
+import businessesController from '@controllers/business-controller';
 import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
+import { DatabaseError } from '@models/errors/errors';
+import { validateTransactionCreateArgs, validateTransactionUpdateArgs } from '@controllers/data-controller/transaction/helper';
 
 export interface TransactionImprtResult {
     parsed: number;
@@ -18,31 +23,52 @@ export interface TransactionImprtResult {
     unposted: number;
 }
 
-export class TransactionProcessor {
+export class TransactionController {
+    dataController: TransacitonPersistenceController;
+    constructor(dataController: TransacitonPersistenceController) {
+        this.dataController = dataController;
+    }
+
     update(args: TransactionUpdateArgs): Promise<void> {
-        return transController.update(args);
+        return this.read({
+            transactionId: args.transactionId,
+        }).then((transaction) => {
+            if (!transaction) {
+                throw new DatabaseError('transaction not found');
+            }
+
+            validateTransactionUpdateArgs(args);
+            return this.dataController.update(args);
+        });
     }
 
     delete(args: TransactionDeleteArgs): Promise<void> {
-        return transController.delete(args);
+        return this.dataController.delete(args);
     }
 
     read(args: TransactionReadArg): Promise<number | Transaction[]> {
         if (!args.accountId && (!args.accountIds || args.accountIds.length === 0)) {
             return Promise.resolve([]);
         }
-        return transController.read(args);
+        return this.dataController.read(args);
     }
 
-    private async addTransactionImpl(transaction: Transaction, accountId: string): Promise<string> {
-        let newTransaction: Transaction = {
+    private addTransactionImpl(transaction: Transaction, accountId: string): Promise<string> {
+        const newTransaction: Transaction = {
             ...transaction,
             accountId: accountId || transaction.accountId,
             transactionId: GuidFull(),
         };
-        newTransaction = await this.categorize(newTransaction);
-        await transController.add(newTransaction);
-        return newTransaction.transactionId;
+
+        return this.categorize(newTransaction)
+            .then((tr) => {
+                validateTransactionCreateArgs(tr);
+                this.dataController.add(tr);
+                return tr.transactionId;
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 
     async addTransaction(transaction: Transaction, accountId: string): Promise<TransactionImprtResult> {
@@ -108,7 +134,7 @@ export class TransactionProcessor {
         const pendingPosted = pending.filter((tr) => tr.chaseTransaction.PostingDate !== undefined);
 
         // from DB: posted transactions sorted by date descending
-        const lastExistingPosted = ((await transController.read({
+        const lastExistingPosted = ((await this.dataController.read({
             accountId,
             order: SortOrder.descending,
             readCount: comparisonDepth,
@@ -168,7 +194,7 @@ export class TransactionProcessor {
     }
 
     async testRegex(rgx: string): Promise<Transaction[]> {
-        const unrecognized = ((await transController.read({})) as Transaction[]).filter(
+        const unrecognized = ((await this.dataController.read({})) as Transaction[]).filter(
             (tr) => tr.chaseTransaction.PostingDate !== null && tr.businessId === null
         );
 
@@ -182,7 +208,7 @@ export class TransactionProcessor {
     }
 
     async testBusinessRegex(businessId: string): Promise<Transaction[]> {
-        const unrecognized = ((await transController.read({})) as Transaction[]).filter(
+        const unrecognized = ((await this.dataController.read({})) as Transaction[]).filter(
             (tr) => tr.chaseTransaction.PostingDate !== null && tr.businessId === null
         );
 
@@ -202,7 +228,7 @@ export class TransactionProcessor {
     }
 
     async recognize(): Promise<Transaction[]> {
-        const unrecognized = ((await transController.read({})) as Transaction[]).filter(
+        const unrecognized = ((await this.dataController.read({})) as Transaction[]).filter(
             (tr) => tr.chaseTransaction.PostingDate !== null && tr.businessId === null
         );
 
@@ -226,7 +252,7 @@ export class TransactionProcessor {
         });
 
         recognized.forEach((tr) =>
-            transController.update({
+            this.update({
                 transactionId: tr.transactionId,
                 businessId: tr.businessId,
                 processingStatus:
@@ -238,7 +264,7 @@ export class TransactionProcessor {
     }
 
     async assignBusinessMatchingTransactions(rgx: string): Promise<Transaction[]> {
-        const unrecognized = ((await transController.read({})) as Transaction[]).filter(
+        const unrecognized = ((await this.dataController.read({})) as Transaction[]).filter(
             (tr) => tr.chaseTransaction.PostingDate !== undefined && tr.businessId === undefined
         );
 
@@ -290,4 +316,4 @@ export function originalTransactionEquals(t1: ChaseTransaction, t2: ChaseTransac
     );
 }
 
-export const transactionProcessor = new TransactionProcessor();
+export const transactionController = new TransactionController(transactionDatabaseController);
