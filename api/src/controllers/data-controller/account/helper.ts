@@ -15,6 +15,7 @@ import {
     isCredit,
     isCheching,
 } from '@utils/accountUtils';
+import { ValidationError } from '@models/errors/errors';
 
 export interface AccountResponseModel extends UserAccount {
     isAccountActive?: boolean;
@@ -81,15 +82,11 @@ export function matchesReadArgs(args: ReadAccountArgs): string {
 
 export function validateCreateAccountArgs(args: AccountCreateArgs): void {
     if (!args.bankRoutingNumber) {
-        throw {
-            message: 'Routing number can not be empty',
-        };
+        throw new ValidationError('Routing number can not be empty');
     }
 
     if (!args.bankAccountNumber) {
-        throw {
-            message: 'Bank account name can not be empty',
-        };
+        throw new ValidationError('Bank account name can not be empty');
     }
 }
 
@@ -107,15 +104,10 @@ export const combineNewAccount = (args: AccountCreateArgs): UserAccount => {
 
 export function validateAccountUpdateArgs(args: AccountUpdateArgs): Promise<void> {
     if (!args) {
-        throw {
-            message: 'Can not update account, no arguments passed',
-        };
+        throw new ValidationError('Can not update account, no arguments passed');
     }
-
     if (!args.accountId) {
-        throw {
-            message: 'Can not update account, no accountId passed',
-        };
+        throw new ValidationError('Can not update account, no accountId passed');
     }
 
     return Promise.resolve();

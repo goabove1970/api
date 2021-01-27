@@ -19,6 +19,12 @@ export class DatabaseError extends ErrorBase {
     }
 }
 
+export class ValidationError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process database request');
+    }
+}
+
 export class TransactionError extends ErrorBase {
     constructor(errorMesage?: string) {
         super(errorMesage || 'could not process transaction request');

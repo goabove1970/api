@@ -3,6 +3,7 @@ import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { AccountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
 import { AccountController } from '@controllers/account-controller/account-controller';
 import { mockableAccountArgs, MockAccountPersistenceController } from '@mock/MockAccountPersistenceController';
+import { ValidationError } from '@models/errors/errors';
 
 describe('AccountController', () => {
     let mockAccountPersistenceController: AccountPersistenceController;
@@ -32,6 +33,40 @@ describe('AccountController', () => {
         expect(indexOf).not.toEqual(-1);
 
         expect(mockableAccountArgs.mockAccountCollection.length).toBeGreaterThan(0);
+    });
+
+    it(`should throw creating account with empty bankRoutingNumber`, async () => {
+        const createAccountArgs: AccountCreateArgs = {
+            bankAccountNumber: 'acc_num',
+            bankName: 'bank_name',
+            userId: 'user_id',
+        };
+        mockableAccountArgs.mockAccountCollection = [];
+        let thrown = false;
+        try {
+            await mockAccountController.create(createAccountArgs);
+        } catch (error) {
+            thrown = true;
+            expect(error).toEqual(new ValidationError('Routing number can not be empty'));
+        }
+        expect(thrown).toBeTruthy();
+    });
+    
+    it(`should throw creating account with empty bank account`, async () => {
+        const createAccountArgs: AccountCreateArgs = {
+            bankName: 'bank_name',
+            userId: 'user_id',
+            bankRoutingNumber: 'bank_routing',
+        };
+        mockableAccountArgs.mockAccountCollection = [];
+        let thrown = false;
+        try {
+            await mockAccountController.create(createAccountArgs);
+        } catch (error) {
+            thrown = true;
+            expect(error).toEqual(new ValidationError('Bank account name can not be empty'));
+        }
+        expect(thrown).toBeTruthy();
     });
 
     it(`should read by account id`, async () => {

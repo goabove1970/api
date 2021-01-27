@@ -1,5 +1,5 @@
 import { DeepPartial } from '@models/DeepPartial';
-import { DatabaseError } from '@models/errors/errors';
+import { DatabaseError, ValidationError } from '@models/errors/errors';
 import 'jest';
 import { Business } from '@models/business/Business';
 import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
@@ -34,15 +34,13 @@ const deleteBusiness = (businessId: string) => {
 
 const mock_validateCreateBusinessArgs = (args: BusinessCreateArgs): Promise<void> => {
     if (!args.name) {
-        throw new DatabaseError('Business name can not be empty');
+        throw new ValidationError('Business name can not be empty');
     }
 
     return mock_read({ name: args.name })
         .then((business) => {
             if (business && business.length > 0) {
-                throw {
-                    message: 'Business with this name already exists',
-                };
+                throw new ValidationError('Business with this name already exists');
             }
             return Promise.resolve();
         })
@@ -52,7 +50,7 @@ const mock_validateCreateBusinessArgs = (args: BusinessCreateArgs): Promise<void
 };
 
 const mock_matchesReadArgs = (b: Business, args: BusinessReadArgs) => {
-    if (!args) {
+if (!args) {
         return false;
     }
     if (args.businessId) {
@@ -61,21 +59,20 @@ const mock_matchesReadArgs = (b: Business, args: BusinessReadArgs) => {
     if (args.name) {
         return args.name == b.name;
     }
+    if (args.categoryId) {
+        return args.categoryId == b.defaultCategoryId;
+    }
     return false;
 };
 
 const mock_validateBusinessUpdateArgs = (args: BusinessUpdateArgs): Promise<void> => {
     if (!args) {
-        throw {
-            message: 'Can not update Business, no arguments passed',
-        };
+        throw new ValidationError('Can not update Business, no arguments passed');
     }
     if (!args.businessId) {
-        throw {
-            message: 'Can not update Business, no businessId passed',
-        };
+        throw new ValidationError('Can not update Business, no businessId passed');
     }
-    return mock_validateCreateBusinessArgs(args);
+    return Promise.resolve();
 };
 
 const mock_read = jest.fn(

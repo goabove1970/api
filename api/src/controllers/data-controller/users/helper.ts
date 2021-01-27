@@ -7,52 +7,39 @@ import { GuidFull } from '@utils/generateGuid';
 import { DeepPartial } from '@models/DeepPartial';
 import { UserDetails } from '@models/user/UserDetails';
 import { UserStatus } from '@models/user/UserStatus';
+import { ValidationError } from '@models/errors/errors';
 
 export function validateCreateUserArgs(args: UserCreateArgs): void {
     if (!args.firstName) {
-        throw {
-            message: 'User first name can not be empty',
-        };
+        throw new ValidationError('User first name can not be empty');
     }
 
     if (!args.lastName) {
-        throw {
-            message: 'User last name can not be empty',
-        };
+        throw new ValidationError('User last name can not be empty');
     }
 
     if (!args.dob) {
-        throw {
-            message: 'User birth date can not be empty',
-        };
+        throw new ValidationError('User birth date can not be empty');
     }
 
     if (!args.email) {
-        throw {
-            message: 'User email can not be empty',
-        };
+        throw new ValidationError('User email can not be empty');
     }
 
     validateNewPassword(args.password);
 
     if (!args.ssn) {
-        throw {
-            message: 'User SSN can not be empty',
-        };
+        throw new ValidationError('User SSN can not be empty');
     }
 }
 
 export function validateNewPassword(password?: string) {
     if (!password) {
-        throw {
-            message: 'User password can not be empty',
-        };
+        throw new ValidationError('User password can not be empty');
     }
 
     if (password.length < 8) {
-        throw {
-            message: 'Password can not be less than 8 characters',
-        };
+        throw new ValidationError('Password can not be less than 8 characters');
     }
 }
 
@@ -60,21 +47,15 @@ export function validateUserUpdatePasswordArgs(args: UserUpdatePasswordArgs): vo
     validateNewPassword(args.newPassword);
 
     if (!args.userId) {
-        throw {
-            message: 'Could not update password, user id is not specified.',
-        };
+        throw new ValidationError('Could not update password, user id is not specified.');
     }
 
     if (!args.oldPassword) {
-        throw {
-            message: 'Could not update password, old password is not specified.',
-        };
+        throw new ValidationError('Could not update password, old password is not specified.');
     }
 
     if (!args.newPassword) {
-        throw {
-            message: 'Could not update password, new password is not specified.',
-        };
+        throw new ValidationError('Could not update password, new password is not specified.');
     }
 }
 
@@ -128,14 +109,10 @@ export function matchesReadArgs(args: UserReadArgs): string {
 
 export function validateUserUpdateArgs(args: UserUpdateArgs): void {
     if (!args) {
-        throw {
-            message: 'Can not update user, no arguments passed',
-        };
+        throw new ValidationError('Can not update user, no arguments passed');
     }
 
     if (!args.userId) {
-        throw {
-            message: 'Can not update user, no userId passed',
-        };
+        throw new ValidationError('Can not update user, no userId passed');
     }
 }

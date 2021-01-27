@@ -4,21 +4,21 @@ import { Category, CategoryType } from '@models/category/category';
 import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
 import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
 import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
-import { DatabaseError } from '@models/errors/errors';
+import { ValidationError } from '@models/errors/errors';
 
 export function validateCreateCategoryArgs(args: CreateCategoryArgs): void {
     if (!args.caption) {
-        throw new DatabaseError('Category name can not be empty');
+        throw new ValidationError('Category name can not be empty');
     }
 }
 
 export function validateDeleteCategoryArgs(args: DeleteCategoryArgs): void {
     if (!args) {
-        throw new DatabaseError('Can not delete category, arguments are missing');
+        throw new ValidationError('Can not delete category, arguments are missing');
     }
 
     if (!args.categoryId) {
-        throw new DatabaseError('Can not delete category, no category id provided');
+        throw new ValidationError('Can not delete category, no category id provided');
     }
 }
 
@@ -73,15 +73,15 @@ export function matchesReadArgs(args: ReadCategoryArgs): string {
 
 export function validateCategoryUpdateArgs(args: CreateCategoryArgs): void {
     if (!args) {
-        throw new DatabaseError('Can not update category, no arguments passed');
+        throw new ValidationError('Can not update category, no arguments passed');
     }
 
     if (!args.categoryId) {
-        throw new DatabaseError('Can not update category, no categoryId passed');
+        throw new ValidationError('Can not update category, no categoryId passed');
     }
 
     if (args.categoryId === args.parentCategoryId) {
-        throw new DatabaseError('Category can not nest itself');
+        throw new ValidationError('Category can not nest itself');
     }
 
     validateCreateCategoryArgs(args);

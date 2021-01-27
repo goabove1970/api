@@ -1,5 +1,5 @@
 import { SessionArgs } from '@routes/request-types/session-request';
-import { DatabaseError } from '@models/errors/errors';
+import { ValidationError } from '@models/errors/errors';
 
 export async function matchesReadArgs(args: SessionArgs): Promise<string> {
     if (!args) {
@@ -18,24 +18,24 @@ export async function matchesReadArgs(args: SessionArgs): Promise<string> {
 
 export function validateSessionUpdateArgs(args: SessionArgs): void {
     if (!args) {
-        throw new DatabaseError('Can not update session, no arguments passed');
+        throw new ValidationError('Can not update session, no arguments passed');
     }
 
     if (!args.sessionId) {
-        throw new DatabaseError('Can not update session, no sessionId passed');
+        throw new ValidationError('Can not update session, no sessionId passed');
     }
 }
 
 export function validateSessionCreateArgs(args: SessionArgs): void {
     if (!args) {
-        throw new DatabaseError('Can not create session, no arguments passed');
+        throw new ValidationError('Can not create session, no arguments passed');
     }
 
     if (!args.sessionId) {
-        throw new DatabaseError('Can not create session, no sessionId passed');
+        throw new ValidationError('Can not create session, no sessionId passed');
     }
 
     if (!args.loginTimestamp) {
-        throw new DatabaseError('Can not create session, no loginTimestamp');
+        throw new ValidationError('Can not create session, no loginTimestamp');
     }
 }

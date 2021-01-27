@@ -1,6 +1,6 @@
 import { DeepPartial } from '@models/DeepPartial';
 import { GuidFull } from '@utils/generateGuid';
-import { DatabaseError } from '@models/errors/errors';
+import { ValidationError } from '@models/errors/errors';
 import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
 import { Business } from '@models/business/Business';
 import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
@@ -34,6 +34,10 @@ export function matchesReadArgs(args: BusinessReadArgs): string {
         conditions.push(`ac.name=${!args.name ? 'NULL' : "'" + args.name + "'"}`);
     }
 
+    if (args.categoryId) {
+        conditions.push(`ac.default_category_id=${!args.categoryId ? 'NULL' : "'" + args.categoryId + "'"}`);
+    }
+
     const where = 'WHERE';
     const finalSattement = query + (conditions.length > 0 ? `${where} ${conditions.join(' AND ')}` : '');
     return finalSattement;
@@ -41,16 +45,14 @@ export function matchesReadArgs(args: BusinessReadArgs): string {
 
 export function validateCreateBusinessArgs(args: BusinessCreateArgs): Promise<void> {
     if (!args.name) {
-        throw new DatabaseError('Business name can not be empty');
+        throw new ValidationError('Business name can not be empty');
     }
 
     return businessPersistenceController
         .read({ name: args.name })
         .then((business) => {
             if (business && business.length > 0) {
-                throw {
-                    message: 'Business with this name already exists',
-                };
+                throw new ValidationError('Business with this name already exists');
             }
         })
         .catch((error) => {
@@ -59,40 +61,38 @@ export function validateCreateBusinessArgs(args: BusinessCreateArgs): Promise<vo
 }
 
 export const combineNewBusiness = (args: BusinessCreateArgs): Business => {
-    return {
+    const newBusiness: Business = {
         businessId: GuidFull(),
         name: args.name,
         defaultCategoryId: args.defaultCategoryId,
         regexps: [],
     };
+
+    if (args.regexps && args.regexps.length > 0) {
+        newBusiness.regexps = args.regexps;
+    }
+    
+    return newBusiness;
 };
 
 export function validateBusinessUpdateArgs(args: BusinessUpdateArgs): Promise<void> {
     if (!args) {
-        throw {
-            message: 'Can not update Business, no arguments passed',
-        };
+        throw new ValidationError('Can not update Business, no arguments passed');
     }
 
     if (!args.businessId) {
-        throw {
-            message: 'Can not update Business, no businessId passed',
-        };
+        throw new ValidationError('Can not update Business, no businessId passed');
     }
 
-    return validateCreateBusinessArgs(args);
+    return Promise.resolve();
 }
 
 export function validateAddRuleArgs(args: AddRuleArgs): void {
     if (!args) {
-        throw {
-            message: 'Can not update Business, no arguments passed',
-        };
+        throw new ValidationError('Can not update Business, no arguments passed');
     }
 
     if (!args.businessId) {
-        throw {
-            message: 'Can not update Business, no businessId passed',
-        };
+        throw new ValidationError('Can not update Business, no businessId passed');
     }
 }
