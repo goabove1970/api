@@ -1,4 +1,4 @@
-import { CategoryPersistanceControllerBase } from './CategoryPersistanceControllerBase';
+import { CategoryPersistenceControllerBase } from './CategoryPersistenceControllerBase';
 import { DeepPartial } from '@models/DeepPartial';
 import {
     validateCreateCategoryArgs,
@@ -16,7 +16,7 @@ import { DatabaseError } from '@models/errors/errors';
 import { categoryPostgresDataController } from './CategoryPostgresController';
 import { DatabaseController } from '../DataController';
 
-export class CategoryPersistanceController implements CategoryPersistanceControllerBase {
+export class CategoryPersistenceController implements CategoryPersistenceControllerBase {
     dataController: DatabaseController<Category>;
 
     constructor(controller: DatabaseController<Category>) {
@@ -151,4 +151,4 @@ export class CategoryPersistanceController implements CategoryPersistanceControl
     }
 }
 
-export const categoryPersistanceController = new CategoryPersistanceController(categoryPostgresDataController);
+export const categoryPersistenceController = new CategoryPersistenceController(categoryPostgresDataController);

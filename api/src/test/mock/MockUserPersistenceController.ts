@@ -12,7 +12,7 @@ import {
     validateUserUpdateArgs,
     validateUserUpdatePasswordArgs,
 } from '@controllers/data-controller/users/helper';
-import { UserPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
+import { UserPersistenceController } from '@controllers/data-controller/users/UserPersistenceController';
 import * as passwordHash from 'password-hash';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import moment = require('moment');
@@ -379,9 +379,9 @@ const mock_getUserAccountLinks = jest.fn(
     }
 );
 
-export let MockUserPersistanceController = jest.fn<UserPersistanceController, []>(() => ({
+export let MockUserPersistenceController = jest.fn<UserPersistenceController, []>(() => ({
     userDataController: undefined,
-    accountPersistanceController: undefined,
+    accountPersistenceController: undefined,
     userAccountLinkDataController: undefined,
     checkLoginAvailable: mock_checkLoginAvailable,
     findUserImpl: mock_findUserImpl,

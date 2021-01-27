@@ -6,14 +6,14 @@ import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { UserDetails } from '@models/user/UserDetails';
 import { ManageAccountArgs } from '@models/user/ManageAccountArgs';
 
-export abstract class UserPersistanceControllerReadonlyBase {
+export abstract class UserPersistenceControllerReadonlyBase {
     abstract getUserById(userId: string): Promise<DeepPartial<UserDetails> | undefined>;
     abstract read(args: UserReadArgs): Promise<DeepPartial<UserDetails>[]>;
     abstract getUserByLogin(login?: string): Promise<DeepPartial<UserDetails> | undefined>;
     abstract getUserByEmail(email?: string): Promise<DeepPartial<UserDetails> | undefined>;
 }
 
-export abstract class UserPersistanceControllerBase extends UserPersistanceControllerReadonlyBase {
+export abstract class UserPersistenceControllerBase extends UserPersistenceControllerReadonlyBase {
     abstract create(user: UserCreateArgs): Promise<string>;
     abstract updatePassword(args: UserUpdatePasswordArgs): Promise<void>;
     abstract updateUserData(args: UserUpdateArgs): Promise<void>;

@@ -1,4 +1,4 @@
-import { mockableTransactionArgs, MockTransactionPersistanceController } from './mock/MockTransactionsPersistenceController';
+import { mockableTransactionArgs, MockTransactionPersistenceController } from '@mock/MockTransactionsPersistenceController';
 // import { TransacitonPersistenceController } from '../controllers/data-controller/transaction/TransacitonPersistenceController';
 // import { TransactionController } from '../controllers/transaction-controller/TransactionController';
 
@@ -11,14 +11,14 @@ const clearCollection = () => {
 // };
 
 describe('TransactionController', () => {
-    // let mockPersistanceController: TransacitonPersistenceController;
+    // let mockPersistenceController: TransacitonPersistenceController;
     // let mockController: TransactionController;
 
     beforeEach(() => {
-        // 1. Mock TransactionPersistanceController
-        MockTransactionPersistanceController.mockClear();
-        // mockPersistanceController = MockTransactionPersistanceController();
-        // mockController = new TransactionController(mockPersistanceController);
+        // 1. Mock TransactionPersistenceController
+        MockTransactionPersistenceController.mockClear();
+        // mockPersistenceController = MockTransactionPersistenceController();
+        // mockController = new TransactionController(mockPersistenceController);
 
         // 2. Init the mock injectible dependencies argument
         clearCollection();

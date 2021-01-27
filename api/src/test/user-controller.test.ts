@@ -8,29 +8,29 @@ import { UserController } from '@controllers/user-controller';
 import { AccountController } from '@controllers/account-controller/account-controller';
 import {
     mockableAccountArgs,
-    MockAccountPersistanceController,
-} from '@mock/MockAccountPersistanceController';
-import { AccountPersistanceController } from '@controllers/data-controller/account/AccountPersistanceController';
-import { UserPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
-import { mockUserArguments, MockUserPersistanceController } from '@mock/MockUserPersistanceController';
+    MockAccountPersistenceController,
+} from '@mock/MockAccountPersistenceController';
+import { AccountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
+import { UserPersistenceController } from '@controllers/data-controller/users/UserPersistenceController';
+import { mockUserArguments, MockUserPersistenceController } from '@mock/MockUserPersistenceController';
 
 describe('UserController', () => {
-    let mockAccountPersistanceController: AccountPersistanceController;
+    let mockAccountPersistenceController: AccountPersistenceController;
     let mockAccountController: AccountController;
 
-    let mockUserPersistanceController: UserPersistanceController;
+    let mockUserPersistenceController: UserPersistenceController;
     let mockUserController: UserController;
 
     beforeEach(() => {
-        // 1. Mock AccountPersistanceController
-        MockAccountPersistanceController.mockClear();
-        mockAccountPersistanceController = MockAccountPersistanceController();
-        mockAccountController = new AccountController(mockAccountPersistanceController);
+        // 1. Mock AccountPersistenceController
+        MockAccountPersistenceController.mockClear();
+        mockAccountPersistenceController = MockAccountPersistenceController();
+        mockAccountController = new AccountController(mockAccountPersistenceController);
 
-        // 2. Mock UserPersistanceController
-        MockUserPersistanceController.mockClear();
-        mockUserPersistanceController = MockUserPersistanceController();
-        mockUserController = new UserController(mockUserPersistanceController);
+        // 2. Mock UserPersistenceController
+        MockUserPersistenceController.mockClear();
+        mockUserPersistenceController = MockUserPersistenceController();
+        mockUserController = new UserController(mockUserPersistenceController);
 
         // 3. Init the mock injectible dependencies argument
         mockUserArguments.mockUserAccountLinkCollection = [];

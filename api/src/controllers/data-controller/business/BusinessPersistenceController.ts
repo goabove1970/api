@@ -9,7 +9,7 @@ import {
 } from './helper';
 import { DatabaseController } from '../DataController';
 import { DatabaseError } from '@models/errors/errors';
-import { BusinessPersistanceControllerBase } from './BusinessPersistanceControllerBase';
+import { BusinessPersistenceControllerBase } from './BusinessPersistenceControllerBase';
 import { Business } from '@models/business/Business';
 import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
 import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
@@ -18,14 +18,14 @@ import { BusinessDeleteArgs } from '@models/business/BusinessDeleteArgs';
 import { businessPostgresDataController } from './BusinessPostgresController';
 import { AddRuleArgs } from '@models/business/AddRuleArgs';
 
-export class BusinessPersistanceController implements BusinessPersistanceControllerBase {
-    private dataController: DatabaseController<Business>;
+export class BusinessPersistenceController implements BusinessPersistenceControllerBase {
+    dataController: DatabaseController<Business>;
 
     constructor(controller: DatabaseController<Business>) {
         this.dataController = controller;
     }
 
-    private findBusinessImpl(businessId: string): Promise<Business | undefined> {
+    findBusinessImpl(businessId: string): Promise<Business | undefined> {
         return this.dataController
             .select(`WHERE business_id='${businessId}'`)
             .then((c) => {
@@ -127,7 +127,7 @@ export class BusinessPersistanceController implements BusinessPersistanceControl
             });
     }
 
-    private composeSetStatement(a: Business): string {
+    composeSetStatement(a: Business): string {
         return `
         SET
             name=${a.name ? "'" + a.name + "'" : 'NULL'},
@@ -152,4 +152,4 @@ export class BusinessPersistanceController implements BusinessPersistanceControl
     }
 }
 
-export const businessPersistanceController = new BusinessPersistanceController(businessPostgresDataController);
+export const businessPersistenceController = new BusinessPersistenceController(businessPostgresDataController);

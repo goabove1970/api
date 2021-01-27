@@ -8,25 +8,21 @@ import { GuidFull } from '@utils/generateGuid';
 import { chaseTransactionParser } from '@controllers/data-controller/chase/ChaseTransactionFileDataController';
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import moment = require('moment');
-import businessesController from '@controllers/business-controller';
+import businessesController, { BusinessesController } from '@controllers/business-controller';
 import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
 import { DatabaseError } from '@models/errors/errors';
 import { validateTransactionCreateArgs, validateTransactionUpdateArgs } from '@controllers/data-controller/transaction/helper';
-
-export interface TransactionImprtResult {
-    parsed: number;
-    duplicates: number;
-    newTransactions: number;
-    businessRecognized: number;
-    multipleBusinessesMatched: number;
-    unrecognized: number;
-    unposted: number;
-}
+import { TransactionImprtResult } from '@routes/request-types/bank-connections-requests';
 
 export class TransactionController {
     dataController: TransacitonPersistenceController;
-    constructor(dataController: TransacitonPersistenceController) {
+    businessesController: BusinessesController;
+
+    constructor(dataController: TransacitonPersistenceController,
+        businessesController: BusinessesController) {
+
         this.dataController = dataController;
+        this.businessesController = businessesController;
     }
 
     update(args: TransactionUpdateArgs): Promise<void> {
@@ -212,7 +208,7 @@ export class TransactionController {
             (tr) => tr.chaseTransaction.PostingDate !== null && tr.businessId === null
         );
 
-        const business = await businessesController.read({ businessId });
+        const business = await this.businessesController.read({ businessId });
         if (business && business.length === 1) {
             const matches = unrecognized.filter((transaction) => {
                 return business[0].regexps.some((rgx) => {
@@ -234,7 +230,7 @@ export class TransactionController {
 
         const recognized: Transaction[] = [];
 
-        const business = await businessesController.read({});
+        const business = await this.businessesController.read({});
         business.forEach((b) => {
             const recognizedSets = new Set(recognized.map((t) => t.transactionId));
             const stillUnrecognized = unrecognized.filter((ur) => !recognizedSets.has(ur.transactionId));
@@ -278,7 +274,7 @@ export class TransactionController {
     }
 
     async categorize(transaction: Transaction): Promise<Transaction> {
-        const cache = await businessesController.getCache();
+        const cache = await this.businessesController.getCache();
         const matchingBusinesses = cache.businesses.filter((business) => {
             return (
                 business.regexps &&
@@ -316,4 +312,4 @@ export function originalTransactionEquals(t1: ChaseTransaction, t2: ChaseTransac
     );
 }
 
-export const transactionController = new TransactionController(transactionDatabaseController);
+export const transactionController = new TransactionController(transactionDatabaseController, businessesController);

@@ -6,11 +6,11 @@ import { BusinessUpdateArgs } from '@models/business/BusinessUpdateArgs';
 import { BusinessDeleteArgs } from '@models/business/BusinessDeleteArgs';
 import { AddRuleArgs } from '@models/business/AddRuleArgs';
 
-export abstract class BusinessPersistanceControllerReadonlyBase {
+export abstract class BusinessPersistenceControllerReadonlyBase {
     abstract read(args: BusinessReadArgs): Promise<DeepPartial<Business>[]>;
 }
 
-export abstract class BusinessPersistanceControllerBase extends BusinessPersistanceControllerReadonlyBase {
+export abstract class BusinessPersistenceControllerBase extends BusinessPersistenceControllerReadonlyBase {
     abstract addRule(request: AddRuleArgs): Promise<void>;
     abstract create(args: BusinessCreateArgs): Promise<string>;
     abstract update(args: BusinessUpdateArgs): Promise<void>;

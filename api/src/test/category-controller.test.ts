@@ -1,6 +1,6 @@
 import { CategoryController } from '@controllers/category-controller';
-import { CategoryPersistanceController } from '@controllers/data-controller/category/CatgoryPersistanceController';
-import { mockableCategoryArgs, MockCategoryPersistanceController } from '@mock/MockCategoryPersistanceController';
+import { CategoryPersistenceController } from '@controllers/data-controller/category/CatgoryPersistenceController';
+import { mockableCategoryArgs, MockCategoryPersistenceController } from '@mock/MockCategoryPersistenceController';
 import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
 import { CategoryType } from '@models/category/category';
 import { DatabaseError } from '@models/errors/errors';
@@ -15,14 +15,14 @@ const getCollection = () => {
 };
 
 describe('CategoryController', () => {
-    let mockPersistanceController: CategoryPersistanceController;
+    let mockPersistenceController: CategoryPersistenceController;
     let mockController: CategoryController;
 
     beforeEach(() => {
-        // 1. Mock CategoryPersistanceController
-        MockCategoryPersistanceController.mockClear();
-        mockPersistanceController = MockCategoryPersistanceController();
-        mockController = new CategoryController(mockPersistanceController);
+        // 1. Mock CategoryPersistenceController
+        MockCategoryPersistenceController.mockClear();
+        mockPersistenceController = MockCategoryPersistenceController();
+        mockController = new CategoryController(mockPersistenceController);
 
         // 2. Init the mock injectible dependencies argument
         mockableCategoryArgs.mockCategoryCollection = [];

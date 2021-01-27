@@ -1,4 +1,4 @@
-import { AccountPersistanceControllerBase } from './AccountPersistanceControllerBase';
+import { AccountPersistenceControllerBase } from './AccountPersistenceControllerBase';
 import {
     matchesReadArgs,
     validateCreateAccountArgs,
@@ -18,7 +18,7 @@ import { DatabaseError } from '@models/errors/errors';
 import { accountPostgresDataController } from './AccountPostgresController';
 import moment = require('moment');
 
-export class AccountPersistanceController extends AccountPersistanceControllerBase {
+export class AccountPersistenceController extends AccountPersistenceControllerBase {
     accountDataController: DatabaseController<UserAccount>;
 
     constructor(controller: DatabaseController<UserAccount>) {
@@ -179,4 +179,4 @@ export class AccountPersistanceController extends AccountPersistanceControllerBa
             });
     }
 }
-export const accountPersistanceController = new AccountPersistanceController(accountPostgresDataController);
+export const accountPersistenceController = new AccountPersistenceController(accountPostgresDataController);

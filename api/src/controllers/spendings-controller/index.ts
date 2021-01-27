@@ -10,7 +10,7 @@ import { MonthlyBalance } from "@models/spendings/MonthlyBalance";
 import accountController from "@controllers/account-controller";
 import categoryController from "@controllers/category-controller";
 import { TransactionReadArg } from "@models/transaction/TransactionReadArgs";
-import { transactionController } from "@root/src/controllers/transaction-controller/TransactionController";
+import { transactionController } from "@controllers/transaction-controller/TransactionController";
 import { isHiddenTransaction, isExcludedFromBalanceTransaction } from "@utils/transUtils";
 import { SpendingProgressionItem } from "@models/spendings/SpendingProgressionItem";
 import { BaseSpending } from "@models/spendings/BaseSpending";

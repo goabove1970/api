@@ -6,67 +6,67 @@ import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { DeepPartial } from '@models/DeepPartial';
 import { UserDetails } from '@models/user/UserDetails';
-import { UserPersistanceController, userPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
-import { UserPersistanceControllerBase } from '@controllers/data-controller/users/UserPersistanceControllerBase';
+import { UserPersistenceController, userPersistenceController } from '@controllers/data-controller/users/UserPersistenceController';
+import { UserPersistenceControllerBase } from '@controllers/data-controller/users/UserPersistenceControllerBase';
 import { UserAccountLink } from '@models/accounts/Account';
 
-export class UserController implements UserPersistanceControllerBase {
-    persistanceController: UserPersistanceController;
-    constructor(persistanceController: UserPersistanceController) {
-        this.persistanceController = persistanceController;
+export class UserController implements UserPersistenceControllerBase {
+    persistenceController: UserPersistenceController;
+    constructor(persistenceController: UserPersistenceController) {
+        this.persistenceController = persistenceController;
     }
 
     removeAccount(args: ManageAccountArgs): Promise<void> {
-        return this.persistanceController.removeAccount(args);
+        return this.persistenceController.removeAccount(args);
     }
     getUserByEmail(email: string): Promise<DeepPartial<UserDetails> | undefined> {
-        return this.persistanceController.getUserByEmail(email);
+        return this.persistenceController.getUserByEmail(email);
     }
 
     read(args: UserReadArgs): Promise<DeepPartial<UserDetails>[]> {
-        return this.persistanceController.read(args);
+        return this.persistenceController.read(args);
     }
 
     getUserById(userId: string): Promise<DeepPartial<UserDetails> | undefined> {
-        return this.persistanceController.getUserById(userId);
+        return this.persistenceController.getUserById(userId);
     }
 
     getUserByLogin(login: string): Promise<DeepPartial<UserDetails> | undefined> {
-        return this.persistanceController.getUserByLogin(login);
+        return this.persistenceController.getUserByLogin(login);
     }
 
     create(args: UserCreateArgs): Promise<string> {
-        return this.persistanceController.create(args);
+        return this.persistenceController.create(args);
     }
 
     addAccount(args: ManageAccountArgs): Promise<void> {
-        return this.persistanceController.addAccount(args);
+        return this.persistenceController.addAccount(args);
     }
 
     validateUser(args: UserLoginArgs): Promise<UserDetails | undefined> {
-        return this.persistanceController.validtePassword(args);
+        return this.persistenceController.validtePassword(args);
     }
 
     getUserAccountLinks(args: ManageAccountArgs): Promise<UserAccountLink[]> {
-        return this.persistanceController.getUserAccountLinks(args);
+        return this.persistenceController.getUserAccountLinks(args);
     }
 
     updatePassword(args: UserUpdatePasswordArgs): Promise<void> {
-        return this.persistanceController.updatePassword(args);
+        return this.persistenceController.updatePassword(args);
     }
 
     updateUserData(args: UserUpdateArgs): Promise<void> {
-        return this.persistanceController.updateUserData(args);
+        return this.persistenceController.updateUserData(args);
     }
 
     updateLastLogin(userId: string): Promise<void> {
-        return this.persistanceController.updateLastLogin(userId);
+        return this.persistenceController.updateLastLogin(userId);
     }
 
     delete(args: UserDeleteArgs): Promise<void> {
-        return this.persistanceController.delete(args);
+        return this.persistenceController.delete(args);
     }
 }
 
-const userController: UserController = new UserController(userPersistanceController);
+const userController: UserController = new UserController(userPersistenceController);
 export default userController;

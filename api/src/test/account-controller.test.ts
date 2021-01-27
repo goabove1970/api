@@ -1,17 +1,17 @@
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
-import { AccountPersistanceController } from '@controllers/data-controller/account/AccountPersistanceController';
+import { AccountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
 import { AccountController } from '@controllers/account-controller/account-controller';
-import { mockableAccountArgs, MockAccountPersistanceController } from '@mock/MockAccountPersistanceController';
+import { mockableAccountArgs, MockAccountPersistenceController } from '@mock/MockAccountPersistenceController';
 
 describe('AccountController', () => {
-    let mockAccountPersistanceController: AccountPersistanceController;
+    let mockAccountPersistenceController: AccountPersistenceController;
     let mockAccountController: AccountController;
 
     beforeEach(() => {
-        MockAccountPersistanceController.mockClear();
-        mockAccountPersistanceController = MockAccountPersistanceController();
-        mockAccountController = new AccountController(mockAccountPersistanceController);
+        MockAccountPersistenceController.mockClear();
+        mockAccountPersistenceController = MockAccountPersistenceController();
+        mockAccountController = new AccountController(mockAccountPersistenceController);
     });
 
     it(`should create account`, async () => {

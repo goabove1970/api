@@ -5,7 +5,7 @@ import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
 import { DeepPartial } from '@models/DeepPartial';
 import { DatabaseError } from '@models/errors/errors';
 import 'jest';
-import { CategoryPersistanceController } from '@controllers/data-controller/category/CatgoryPersistanceController';
+import { CategoryPersistenceController } from '@controllers/data-controller/category/CatgoryPersistenceController';
 import {
     combineNewCategory,
     toShortCategoryDetails,
@@ -165,7 +165,7 @@ const mock_checkDuplicateName = jest.fn(
 
 
 
-export let MockCategoryPersistanceController = jest.fn<CategoryPersistanceController, []>(() => ({
+export let MockCategoryPersistenceController = jest.fn<CategoryPersistenceController, []>(() => ({
     create: mock_create,
     read: mock_read,
     update: mock_update,

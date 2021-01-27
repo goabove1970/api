@@ -1,15 +1,15 @@
-import { CategoryPersistanceController, categoryPersistanceController } from '../data-controller/category/CatgoryPersistanceController';
+import { CategoryPersistenceController, categoryPersistenceController } from '@controllers/data-controller/category/CatgoryPersistenceController';
 import { Category } from '@models/category/category';
 import { DeepPartial } from '@models/DeepPartial';
 import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
 import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
 import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
-import { CategoryPersistanceControllerBase } from '@controllers/data-controller/category/CategoryPersistanceControllerBase';
+import { CategoryPersistenceControllerBase } from '@controllers/data-controller/category/CategoryPersistenceControllerBase';
 
-export class CategoryController implements CategoryPersistanceControllerBase {
-    dataController: CategoryPersistanceController;
+export class CategoryController implements CategoryPersistenceControllerBase {
+    dataController: CategoryPersistenceController;
     
-    constructor(dataController: CategoryPersistanceController) {
+    constructor(dataController: CategoryPersistenceController) {
         this.dataController = dataController;
     }
 
@@ -27,5 +27,5 @@ export class CategoryController implements CategoryPersistanceControllerBase {
     }
 }
 
-const categoryController: CategoryPersistanceControllerBase = new CategoryController(categoryPersistanceController);
+const categoryController: CategoryPersistenceControllerBase = new CategoryController(categoryPersistenceController);
 export default categoryController;

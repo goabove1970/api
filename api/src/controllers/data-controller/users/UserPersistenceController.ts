@@ -1,4 +1,4 @@
-import { UserPersistanceControllerBase } from './UserPersistanceControllerBase';
+import { UserPersistenceControllerBase } from './UserPersistenceControllerBase';
 import { DeepPartial } from '@models/DeepPartial';
 import { UserUpdatePasswordArgs, UserLoginArgs } from '@models/user/UserUpdatePasswordArgs';
 import { UserDeleteArgs } from '@models/user/UserDeleteArgs';
@@ -23,19 +23,19 @@ import { userPostgresDataController } from './UsersPostgresController';
 import moment = require('moment');
 import { Value } from 'ts-postgres';
 import { UserAccountLink } from '@models/accounts/Account';
-import { AccountPersistanceController, accountPersistanceController } from '../account/AccountPersistanceController';
+import { AccountPersistenceController, accountPersistenceController } from '../account/AccountPersistenceController';
 import { userAccountLinkDataController } from '../userAccountLink/UserAccountLinkPostgresController';
 
-export class UserPersistanceController implements UserPersistanceControllerBase {
+export class UserPersistenceController implements UserPersistenceControllerBase {
     userDataController: DatabaseController<UserDetails>;
-    accountPersistanceController: AccountPersistanceController;
+    accountPersistenceController: AccountPersistenceController;
     userAccountLinkDataController: DatabaseController<UserAccountLink>;
 
     constructor(userDatabaseController: DatabaseController<UserDetails>,
-        accountPersistanceController: AccountPersistanceController,
+        accountPersistenceController: AccountPersistenceController,
         userAccountLinkDataController: DatabaseController<UserAccountLink>) {
         this.userDataController = userDatabaseController;
-        this.accountPersistanceController = accountPersistanceController;
+        this.accountPersistenceController = accountPersistenceController;
         this.userAccountLinkDataController = userAccountLinkDataController;
     }
 
@@ -314,7 +314,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 }
             })
             .then(() => {
-                return accountPersistanceController.read({
+                return accountPersistenceController.read({
                     accountId,
                 });
             })
@@ -352,7 +352,7 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
                 }
             })
             .then(() => {
-                return accountPersistanceController.read({
+                return accountPersistenceController.read({
                     accountId,
                 });
             })
@@ -404,6 +404,6 @@ export class UserPersistanceController implements UserPersistanceControllerBase 
     }
 }
 
-export const userPersistanceController = new UserPersistanceController(userPostgresDataController,
-    accountPersistanceController,
+export const userPersistenceController = new UserPersistenceController(userPostgresDataController,
+    accountPersistenceController,
     userAccountLinkDataController);

@@ -3,7 +3,7 @@ import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { DeepPartial } from '@models/DeepPartial';
 import 'jest';
-import { AccountPersistanceController } from '@controllers/data-controller/account/AccountPersistanceController';
+import { AccountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
 import { combineNewAccount, validateCreateAccountArgs } from '@controllers/data-controller/account/helper';
 
 export const mockableAccountArgs: { mockAccountCollection: UserAccount[] } = {
@@ -63,7 +63,7 @@ const mock_getMap = jest.fn(
     }
 );
 
-export let MockAccountPersistanceController = jest.fn<AccountPersistanceController, []>(() => ({
+export let MockAccountPersistenceController = jest.fn<AccountPersistenceController, []>(() => ({
     create: mock_create,
     read: mock_read,
     update: mock_update,

@@ -3,15 +3,15 @@ import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { UserAccount } from '@models/accounts/Account';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
-import { AccountPersistanceController, accountPersistanceController } from '../data-controller/account/AccountPersistanceController';
+import { AccountPersistenceController, accountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
-import { AccountPersistanceControllerBase } from '@controllers/data-controller/account/AccountPersistanceControllerBase';
+import { AccountPersistenceControllerBase as AccountPersistenceControllerBase } from '@controllers/data-controller/account/AccountPersistenceControllerBase';
 import userController from '@controllers/user-controller';
 
-export class AccountController extends AccountPersistanceControllerBase {
-    private accountController: AccountPersistanceController;
+export class AccountController extends AccountPersistenceControllerBase {
+    private accountController: AccountPersistenceController;
     
-    constructor(_accountController: AccountPersistanceController) {
+    constructor(_accountController: AccountPersistenceController) {
         super();
         this.accountController = _accountController;
     }
@@ -33,5 +33,5 @@ export class AccountController extends AccountPersistanceControllerBase {
     }
 }
 
-const accountController: AccountController = new AccountController(accountPersistanceController);
+const accountController: AccountController = new AccountController(accountPersistenceController);
 export default accountController;

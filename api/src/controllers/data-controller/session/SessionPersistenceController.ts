@@ -1,4 +1,4 @@
-import { SessionPersistanceControllerBase } from './SessionPersistanceControllerBase';
+import { SessionPersistenceControllerBase } from './SessionPersistenceControllerBase';
 import { DatabaseController } from '../DataController';
 import { sessionPostgresDataController } from './SessionPostgresController';
 import moment = require('moment');
@@ -7,7 +7,7 @@ import { validateSessionUpdateArgs, validateSessionCreateArgs, matchesReadArgs }
 import { SessionArgs } from '@routes/request-types/session-request';
 import { DatabaseError } from '@models/errors/errors';
 
-export class SessionPersistenceController implements SessionPersistanceControllerBase {
+export class SessionPersistenceController implements SessionPersistenceControllerBase {
     private dataController: DatabaseController<Session>;
 
     constructor(controller: DatabaseController<Session>) {

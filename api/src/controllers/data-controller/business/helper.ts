@@ -5,7 +5,7 @@ import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
 import { Business } from '@models/business/Business';
 import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
 import { BusinessUpdateArgs } from '@models/business/BusinessUpdateArgs';
-import { businessPersistanceController } from './BusinessPersistanceController';
+import { businessPersistenceController } from './BusinessPersistenceController';
 import { AddRuleArgs } from '@models/business/AddRuleArgs';
 
 export const toShortBusinessDetails = (business: Business): DeepPartial<Business> | undefined => {
@@ -44,7 +44,7 @@ export function validateCreateBusinessArgs(args: BusinessCreateArgs): Promise<vo
         throw new DatabaseError('Business name can not be empty');
     }
 
-    return businessPersistanceController
+    return businessPersistenceController
         .read({ name: args.name })
         .then((business) => {
             if (business && business.length > 0) {

@@ -3,12 +3,12 @@ import { SortOrder, TransactionReadArg } from '@models/transaction/TransactionRe
 import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
 import moment = require('moment');
 import { TransactionStatus } from '@models/transaction/transaction';
-import { UserPersistanceController } from '@controllers/data-controller/users/UserPersistanceController';
+import { UserPersistenceController } from '@controllers/data-controller/users/UserPersistenceController';
 import { TransacitonPersistenceController } from '@controllers/data-controller/transaction/TransacitonPersistenceController';
 
 export const mockableTransactionArgs: {
     mockTransactionCollection: Transaction[];
-    userPersistenceController: UserPersistanceController;
+    userPersistenceController: UserPersistenceController;
 } = {
     mockTransactionCollection: [],
     userPersistenceController: undefined,
@@ -202,7 +202,7 @@ const mock_delete = jest.fn(
     }
 );
 
-export let MockTransactionPersistanceController = jest.fn<TransacitonPersistenceController, []>(() => ({
+export let MockTransactionPersistenceController = jest.fn<TransacitonPersistenceController, []>(() => ({
     add: mock_add,
     read: mock_read,
     update: mock_update,

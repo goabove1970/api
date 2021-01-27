@@ -5,7 +5,7 @@ import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 
-export abstract class AccountPersistanceControllerReadonlyBase {
+export abstract class AccountPersistenceControllerReadonlyBase {
     abstract read(args: ReadAccountArgs): Promise<DeepPartial<UserAccount>[]>;
 
     getUserAccounts(userId?: string): Promise<DeepPartial<UserAccount[]>> {
@@ -28,7 +28,7 @@ export abstract class AccountPersistanceControllerReadonlyBase {
     }
 }
 
-export abstract class AccountPersistanceControllerBase extends AccountPersistanceControllerReadonlyBase {
+export abstract class AccountPersistenceControllerBase extends AccountPersistenceControllerReadonlyBase {
     abstract create(args: AccountCreateArgs): Promise<string>;
     abstract update(args: AccountUpdateArgs): Promise<void>;
     abstract delete(args: AccountDeleteArgs): Promise<void>;

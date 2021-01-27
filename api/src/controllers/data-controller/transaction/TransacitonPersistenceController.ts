@@ -1,4 +1,4 @@
-import { TransactionPersistanceControllerBase } from './TransactionPersistanceControllerBase';
+import { TransactionPersistenceControllerBase } from './TransactionPersistenceControllerBase';
 import { SortOrder, TransactionReadArg } from '@models/transaction/TransactionReadArgs';
 import { DatabaseController } from '../DataController';
 import { Transaction, TransactionUpdateArgs, TransactionStatus } from '@models/transaction/transaction';
@@ -6,7 +6,7 @@ import { transactionPostgresDataController } from './TransactionPostgresControll
 import moment = require('moment');
 import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
 
-export class TransacitonPersistenceController implements TransactionPersistanceControllerBase {
+export class TransacitonPersistenceController implements TransactionPersistenceControllerBase {
     dataController: DatabaseController<Transaction>;
 
     constructor(controller: DatabaseController<Transaction>) {
