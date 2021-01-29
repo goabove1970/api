@@ -21,9 +21,7 @@ const getCollection = () => {
     return mockableTransactionArgs.mockTransactionCollection;
 };
 
-const getMatchingTransactions: (args: TransactionReadArg) => Promise<Transaction[]>  =
-(args: TransactionReadArg) => {
-    
+const getMatchingTransactions: (args: TransactionReadArg) => Promise<Transaction[]> = (args: TransactionReadArg) => {
     if (!args) {
         const res: Transaction[] = [];
         return Promise.resolve(res);
@@ -35,7 +33,7 @@ const getMatchingTransactions: (args: TransactionReadArg) => Promise<Transaction
     };
 
     return initFilteredCollection().then((tr: Transaction[]) => {
-        const someTr = tr.filter(t => true);
+        const someTr = tr.filter((t) => true);
         return someTr;
     });
 };
@@ -75,7 +73,7 @@ describe('TransactionController', () => {
         expect((readData as Transaction[]).length).toEqual(0);
     });
 
-     it(`should create transactions`, async () => {
+    it(`should create transactions`, async () => {
         clearCollection();
 
         const accountId = 'some-account-id';
@@ -98,7 +96,15 @@ describe('TransactionController', () => {
         };
 
         const importData: TransactionImportResult = await mockController.addTransaction(transactionArgs, accountId);
-        expect(importData.newTransactions).toEqual(1);
+        expect(importData).toEqual({
+            businessRecognized: 0,
+            duplicates: 0,
+            multipleBusinessesMatched: 0,
+            newTransactions: 1,
+            parsed: 1,
+            unposted: 0,
+            unrecognized: 1,
+        });
         expect(getCollection().length).toEqual(1);
     });
 

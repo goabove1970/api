@@ -16,6 +16,7 @@ import {
     validateTransactionUpdateArgs,
 } from '@controllers/data-controller/transaction/helper';
 import { TransactionImportResult } from './TransactionImportResult';
+import { Business } from '@root/src/models/business/Business';
 
 export class TransactionController {
     dataController: TransacitonPersistenceController;
@@ -72,7 +73,7 @@ export class TransactionController {
         return this.addTransactions([transaction], accountId);
     }
 
-    async importTransactionsFromCsv(transactionsCsv: string, accountId: string): Promise<TransactionImportResult> {
+    importTransactionsFromCsv(transactionsCsv: string, accountId: string): Promise<TransactionImportResult> {
         const chaseTransactions = chaseTransactionParser.parseFile(transactionsCsv);
         const pending = chaseTransactions.map((tr) => {
             return {
@@ -81,10 +82,10 @@ export class TransactionController {
                 },
             } as Transaction;
         });
-        return await this.addTransactions(pending, accountId);
+        return this.addTransactions(pending, accountId);
     }
 
-    private async addTransactions(bulk: Transaction[], accountId: string): Promise<TransactionImportResult> {
+    private addTransactions(bulk: Transaction[], accountId: string): Promise<TransactionImportResult> {
         const result: TransactionImportResult = {
             parsed: 0,
             duplicates: 0,
@@ -95,30 +96,42 @@ export class TransactionController {
             unposted: 0,
         };
 
-        const merged = await this.mergeWithExisting(bulk, accountId);
-        result.parsed = bulk.length;
-        bulk = bulk.filter(this.isTransactionPosted);
-        result.unposted = result.parsed - bulk.length;
-        result.newTransactions = merged.length;
-        result.duplicates = result.parsed - result.newTransactions;
-        const transactions = await merged.map(async (tr) => {
-            const trans: Transaction = await this.categorize(tr);
-            return Promise.resolve(trans);
-        });
-        const categorized = await Promise.all(transactions);
+        return this.mergeWithExisting(bulk, accountId)
+            .then((merged) => {
+                result.parsed = bulk.length;
+                bulk = bulk.filter(this.isTransactionPosted);
+                result.unposted = result.parsed - bulk.length;
+                result.newTransactions = merged.length;
+                result.duplicates = result.parsed - result.newTransactions;
+                return merged;
+            })
+            .then((merged) => {
+                const transactions = merged.map(async (tr) => {
+                    const transPromise: Promise<Transaction> = this.categorize(tr);
+                    return transPromise;
+                });
+                return Promise.all(transactions);
+            })
+            .then((categorized) => {
+                result.businessRecognized = categorized.filter(
+                    (tr) => tr.processingStatus & ProcessingStatus.merchantRecognized
+                ).length;
+                result.multipleBusinessesMatched = categorized.filter(
+                    (tr) => tr.processingStatus & ProcessingStatus.multipleBusinessesMatched
+                ).length;
+                result.unrecognized = categorized.filter(
+                    (tr) => tr.processingStatus & ProcessingStatus.merchantUnrecognized
+                ).length;
 
-        result.businessRecognized = categorized.filter(
-            (tr) => tr.processingStatus & ProcessingStatus.merchantRecognized
-        ).length;
-        result.multipleBusinessesMatched = categorized.filter(
-            (tr) => tr.processingStatus & ProcessingStatus.multipleBusinessesMatched
-        ).length;
-        result.unrecognized = categorized.filter(
-            (tr) => tr.processingStatus & ProcessingStatus.merchantUnrecognized
-        ).length;
-
-        await transactions.forEach(async (tr) => await this.addTransactionImpl(await tr, accountId));
-        return Promise.resolve(result);
+                const addPromises = categorized.map((tr) => this.addTransactionImpl(tr, accountId));
+                return Promise.all(addPromises);
+            })
+            .then(() => {
+                return Promise.resolve(result);
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 
     isTransactionPosted(trans: Transaction): boolean {
@@ -232,82 +245,118 @@ export class TransactionController {
         return [];
     }
 
-    async recognize(): Promise<Transaction[]> {
-        const unrecognized = ((await this.dataController.read({})) as Transaction[]).filter(
-            (tr) => tr.chaseTransaction.PostingDate !== null && tr.businessId === null
-        );
+    recognize(): Promise<Transaction[]> {
+        return this.dataController
+            .read({})
+            .then((readRes) => {
+                const unrecognized = (readRes as Transaction[]).filter(
+                    (tr) => tr.chaseTransaction.PostingDate !== null && tr.businessId === null
+                );
+                return unrecognized;
+            })
+            .then((unrecognized: Transaction[]) => {
+                const business = this.businessesController.read({});
+                const promises = [unrecognized, business];
+                return Promise.all(promises);
+            })
+            .then((resolved) => {
+                const arg = {
+                    unrecognized: resolved[0] as Transaction[],
+                    businesses: resolved[1] as Business[],
+                };
+                return arg;
+            })
+            .then((arg) => {
+                const unrecognized: Transaction[] = arg[0];
+                const business = arg[1];
+                const recognized: Transaction[] = [];
+                business.forEach((b) => {
+                    const recognizedSets = new Set(recognized.map((t) => t.transactionId));
+                    const stillUnrecognized = unrecognized.filter((ur) => !recognizedSets.has(ur.transactionId));
+                    const recognizedForBusiness = stillUnrecognized.filter((transaction) => {
+                        return b.regexps.some((rgx) => {
+                            const regex = RegExp(rgx, 'g');
+                            return regex.test(transaction.chaseTransaction.Description);
+                        });
+                    });
 
-        const recognized: Transaction[] = [];
+                    recognizedForBusiness.forEach((ur) => {
+                        ur.businessId = b.businessId;
+                        recognized.push(ur);
+                    });
+                });
 
-        const business = await this.businessesController.read({});
-        business.forEach((b) => {
-            const recognizedSets = new Set(recognized.map((t) => t.transactionId));
-            const stillUnrecognized = unrecognized.filter((ur) => !recognizedSets.has(ur.transactionId));
-            const recognizedForBusiness = stillUnrecognized.filter((transaction) => {
-                return b.regexps.some((rgx) => {
-                    const regex = RegExp(rgx, 'g');
+                recognized.forEach((tr) =>
+                    this.update({
+                        transactionId: tr.transactionId,
+                        businessId: tr.businessId,
+                        processingStatus:
+                            tr.processingStatus &
+                            ProcessingStatus.merchantRecognized &
+                            ProcessingStatus.merchantUnrecognized,
+                    })
+                );
+
+                return Promise.resolve(recognized);
+            });
+    }
+
+    assignBusinessMatchingTransactions(rgx: string): Promise<Transaction[]> {
+        return this.dataController
+            .read({})
+            .then((readResult) => {
+                const transactions = readResult as Transaction[];
+                const unrecognized = transactions.filter(
+                    (tr) => tr.chaseTransaction.PostingDate !== undefined && tr.businessId === undefined
+                );
+                return unrecognized;
+            })
+            .then((unrecognized) => {
+                const regex = RegExp(rgx, 'g');
+                const matches = unrecognized.filter((transaction) => {
                     return regex.test(transaction.chaseTransaction.Description);
                 });
-            });
 
-            recognizedForBusiness.forEach((ur) => {
-                ur.businessId = b.businessId;
-                recognized.push(ur);
-            });
-        });
-
-        recognized.forEach((tr) =>
-            this.update({
-                transactionId: tr.transactionId,
-                businessId: tr.businessId,
-                processingStatus:
-                    tr.processingStatus & ProcessingStatus.merchantRecognized & ProcessingStatus.merchantUnrecognized,
+                return Promise.resolve(matches);
             })
-        );
-
-        return recognized;
+            .catch((err) => {
+                throw err;
+            });
     }
 
-    async assignBusinessMatchingTransactions(rgx: string): Promise<Transaction[]> {
-        const unrecognized = ((await this.dataController.read({})) as Transaction[]).filter(
-            (tr) => tr.chaseTransaction.PostingDate !== undefined && tr.businessId === undefined
-        );
+    categorize(transaction: Transaction): Promise<Transaction> {
+        return this.businessesController
+            .getCache()
+            .then((cache) => {
+                const matchingBusinesses = cache.businesses.filter((business) => {
+                    return (
+                        business.regexps &&
+                        business.regexps.some((reg) => {
+                            var regex = RegExp(reg, 'g');
+                            return regex.test(transaction.chaseTransaction.Description);
+                        })
+                    );
+                });
+                transaction.processingStatus = 0;
+                if (matchingBusinesses && matchingBusinesses.length === 1) {
+                    transaction.businessId = matchingBusinesses[0].businessId;
+                    transaction.processingStatus = transaction.processingStatus ^ ProcessingStatus.merchantRecognized;
+                } else if (matchingBusinesses.length > 1) {
+                    transaction.processingStatus =
+                        transaction.processingStatus ^ ProcessingStatus.multipleBusinessesMatched;
+                } else {
+                    transaction.processingStatus = transaction.processingStatus ^ ProcessingStatus.merchantUnrecognized;
+                }
 
-        const regex = RegExp(rgx, 'g');
-
-        const matches = unrecognized.filter((transaction) => {
-            return regex.test(transaction.chaseTransaction.Description);
-        });
-
-        return matches;
-    }
-
-    async categorize(transaction: Transaction): Promise<Transaction> {
-        const cache = await this.businessesController.getCache();
-        const matchingBusinesses = cache.businesses.filter((business) => {
-            return (
-                business.regexps &&
-                business.regexps.some((reg) => {
-                    var regex = RegExp(reg, 'g');
-                    return regex.test(transaction.chaseTransaction.Description);
-                })
-            );
-        });
-        transaction.processingStatus = 0;
-        if (matchingBusinesses && matchingBusinesses.length === 1) {
-            transaction.businessId = matchingBusinesses[0].businessId;
-            transaction.processingStatus = transaction.processingStatus ^ ProcessingStatus.merchantRecognized;
-        } else if (matchingBusinesses.length > 1) {
-            transaction.processingStatus = transaction.processingStatus ^ ProcessingStatus.multipleBusinessesMatched;
-        } else {
-            transaction.processingStatus = transaction.processingStatus ^ ProcessingStatus.merchantUnrecognized;
-        }
-
-        return transaction;
+                return Promise.resolve(transaction);
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 }
 
-export function originalTransactionEquals(t1: ChaseTransaction, t2: ChaseTransaction) {
+export const originalTransactionEquals = (t1: ChaseTransaction, t2: ChaseTransaction) => {
     return (
         t1.Amount === t2.Amount &&
         (t1.Balance || undefined) === (t2.Balance || undefined) &&
@@ -319,6 +368,6 @@ export function originalTransactionEquals(t1: ChaseTransaction, t2: ChaseTransac
         (t1.CreditCardTransactionType || undefined) === (t2.CreditCardTransactionType || undefined) &&
         (t1.BankDefinedCategory || undefined) === (t2.BankDefinedCategory || undefined)
     );
-}
+};
 
 export const transactionController = new TransactionController(transactionDatabaseController, businessesController);
