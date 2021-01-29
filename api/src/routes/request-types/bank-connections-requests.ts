@@ -1,3 +1,4 @@
+import { TransactionImportResult } from '@root/src/controllers/transaction-controller/TransactionImportResult';
 import { ResponseBase } from './Requests';
 
 export interface BankSyncRequest {
@@ -26,17 +27,7 @@ export interface BankAccountPollStatus {
     bankConnectionError?: string;
     bankConnectionErrorCode?: number;
     accountData?: AccountData;
-    syncData?: TransactionImprtResult;
-}
-
-export interface TransactionImprtResult {
-    parsed: number;
-    duplicates: number;
-    newTransactions: number;
-    businessRecognized: number;
-    multipleBusinessesMatched: number;
-    unrecognized: number;
-    unposted: number;
+    syncData?: TransactionImportResult;
 }
 
 export interface AccountData {

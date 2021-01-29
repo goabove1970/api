@@ -20,9 +20,8 @@ const getCollection: () => Transaction[] = () => {
 
 const mock_add = jest.fn(
     (args: Transaction): Promise<void> => {
-        return new Promise(() => {
-            getCollection().push(args);
-        });
+        getCollection().push(args);
+        return Promise.resolve();
     }
 );
 
@@ -42,18 +41,20 @@ const deleteTransaction = (transactionId: string) => {
 
 const getMatchingTransactions = (args: TransactionReadArg): Promise<Transaction[]> => {
     if (!args) {
-        return new Promise(() => []);
+        return Promise.resolve([]);
     }
 
     let initFilteredCollection: Promise<Transaction[]>;
     if (args.accountId) {
-        initFilteredCollection = new Promise(() => {
-            return getCollection().filter((tr) => tr.accountId && tr.accountId === args.accountId);
-        });
+        initFilteredCollection = Promise.resolve(
+            getCollection().filter((tr) => tr.accountId && tr.accountId === args.accountId)
+        );
     } else if (args.accountIds) {
-        initFilteredCollection = new Promise(() => {
-            return getCollection().filter((tr) => tr.accountId && args.accountIds.includes(tr.accountId));
-        });
+        initFilteredCollection = Promise.resolve(
+            getCollection().filter((tr) => tr.accountId && args.accountIds.includes(tr.accountId))
+        );
+    } else {
+        return Promise.resolve([]);
     }
 
     return initFilteredCollection.then((filtered: Transaction[]) => {
@@ -102,18 +103,19 @@ const getMatchingTransactions = (args: TransactionReadArg): Promise<Transaction[
             filtered = filtered.slice(0, args.readCount);
         }
 
-        return filtered;
+        return Promise.resolve(filtered);
     });
 };
 
 const mock_read = jest.fn(
     (args: TransactionReadArg): Promise<Transaction[] | number> => {
-        return getMatchingTransactions(args).then((transactions) => {
+        const res = getMatchingTransactions(args).then((transactions: Transaction[] | number) => {
             if (args.countOnly) {
-                return transactions.length;
+                return Promise.resolve(transactions as number);
             }
-            return transactions;
+            return Promise.resolve(transactions);
         });
+        return res;
     }
 );
 

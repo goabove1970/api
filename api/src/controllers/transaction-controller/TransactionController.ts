@@ -11,16 +11,17 @@ import moment = require('moment');
 import businessesController, { BusinessesController } from '@controllers/business-controller';
 import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
 import { DatabaseError } from '@models/errors/errors';
-import { validateTransactionCreateArgs, validateTransactionUpdateArgs } from '@controllers/data-controller/transaction/helper';
-import { TransactionImprtResult } from '@routes/request-types/bank-connections-requests';
+import {
+    validateTransactionCreateArgs,
+    validateTransactionUpdateArgs,
+} from '@controllers/data-controller/transaction/helper';
+import { TransactionImportResult } from './TransactionImportResult';
 
 export class TransactionController {
     dataController: TransacitonPersistenceController;
     businessesController: BusinessesController;
 
-    constructor(dataController: TransacitonPersistenceController,
-        businessesController: BusinessesController) {
-
+    constructor(dataController: TransacitonPersistenceController, businessesController: BusinessesController) {
         this.dataController = dataController;
         this.businessesController = businessesController;
     }
@@ -55,10 +56,10 @@ export class TransactionController {
             accountId: accountId || transaction.accountId,
             transactionId: GuidFull(),
         };
+        validateTransactionCreateArgs(newTransaction);
 
         return this.categorize(newTransaction)
             .then((tr) => {
-                validateTransactionCreateArgs(tr);
                 this.dataController.add(tr);
                 return tr.transactionId;
             })
@@ -67,11 +68,11 @@ export class TransactionController {
             });
     }
 
-    async addTransaction(transaction: Transaction, accountId: string): Promise<TransactionImprtResult> {
-        return await this.addTransactions([transaction], accountId);
+    addTransaction(transaction: Transaction, accountId: string): Promise<TransactionImportResult> {
+        return this.addTransactions([transaction], accountId);
     }
 
-    async importTransactionsFromCsv(transactionsCsv: string, accountId: string): Promise<TransactionImprtResult> {
+    async importTransactionsFromCsv(transactionsCsv: string, accountId: string): Promise<TransactionImportResult> {
         const chaseTransactions = chaseTransactionParser.parseFile(transactionsCsv);
         const pending = chaseTransactions.map((tr) => {
             return {
@@ -83,8 +84,8 @@ export class TransactionController {
         return await this.addTransactions(pending, accountId);
     }
 
-    private async addTransactions(bulk: Transaction[], accountId: string): Promise<TransactionImprtResult> {
-        const result: TransactionImprtResult = {
+    private async addTransactions(bulk: Transaction[], accountId: string): Promise<TransactionImportResult> {
+        const result: TransactionImportResult = {
             parsed: 0,
             duplicates: 0,
             newTransactions: 0,
@@ -102,7 +103,7 @@ export class TransactionController {
         result.duplicates = result.parsed - result.newTransactions;
         const transactions = await merged.map(async (tr) => {
             const trans: Transaction = await this.categorize(tr);
-            return trans;
+            return Promise.resolve(trans);
         });
         const categorized = await Promise.all(transactions);
 
@@ -117,76 +118,84 @@ export class TransactionController {
         ).length;
 
         await transactions.forEach(async (tr) => await this.addTransactionImpl(await tr, accountId));
-        return result;
+        return Promise.resolve(result);
     }
 
     isTransactionPosted(trans: Transaction): boolean {
         return trans.chaseTransaction.PostingDate !== undefined;
     }
 
-    async mergeWithExisting(pending: Transaction[], accountId: string): Promise<Transaction[]> {
+    mergeWithExisting(pending: Transaction[], accountId: string): Promise<Transaction[]> {
         const comparisonDepth = 30;
-
         const pendingPosted = pending.filter((tr) => tr.chaseTransaction.PostingDate !== undefined);
 
         // from DB: posted transactions sorted by date descending
-        const lastExistingPosted = ((await this.dataController.read({
+        const readArgs = {
             accountId,
             order: SortOrder.descending,
             readCount: comparisonDepth,
-        })) as Transaction[]).filter((tr) => tr.chaseTransaction.PostingDate !== undefined);
-
-        // if there are no transactions in database, return all pending transactions
-        if (lastExistingPosted.length === 0) {
-            return pending;
-        }
-
-        // assuming it may take up to 5 days for transaction to post,
-        // we will start from a date of the last existing transaction in database, minus 5 days
-
-        // sort pennding transactions by posting date
-        pending = pending
-            .filter((c) => c.chaseTransaction.PostingDate !== undefined)
-            .sort((p1, p2) =>
-                moment(p1.chaseTransaction.PostingDate).isBefore(moment(p2.chaseTransaction.PostingDate)) ? -1 : 1
+        };
+        return this.dataController.read(readArgs).then((readData: number | Transaction[]) => {
+            const lastExistingPosted = (readData as Transaction[]).filter(
+                (tr) => tr.chaseTransaction.PostingDate !== undefined
             );
-        if (!pending || pending.length === 0) {
-            return [];
-        }
-        const lastTransactionDate = moment(pending[0].chaseTransaction.PostingDate).isBefore(
-            moment(lastExistingPosted[0].chaseTransaction.PostingDate)
-        )
-            ? pending[0].chaseTransaction.PostingDate
-            : lastExistingPosted[0].chaseTransaction.PostingDate;
-        const beginningDate = moment(lastTransactionDate).subtract(5, 'days');
-        const today = moment();
 
-        let toBeAdded: Transaction[] = [];
+            // if there are no transactions in database, return all pending transactions
+            if (lastExistingPosted.length === 0) {
+                return Promise.resolve(pending);
+            }
 
-        for (let date = beginningDate; date.startOf('day').isSameOrBefore(today.startOf('day')); date.add(1, 'day')) {
-            const dbRecords = lastExistingPosted.filter((t) =>
-                moment(t.chaseTransaction.PostingDate)
-                    .startOf('day')
-                    .isSame(date.startOf('day'))
-            );
-            const pendingRecords = pendingPosted.filter((t) => {
-                const collDate = moment(t.chaseTransaction.PostingDate).startOf('day');
+            // assuming it may take up to 5 days for transaction to post,
+            // we will start from a date of the last existing transaction in database, minus 5 days
 
-                const iteratorDate = date.startOf('day');
-                return collDate.isSame(iteratorDate);
-            });
+            // sort pennding transactions by posting date
+            pending = pending
+                .filter((c) => c.chaseTransaction.PostingDate !== undefined)
+                .sort((p1, p2) =>
+                    moment(p1.chaseTransaction.PostingDate).isBefore(moment(p2.chaseTransaction.PostingDate)) ? -1 : 1
+                );
+            if (!pending || pending.length === 0) {
+                return Promise.resolve([]);
+            }
+            const lastTransactionDate = moment(pending[0].chaseTransaction.PostingDate).isBefore(
+                moment(lastExistingPosted[0].chaseTransaction.PostingDate)
+            )
+                ? pending[0].chaseTransaction.PostingDate
+                : lastExistingPosted[0].chaseTransaction.PostingDate;
+            const beginningDate = moment(lastTransactionDate).subtract(5, 'days');
+            const today = moment();
 
-            const missingInDb = pendingRecords.filter((penging) => {
-                const shouldBeAdded = !dbRecords.some((db) => {
-                    return originalTransactionEquals(db.chaseTransaction, penging.chaseTransaction);
+            let toBeAdded: Transaction[] = [];
+
+            for (
+                let date = beginningDate;
+                date.startOf('day').isSameOrBefore(today.startOf('day'));
+                date.add(1, 'day')
+            ) {
+                const dbRecords = lastExistingPosted.filter((t) =>
+                    moment(t.chaseTransaction.PostingDate)
+                        .startOf('day')
+                        .isSame(date.startOf('day'))
+                );
+                const pendingRecords = pendingPosted.filter((t) => {
+                    const collDate = moment(t.chaseTransaction.PostingDate).startOf('day');
+
+                    const iteratorDate = date.startOf('day');
+                    return collDate.isSame(iteratorDate);
                 });
-                return shouldBeAdded;
-            });
 
-            toBeAdded = toBeAdded.concat(missingInDb);
-        }
+                const missingInDb = pendingRecords.filter((penging) => {
+                    const shouldBeAdded = !dbRecords.some((db) => {
+                        return originalTransactionEquals(db.chaseTransaction, penging.chaseTransaction);
+                    });
+                    return shouldBeAdded;
+                });
 
-        return toBeAdded;
+                toBeAdded = toBeAdded.concat(missingInDb);
+            }
+
+            return Promise.resolve(toBeAdded);
+        });
     }
 
     async testRegex(rgx: string): Promise<Transaction[]> {
