@@ -203,10 +203,8 @@ export class TransactionController {
                     });
                     return shouldBeAdded;
                 });
-
                 toBeAdded = toBeAdded.concat(missingInDb);
             }
-
             return Promise.resolve(toBeAdded);
         });
     }
@@ -215,9 +213,7 @@ export class TransactionController {
         const unrecognized = ((await this.dataController.read({})) as Transaction[]).filter(
             (tr) => tr.chaseTransaction.PostingDate !== null && tr.businessId === null
         );
-
         const regex = RegExp(rgx, 'g');
-
         const matches = unrecognized.filter((transaction) => {
             return regex.test(transaction.chaseTransaction.Description);
         });

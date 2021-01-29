@@ -2,16 +2,16 @@ import {
     mockableTransactionArgs,
     MockTransactionPersistenceController,
 } from '@mock/MockTransactionsPersistenceController';
-import { BusinessesController } from '../controllers/business-controller';
-import { BusinessPersistenceController } from '../controllers/data-controller/business/BusinessPersistenceController';
-import { TransacitonPersistenceController } from '../controllers/data-controller/transaction/TransacitonPersistenceController';
-import { TransactionController } from '../controllers/transaction-controller/TransactionController';
-import { TransactionImportResult } from '../controllers/transaction-controller/TransactionImportResult';
-import { ChaseTransactionOriginType } from '../models/transaction/chase/ChaseTransactionOriginType';
-import { CreditCardTransactionType, ChaseTransactionType } from '../models/transaction/chase/ChaseTransactionType';
-import { Transaction } from '../models/transaction/transaction';
-import { SortOrder, TransactionReadArg } from '../models/transaction/TransactionReadArgs';
-import { MockBusinessPersistenceController } from './mock/MockBusinessPersistenceControllerBase';
+import { BusinessesController } from '@controllers/business-controller';
+import { BusinessPersistenceController } from '@controllers/data-controller/business/BusinessPersistenceController';
+import { TransacitonPersistenceController } from '@controllers/data-controller/transaction/TransacitonPersistenceController';
+import { TransactionController } from '@controllers/transaction-controller/TransactionController';
+import { TransactionImportResult } from '@controllers/transaction-controller/TransactionImportResult';
+import { ChaseTransactionOriginType } from '@models/transaction/chase/ChaseTransactionOriginType';
+import { CreditCardTransactionType, ChaseTransactionType } from '@models/transaction/chase/ChaseTransactionType';
+import { Transaction } from '@models/transaction/transaction';
+import { SortOrder, TransactionReadArg } from '@models/transaction/TransactionReadArgs';
+import { MockBusinessPersistenceController } from '@mock/MockBusinessPersistenceControllerBase';
 
 const clearCollection = () => {
     mockableTransactionArgs.mockTransactionCollection = [];
@@ -108,11 +108,57 @@ describe('TransactionController', () => {
         expect(getCollection().length).toEqual(1);
     });
 
+    it(`should add transaction with no posting date`, async () => {
+        clearCollection();
+
+        const accountId = 'some-account-id';
+        const transactionArgs: Transaction = {
+            accountId,
+            businessId: 'some-business-id',
+            categoryId: 'some-category',
+            chaseTransaction: {
+                Description: 'some-description',
+                Details: ChaseTransactionOriginType.Credit,
+                Amount: 123,
+                PostingDate: undefined,
+                Balance: 456,
+                BankDefinedCategory: 'some-bank-defined-category',
+                CheckOrSlip: 'check-no',
+                CreditCardTransactionType: CreditCardTransactionType.Sale,
+                Type: ChaseTransactionType.AchCredit,
+            },
+            userComment: 'comment',
+        };
+
+        const importData: TransactionImportResult = await mockController.addTransaction(transactionArgs, accountId);
+        expect(importData).toEqual({
+            businessRecognized: 0,
+            duplicates: 0,
+            multipleBusinessesMatched: 0,
+            newTransactions: 1,
+            parsed: 1,
+            unposted: 1,
+            unrecognized: 1,
+        });
+        expect(getCollection().length).toEqual(1);
+    });
+
     it(`should read transactions`, async () => {
         clearCollection();
         const comparisonDepth = 30;
         const readArgs = {
             accountId: 'some-account-id',
+            order: SortOrder.descending,
+            readCount: comparisonDepth,
+        };
+        const readData = await mockController.read(readArgs);
+        expect((readData as Transaction[]).length).toEqual(0);
+    });
+
+    it(`should read no transactions with no account id`, async () => {
+        clearCollection();
+        const comparisonDepth = 30;
+        const readArgs = {
             order: SortOrder.descending,
             readCount: comparisonDepth,
         };
