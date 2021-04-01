@@ -16,19 +16,24 @@ const process = async function(req, res, next) {
     let responseData: SessionResponse = {};
 
     console.log(`Processing ${sessionRequest.action} session request`);
-    switch (sessionRequest.action) {
-        case SessionRequestType.Extend:
-            responseData = await sessionServiceController.extend(sessionRequest.args);
-            break;
-        case SessionRequestType.Validate:
-            responseData = await sessionServiceController.validate(sessionRequest.args);
-            break;
-        case SessionRequestType.Init:
-            responseData = await sessionServiceController.init(sessionRequest.args);
-            break;
-        case SessionRequestType.Terminate:
-            responseData = await sessionServiceController.terminate(sessionRequest.args);
-            break;
+    try {
+        switch (sessionRequest.action) {
+            case SessionRequestType.Extend:
+                responseData = await sessionServiceController.extend(sessionRequest.args);
+                break;
+            case SessionRequestType.Validate:
+                responseData = await sessionServiceController.validate(sessionRequest.args);
+                break;
+            case SessionRequestType.Init:
+                responseData = await sessionServiceController.init(sessionRequest.args);
+                break;
+            case SessionRequestType.Terminate:
+                responseData = await sessionServiceController.terminate(sessionRequest.args);
+                break;
+        }
+    } catch (error) {
+        console.error(`Error: ${error.message || error}`);
+        return res.status(500).send(new SessionError(error.message || error));
     }
 
     res.header('Access-Control-Allow-Origin', '*');

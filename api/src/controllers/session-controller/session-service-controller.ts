@@ -29,6 +29,7 @@ export class SessionService implements ISessionService {
                 'content-type': 'application/json',
                 'content-length': Buffer.byteLength(bodyString),
             },
+            timeout: 1000
         };
 
         return new Promise((resolve, reject) => {
