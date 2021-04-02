@@ -60,3 +60,9 @@ export class BusinessError extends ErrorBase {
         super(errorMesage || 'could not process business request');
     }
 }
+
+export class BankServiceError extends ErrorBase {
+    constructor(errorMesage?: string) {
+        super(errorMesage || 'could not process bank service request');
+    }
+}
