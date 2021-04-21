@@ -18,6 +18,77 @@ import {
 import { TransactionImportResult } from './TransactionImportResult';
 import { Business } from '@root/src/models/business/Business';
 
+  export const strip = (str: string): string => {
+    const stripSymbol = `"`;
+    if (str.length >= 2) {
+      if (str[0] === stripSymbol && str[str.length - 1] === stripSymbol) {
+        return str.substr(1, str.length - 2);
+      } else {
+        return str;
+      }
+    } else return str;
+  }
+  
+  export const sameDescription = (d1?: string, d1Check?: string, d2?: string, d2Check?: string)  => {
+    d1 = d1 || '';
+    d2 = d2 || '';
+    d1 = strip(d1)
+      .replace(',', ' ')
+      .replace(/\s+/g, ' ');
+    if (d1.startsWith(' ')) {
+      d1 = d1.substr(1);
+    }
+    if (d1.endsWith(' ')) {
+      d1 = d1.substr(0, d1.length - 1);
+    }
+  
+    d2 = strip(d2)
+      .replace(',', ' ')
+      .replace(/\s+/g, ' ');
+    if (d2.startsWith(' ')) {
+      d2 = d2.substr(1);
+    }
+    if (d2.endsWith(' ')) {
+      d2 = d2.substr(0, d2.length - 1);
+    }
+  
+    if (d1 === d2) {
+      return true;
+    }
+  
+    if (d1Check) {
+      d1 = d1.replace(` ${d1Check.replace(/\s+/g, ' ')}`, d1Check.replace(/\s+/g, ' '));
+    }
+  
+    if (d2Check) {
+      d2 = d2.replace(` ${d2Check.replace(/\s+/g, ' ')}`, d2Check.replace(/\s+/g, ' '));
+    }
+  
+    if (d1.replace(/\s+/g, ' ') === d2.replace(/\s+/g, ' ')) {
+      return true;
+    }
+  
+    if (
+      d1.replace(/\s+/g, '').startsWith(d2.replace(/\s+/g, '')) ||
+      d2.replace(/\s+/g, '').startsWith(d1.replace(/\s+/g, ''))
+    ) {
+      return true;
+    }
+  
+    return false;
+  }
+  
+  export const sameTransaction = (db: ChaseTransaction, t2: ChaseTransaction) => {
+    return (
+      db.Amount === t2.Amount &&
+      sameDescription(db.Description, db.CheckOrSlip, t2.Description, t2.CheckOrSlip) &&
+      moment(db.PostingDate)
+        .startOf('day')
+        .isSame(moment(t2.PostingDate).startOf('day')) //&&
+    );
+  };
+
+
 export class TransactionController {
     dataController: TransacitonPersistenceController;
     businessesController: BusinessesController;

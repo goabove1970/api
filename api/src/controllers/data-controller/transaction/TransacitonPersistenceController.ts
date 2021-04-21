@@ -13,68 +13,96 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
         this.dataController = controller;
     }
 
-    matchesReadArgs(args: TransactionReadArg): Promise<string> {
+    async matchesReadArgs(args: TransactionReadArg): Promise<string> {
         if (!args) {
-            return Promise.resolve('');
+            return '';
         }
 
-        let conditionsPromise: Promise<string[]> = undefined;
+        const conditions = [];
+        if (args.userId) {
+            const accounts = await transactionDatabaseController
+                .read({
+                    userId: args.userId,
+                    filter: args.filter,
+                })
+                .then((accs) =>
+                    (accs as Transaction[])
+                        .map((acc) => acc.accountId)
+                        .filter((accid) => accid !== undefined)
+                        .map((acc) => `'${acc}'`)
+                );
+
+            conditions.push(`account_id in (${accounts.join(', ')})`);
+        }
+
         if (args.accountId) {
-            conditionsPromise = Promise.resolve([`account_id in ('${args.accountId}')`]);
-        } else if (args.accountIds) {
-            const expr = args.accountIds.map((e) => `'${e}'`).join(', ');
-            conditionsPromise = Promise.resolve([`account_id in ('${expr}')`]);
+            conditions.push(`account_id in ('${args.accountId}')`);
         }
 
-        return conditionsPromise
-            .then((initConditions: string[]) => {
-                const conditions: string[] = initConditions;
-                if (args.categorization) {
-                    switch (args.categorization) {
-                        case 'categorized':
-                            conditions.push('category_id is not NULL');
-                            break;
-                        case 'uncategorized':
-                            conditions.push('category_id is NULL');
-                            break;
-                    }
-                }
+        if (args.filter) {
+            const lower = (args.filter || '').toLowerCase();
+            const lowerEscape = escape(lower);
+            conditions.push(
+                `(LOWER(description) ILIKE '%${lower}%' 
+              or LOWER(override_description) ILIKE '%${lower}%'
+              or LOWER(user_comment) ILIKE '%${lower}%'
+              or LOWER(description) ILIKE '%${lowerEscape}%' 
+              or LOWER(override_description) ILIKE '%${lowerEscape}%'
+              or LOWER(user_comment) ILIKE '%${lowerEscape}%')`
+            );
+        }
 
-                if (args.transactionId) {
-                    conditions.push(`transaction_id='${args.transactionId}'`);
-                }
+        if (args.accountIds) {
+            const expr = args.accountIds.map((e) => `'${e}'`).join(', ');
+            conditions.push(`account_id in (${expr})`);
+        }
 
-                if (args.startDate) {
-                    conditions.push(`posting_date>=${"'" + moment(args.startDate).toISOString() + "'"}`);
-                }
+        if (args.categorization) {
+            switch (args.categorization) {
+                case 'categorized':
+                    conditions.push('category_id is not NULL');
+                    break;
+                case 'uncategorized':
+                    conditions.push('category_id is NULL');
+                    break;
+            }
+        }
 
-                if (args.endDate) {
-                    conditions.push(`posting_date<='${moment(args.endDate).toISOString()}'`);
-                }
+        if (args.userId) {
+            conditions.push(`user_id=${!args.userId ? 'NULL' : args.userId}`);
+        }
 
-                return conditions;
-            })
-            .then((conditions: string[]) => {
-                let finalSattement = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+        if (args.transactionId) {
+            conditions.push(`transaction_id='${args.transactionId}'`);
+        }
 
-                if (args.order) {
-                    if ((args.order! as SortOrder) === SortOrder.accending) {
-                        finalSattement = `${finalSattement} order by posting_date asc`;
-                    } else {
-                        finalSattement = `${finalSattement} order by posting_date desc`;
-                    }
-                }
+        if (args.startDate) {
+            conditions.push(`posting_date>=${"'" + moment(args.startDate).toISOString() + "'"}`);
+        }
 
-                if (args.offset) {
-                    finalSattement = `${finalSattement} offset ${args.offset}`;
-                }
+        if (args.endDate) {
+            conditions.push(`posting_date<='${moment(args.endDate).toISOString()}'`);
+        }
 
-                if (args.readCount) {
-                    finalSattement = `${finalSattement} limit ${args.readCount}`;
-                }
+        let finalSattement = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-                return finalSattement;
-            });
+        if (args.order) {
+            if ((args.order! as SortOrder) === SortOrder.accending) {
+                finalSattement = `${finalSattement} order by posting_date asc`;
+            } else {
+                finalSattement = `${finalSattement} order by posting_date desc`;
+            }
+        }
+
+        if (args.readCount) {
+            finalSattement = `${finalSattement} limit ${args.readCount}`;
+        }
+
+        if (args.offset) {
+            finalSattement = `${finalSattement} offset ${args.offset}`;
+        }
+
+        return finalSattement;
     }
 
     update(args: TransactionUpdateArgs): Promise<void> {

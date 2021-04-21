@@ -1,5 +1,6 @@
 import { ResponseBase } from './Requests';
 import { Transaction } from '@models/transaction/transaction';
+import { TransactionReadArg } from '@root/src/models/transaction/TransactionReadArgs';
 
 export enum TransactionRequestType {
     ReadTransactions = 'read-transactions',
@@ -13,7 +14,7 @@ export enum TransactionRequestType {
 }
 
 export type TransactionRequestTypeArgs =
-    | ReadTransactionArgs
+    | TransactionReadArg
     | TransactionImportArgs
     | TransactioCsvFileImportArgs
     | TryRegexParseArgs;
@@ -28,19 +29,6 @@ export interface TransactionResponse extends ResponseBase {
 }
 
 export type CategorizationType = 'all' | 'uncategorized' | 'categorized';
-
-export interface ReadTransactionArgs {
-    transactionId?: string;
-    userId?: string;
-    accountId?: string;
-    startDate?: Date;
-    endDate?: Date;
-    count?: number;
-    countOnly?: boolean;
-    offset?: number;
-    categorization?: CategorizationType;
-    categoryId?: string;
-}
 
 export interface UpdateTransactionArgs {
     transactionId?: string;
