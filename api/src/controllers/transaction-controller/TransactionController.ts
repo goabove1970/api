@@ -211,7 +211,15 @@ export class TransactionController {
 
     mergeWithExisting(pending: Transaction[], accountId: string): Promise<Transaction[]> {
         const comparisonDepth = 30;
-        const pendingPosted = pending.filter((tr) => tr.chaseTransaction.PostingDate !== undefined);
+
+        // sort pennding transactions by posting date accending
+        // pending[0] is the earliest
+        // pending[pending.length - 1] is the latest
+        const pendingPosted = pending.filter((tr) => tr.chaseTransaction.PostingDate !== undefined).sort((p1, p2) =>
+        moment(p1.chaseTransaction.PostingDate).isBefore(moment(p2.chaseTransaction.PostingDate)) ? -1 : 1);
+        if (!pendingPosted || pendingPosted.length === 0) {
+            return Promise.resolve([]);
+        }
 
         // from DB: posted transactions sorted by date descending
         const readArgs = {
@@ -223,29 +231,20 @@ export class TransactionController {
             const lastExistingPosted = (readData as Transaction[]).filter(
                 (tr) => tr.chaseTransaction.PostingDate !== undefined
             );
-
             // if there are no transactions in database, return all pending transactions
             if (lastExistingPosted.length === 0) {
-                return Promise.resolve(pending);
+                return Promise.resolve(pendingPosted);
             }
 
             // assuming it may take up to 5 days for transaction to post,
             // we will start from a date of the last existing transaction in database, minus 5 days
-
-            // sort pennding transactions by posting date
-            pending = pending
-                .filter((c) => c.chaseTransaction.PostingDate !== undefined)
-                .sort((p1, p2) =>
-                    moment(p1.chaseTransaction.PostingDate).isBefore(moment(p2.chaseTransaction.PostingDate)) ? -1 : 1
-                );
-            if (!pending || pending.length === 0) {
-                return Promise.resolve([]);
-            }
-            const lastTransactionDate = moment(pending[0].chaseTransaction.PostingDate).isBefore(
-                moment(lastExistingPosted[0].chaseTransaction.PostingDate)
+            const lastPolledRecord = pendingPosted[pendingPosted.length - 1];
+            const lastDbRecord = lastExistingPosted[0];
+            const lastTransactionDate = moment(lastDbRecord.chaseTransaction.PostingDate).isBefore(
+                moment(lastPolledRecord.chaseTransaction.PostingDate)
             )
-                ? pending[0].chaseTransaction.PostingDate
-                : lastExistingPosted[0].chaseTransaction.PostingDate;
+                ? lastDbRecord.chaseTransaction.PostingDate
+                : lastPolledRecord.chaseTransaction.PostingDate;
             const beginningDate = moment(lastTransactionDate).subtract(5, 'days');
             const today = moment();
 
@@ -267,6 +266,9 @@ export class TransactionController {
                     const iteratorDate = date.startOf('day');
                     return collDate.isSame(iteratorDate);
                 });
+                if (pendingRecords.length === 0) {
+                    continue;
+                }
 
                 const missingInDb = pendingRecords.filter((penging) => {
                     const shouldBeAdded = !dbRecords.some((db) => {
