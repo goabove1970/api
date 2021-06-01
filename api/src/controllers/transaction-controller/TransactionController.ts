@@ -143,7 +143,7 @@ export class TransactionController {
     addTransaction(transaction: Transaction, accountId: string): Promise<TransactionImportResult> {
         return this.addTransactions([transaction], accountId);
     }
-
+    
     importTransactionsFromCsv(transactionsCsv: string, accountId: string): Promise<TransactionImportResult> {
         const chaseTransactions = chaseTransactionParser.parseFile(transactionsCsv);
         const pending = chaseTransactions.map((tr) => {
@@ -156,7 +156,7 @@ export class TransactionController {
         return this.addTransactions(pending, accountId);
     }
 
-    private addTransactions(bulk: Transaction[], accountId: string): Promise<TransactionImportResult> {
+    addTransactions(bulk: Transaction[], accountId: string): Promise<TransactionImportResult> {
         const result: TransactionImportResult = {
             parsed: 0,
             duplicates: 0,

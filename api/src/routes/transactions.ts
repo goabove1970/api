@@ -7,6 +7,7 @@ import {
     TransactionDeleteArgs,
     TryRegexParseArgs,
     UpdateTransactionArgs,
+    TransactionsImportArgs,
 } from './request-types/TransactionRequests';
 import { Router } from 'express';
 import { TransactionError } from '@models/errors/errors';
@@ -19,6 +20,7 @@ import { inspect } from 'util';
 import userController from '../controllers/user-controller';
 import { Transaction, TransactionUpdateArgs } from '../models/transaction/transaction';
 import { transactionController } from '../controllers/transaction-controller/TransactionController';
+import logger from '../logger';
 var multiparty = require('multiparty');
 const fs = require('fs');
 const path = require('path');
@@ -36,6 +38,9 @@ const process = async function(req, res, next) {
     console.log(`Processing ${transactionRequest.action} request`);
 
     switch (transactionRequest.action) {
+        case TransactionRequestType.ImportTransactions:
+            responseData = await processImportTransactionsRequest(transactionRequest.args as TransactionsImportArgs);
+            break;
         case TransactionRequestType.ReadTransactions:
             responseData = await processReadTransactionsRequest(transactionRequest.args as TransactionReadArg);
             break;
@@ -170,6 +175,31 @@ async function processImportTransactionRequest(args: TransactionImportArgs): Pro
 
     try {
         const importResult = await transactionController.addTransaction(args.transaction, args.accountId);
+        response.payload = {
+            ...importResult,
+        };
+    } catch (error) {
+        console.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
+async function processImportTransactionsRequest(args: TransactionsImportArgs): Promise<TransactionResponse> {
+    const response: TransactionResponse = {
+        action: TransactionRequestType.ImportTransaction,
+        payload: {},
+    };
+
+    if (!args.accountId) {
+        const errorMessage = `Can not import transactions if no accountId passed`
+        logger.error(errorMessage);
+        response.error = errorMessage;
+        return response;
+    }
+
+    try {
+        const importResult = await transactionController.addTransactions(args.transactions, args.accountId);
         response.payload = {
             ...importResult,
         };

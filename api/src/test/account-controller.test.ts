@@ -1,9 +1,9 @@
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
-import { AccountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
 import { AccountController } from '@controllers/account-controller/account-controller';
 import { mockableAccountArgs, MockAccountPersistenceController } from '@mock/MockAccountPersistenceController';
 import { ValidationError } from '@models/errors/errors';
+import { AccountPersistenceController } from '../controllers/data-controller/account/account-persistance-controller/account-persistance-controller';
 
 describe('AccountController', () => {
     let mockAccountPersistenceController: AccountPersistenceController;

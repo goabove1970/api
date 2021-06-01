@@ -1,7 +1,5 @@
-import accountController, { AccountController } from './account-controller';
+import { accountPersistenceController } from '../data-controller/account/account-persistance-controller';
+import  { AccountController } from './account-controller';
 
-exports = {
-    AccountController,
-};
-
+const accountController: AccountController = new AccountController(accountPersistenceController);
 export default accountController;

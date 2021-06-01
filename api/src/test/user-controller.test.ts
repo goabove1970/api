@@ -10,9 +10,9 @@ import {
     mockableAccountArgs,
     MockAccountPersistenceController,
 } from '@mock/MockAccountPersistenceController';
-import { AccountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
 import { UserPersistenceController } from '@controllers/data-controller/users/UserPersistenceController';
 import { mockUserArguments, MockUserPersistenceController } from '@mock/MockUserPersistenceController';
+import { AccountPersistenceController } from '../controllers/data-controller/account/account-persistance-controller/account-persistance-controller';
 
 describe('UserController', () => {
     let mockAccountPersistenceController: AccountPersistenceController;

@@ -116,8 +116,9 @@ async function processCreateAccountRequest(args: AccountCreateArgs): Promise<Acc
                 throw error;
             });
     } catch (error) {
-        console.error(error.message);
-        response.error = error.message;
+        const message = error.errorMessage || error.message || error;
+        logger.error(message);
+        response.error = message;
     }
     return response;
 }

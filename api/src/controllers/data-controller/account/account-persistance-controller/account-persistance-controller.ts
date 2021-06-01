@@ -1,4 +1,4 @@
-import { AccountPersistenceControllerBase } from './AccountPersistenceControllerBase';
+import { AccountPersistenceControllerBase } from '../AccountPersistenceControllerBase';
 import {
     matchesReadArgs,
     validateCreateAccountArgs,
@@ -6,16 +6,15 @@ import {
     validateAccountUpdateArgs,
     toShortAccountDetails,
     AccountResponseModel,
-} from './helper';
+} from '../helper';
 import { UserAccount } from '@models/accounts/Account';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 import { AccountStatus } from '@models/accounts/AccountStatus';
-import { DatabaseController } from '../DataController';
+import { DatabaseController } from '../../DataController';
 import { DatabaseError } from '@models/errors/errors';
-import { accountPostgresDataController } from './AccountPostgresController';
 import moment = require('moment');
 
 export class AccountPersistenceController extends AccountPersistenceControllerBase {
@@ -179,4 +178,3 @@ export class AccountPersistenceController extends AccountPersistenceControllerBa
             });
     }
 }
-export const accountPersistenceController = new AccountPersistenceController(accountPostgresDataController);

@@ -23,8 +23,9 @@ import { userPostgresDataController } from './UsersPostgresController';
 import moment = require('moment');
 import { Value } from 'ts-postgres';
 import { UserAccountLink } from '@models/accounts/Account';
-import { AccountPersistenceController, accountPersistenceController } from '../account/AccountPersistenceController';
 import { userAccountLinkDataController } from '../userAccountLink/UserAccountLinkPostgresController';
+import { accountPersistenceController } from '../account/account-persistance-controller';
+import { AccountPersistenceController } from '../account/account-persistance-controller/account-persistance-controller';
 
 export class UserPersistenceController implements UserPersistenceControllerBase {
     userDataController: DatabaseController<UserDetails>;

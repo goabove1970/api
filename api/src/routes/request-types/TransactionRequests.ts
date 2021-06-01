@@ -5,6 +5,7 @@ import { TransactionReadArg } from '@root/src/models/transaction/TransactionRead
 export enum TransactionRequestType {
     ReadTransactions = 'read-transactions',
     ImportTransaction = 'import-transaction',
+    ImportTransactions = 'import-transactions',
     ImportTransactionCsvFile = 'import-transaction-csv-file',
     Delete = 'delete',
     TestRegex = 'test-regex',
@@ -38,6 +39,11 @@ export interface UpdateTransactionArgs {
 
 export interface TransactionImportArgs {
     transaction?: Transaction;
+    accountId?: string;
+}
+
+export interface TransactionsImportArgs {
+    transactions?: Transaction[];
     accountId?: string;
 }
 

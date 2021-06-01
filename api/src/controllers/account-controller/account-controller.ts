@@ -3,10 +3,10 @@ import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { UserAccount } from '@models/accounts/Account';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
-import { AccountPersistenceController, accountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 import { AccountPersistenceControllerBase as AccountPersistenceControllerBase } from '@controllers/data-controller/account/AccountPersistenceControllerBase';
 import userController from '@controllers/user-controller';
+import { AccountPersistenceController } from '../data-controller/account/account-persistance-controller/account-persistance-controller';
 
 export class AccountController extends AccountPersistenceControllerBase {
     private accountController: AccountPersistenceController;
@@ -33,5 +33,4 @@ export class AccountController extends AccountPersistenceControllerBase {
     }
 }
 
-const accountController: AccountController = new AccountController(accountPersistenceController);
-export default accountController;
+

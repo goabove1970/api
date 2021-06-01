@@ -3,8 +3,8 @@ import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
 import { DeepPartial } from '@models/DeepPartial';
 import 'jest';
-import { AccountPersistenceController } from '@controllers/data-controller/account/AccountPersistenceController';
 import { combineNewAccount, validateCreateAccountArgs } from '@controllers/data-controller/account/helper';
+import { AccountPersistenceController } from '@root/src/controllers/data-controller/account/account-persistance-controller/account-persistance-controller';
 
 export const mockableAccountArgs: { mockAccountCollection: UserAccount[] } = {
     mockAccountCollection: [],
