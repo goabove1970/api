@@ -11,7 +11,7 @@ import logger from '../logger';
 const router = Router();
 
 const process = async function(req, res, next) {
-    // console.log(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logger.info(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
     const request = req.body as CategoryRequest;
     if (!request) {
         return res.status(500).send(new CategoryError('Empty category request'));
