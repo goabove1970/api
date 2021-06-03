@@ -15,14 +15,11 @@ export abstract class AccountPersistenceControllerReadonlyBase {
         return this.read(args);
     }
 
-    async getMap(userId?: string): Promise<Map<string, UserAccount>> {
+    async getMap(userId?: string): Promise<{}> {
         const accounts = await this.getUserAccounts(userId);
-        const accountsMap = new Map<string, UserAccount>();
+        const accountsMap = {};
         accounts.forEach((c) => {
-            const existing = accountsMap.has(c.accountId);
-            if (!existing) {
-                accountsMap.set(c.accountId, c);
-            }
+            accountsMap[c.accountId] = c;
         });
         return accountsMap;
     }

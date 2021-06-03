@@ -99,6 +99,9 @@ export const combineNewAccount = (args: AccountCreateArgs): UserAccount => {
         bankName: args.bankName,
         createDate: new Date(),
         status: AccountStatus.Active,
+        alias: args.alias,
+        accountType: args.accountType,
+        serviceComment: JSON.stringify(args.serviceComment) 
     };
 };
 

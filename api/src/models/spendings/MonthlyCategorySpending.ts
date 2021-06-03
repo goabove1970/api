@@ -1,10 +1,7 @@
-import { BaseSpending } from "./BaseSpending";
+import { CategorySpending } from "./CategorySpending";
 
-export interface MonthlyCategorySpending extends BaseSpending {
-
-    parentCategoryId?: string;
-    categoryId?: string;
-    categoryName?: string;
+export interface MonthlyCategorySpending extends CategorySpending {
     month?: Date;
     monthName?: string;
-}
+  }
+  

@@ -27,5 +27,5 @@ export class CategoryController implements CategoryPersistenceControllerBase {
     }
 }
 
-const categoryController: CategoryPersistenceControllerBase = new CategoryController(categoryPersistenceController);
+const categoryController = new CategoryController(categoryPersistenceController);
 export default categoryController;

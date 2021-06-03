@@ -271,9 +271,13 @@ export class TransactionController {
                 }
 
                 const missingInDb = pendingRecords.filter((penging) => {
-                    const shouldBeAdded = !dbRecords.some((db) => {
+                    const matchingRecordsFromThisDateInDatabase = dbRecords.filter((db) => {
                         return originalTransactionEquals(db.chaseTransaction, penging.chaseTransaction);
-                    });
+                    }).length;
+                    const matchingRecordsFromThisDateInPolled = pendingRecords.filter((db) => {
+                        return originalTransactionEquals(db.chaseTransaction, penging.chaseTransaction);
+                    }).length;
+                    const shouldBeAdded = matchingRecordsFromThisDateInDatabase < matchingRecordsFromThisDateInPolled;
                     return shouldBeAdded;
                 });
                 toBeAdded = toBeAdded.concat(missingInDb);
@@ -428,14 +432,13 @@ export class TransactionController {
 export const originalTransactionEquals = (t1: ChaseTransaction, t2: ChaseTransaction) => {
     return (
         t1.Amount === t2.Amount &&
-        (t1.Balance || undefined) === (t2.Balance || undefined) &&
-        (t1.CheckOrSlip || undefined) === (t2.CheckOrSlip || undefined) &&
-        (t1.Description || undefined) === (t2.Description || undefined) &&
-        (t1.Details || undefined) === (t2.Details || undefined) &&
-        moment(t1.PostingDate).isSame(moment(t2.PostingDate)) &&
-        (t1.Type || undefined) === (t2.Type || undefined) &&
-        (t1.CreditCardTransactionType || undefined) === (t2.CreditCardTransactionType || undefined) &&
-        (t1.BankDefinedCategory || undefined) === (t2.BankDefinedCategory || undefined)
+       // (t1.Balance || undefined) === (t2.Balance || undefined) &&
+        // (t1.CheckOrSlip || undefined) === (t2.CheckOrSlip || undefined) &&
+        // (t1.Description || undefined) === (t2.Description || undefined) &&
+        // (t1.Details || undefined) === (t2.Details || undefined) &&
+        moment(t1.PostingDate).isSame(moment(t2.PostingDate)) //&&
+        // (t1.Type || undefined) === (t2.Type || undefined) &&
+        // (t1.CreditCardTransactionType || undefined) === (t2.CreditCardTransactionType || undefined) &&
     );
 };
 
