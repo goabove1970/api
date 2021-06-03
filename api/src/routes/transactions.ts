@@ -28,14 +28,14 @@ const path = require('path');
 const router = Router();
 
 const process = async function(req, res, next) {
-    console.log(`Received a request in transaction controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logger.info(`Received a request in transaction controller: ${JSON.stringify(req.body, null, 4)}`);
     const transactionRequest = req.body as TransactionRequest;
     if (!transactionRequest) {
         return res.status(500).send(new TransactionError());
     }
 
     let responseData: TransactionResponse = {};
-    console.log(`Processing ${transactionRequest.action} request`);
+    logger.info(`Processing ${transactionRequest.action} request`);
 
     switch (transactionRequest.action) {
         case TransactionRequestType.ImportTransactions:
@@ -91,7 +91,7 @@ async function processUpdateTransactionRequest(args: UpdateTransactionArgs): Pro
     try {
         await transactionController.update(updateTransactionArgs);
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -161,7 +161,7 @@ async function processReadTransactionsRequest(args: TransactionReadArg): Promise
             }
         }
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -179,7 +179,7 @@ async function processImportTransactionRequest(args: TransactionImportArgs): Pro
             ...importResult,
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -204,7 +204,7 @@ async function processImportTransactionsRequest(args: TransactionsImportArgs): P
             ...importResult,
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -222,7 +222,7 @@ async function processDeleteTransactionRequest(args: TransactionDeleteArgs): Pro
             transactionId,
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -244,7 +244,7 @@ async function processImportTransactionFileRequest(args: TransactioCsvFileImport
             addResult,
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -256,7 +256,7 @@ async function processUploadRequest(req, res, next) {
     if (parts.length > 0) {
         acct = parts[parts.length - 1];
     }
-    console.log(`Acct: ${acct}`);
+    logger.info(`Acct: ${acct}`);
     var form = new multiparty.Form();
     var count = 0;
     let tmpDir = './tmp';
@@ -272,11 +272,11 @@ async function processUploadRequest(req, res, next) {
     const fileName = path.join(tmpDir, `${GuidEight()}.tmp`);
 
     form.on('error', function(err) {
-        console.log('Error parsing form: ' + err.stack);
+        logger.info('Error parsing form: ' + err.stack);
     });
     form.on('part', function(part) {
         if (!part.filename) {
-            console.log('got field named ' + part.name);
+            logger.info('got field named ' + part.name);
             part.resume();
         }
 
@@ -288,12 +288,12 @@ async function processUploadRequest(req, res, next) {
         }
 
         part.on('error', function(err) {
-            console.error(`Error receiving transactions file: ${err.message || err}`);
+            logger.error(`Error receiving transactions file: ${err.message || err}`);
         });
     });
 
     form.on('close', function() {
-        console.log('Upload completed!');
+        logger.info('Upload completed!');
         fs.readFile(fileName, (error, data) => {
             if (error) {
                 throw 'Error processing transaction file';
@@ -304,11 +304,11 @@ async function processUploadRequest(req, res, next) {
                 accountId: acct,
             })
                 .then((importRes: any) => {
-                    console.log(inspect(importRes));
+                    logger.info(inspect(importRes));
                     res.send(importRes);
                 })
                 .catch(() => {
-                    console.error('Error processing transaction file received');
+                    logger.error('Error processing transaction file received');
                     res.end('Received ' + count + ' files');
                 });
         });
@@ -330,7 +330,7 @@ async function processTestRegexRequest(args: TryRegexParseArgs): Promise<Transac
             matchingTransactions: addResult,
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -349,7 +349,7 @@ async function processTestBusinessRegexRequest(args: TryRegexParseArgs): Promise
             matchingTransactions: addResult,
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -368,7 +368,7 @@ async function processRecognizeRequest(): Promise<TransactionResponse> {
             matchingTransactions: addResult,
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;

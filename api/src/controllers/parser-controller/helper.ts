@@ -1,9 +1,11 @@
+import logger from "@root/src/logger";
+
 export function parseNumber(line: string): number | undefined {
   try {
     const number = Number.parseFloat(line);
     return number;
   } catch (error) {
-    console.log(JSON.stringify(error, null, 4));
+    logger.info(JSON.stringify(error, null, 4));
   }
   return undefined;
 }

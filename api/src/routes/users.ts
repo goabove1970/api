@@ -16,18 +16,19 @@ import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { UserDetails } from '@models/user/UserDetails';
 import sessionServiceController from '@controllers/session-controller/session-service-controller';
+import logger from '../logger';
 
 const router = Router();
 
 const process = async function(req, res, next) {
-    console.log(`Received a request in user controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logger.info(`Received a request in user controller: ${JSON.stringify(req.body, null, 4)}`);
     const userRequest = req.body as UserRequest;
     if (!userRequest) {
         return res.status(500).send(new UserError());
     }
 
     let responseData: UserResponse = {};
-    console.log(`Processing ${userRequest.action} user request`);
+    logger.info(`Processing ${userRequest.action} user request`);
     switch (userRequest.action) {
         case UserRequestType.Read:
             responseData = await processReadUsersRequest(userRequest.args);
@@ -83,7 +84,7 @@ async function processRemoveAccountRequest(request: ManageAccountArgs): Promise<
             }),
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -127,7 +128,7 @@ async function processLoginRequest(request: UserLoginArgs): Promise<UserResponse
                 throw error;
             });
     } catch (error) {
-        console.error(error.message || error);
+        logger.error(error.message || error);
         response.error = error.message || error;
     }
     return response;
@@ -148,7 +149,7 @@ async function processExtendSessionRequest(request: UserExtendSessionArgs): Prom
             session: session.payload,
         };
     } catch (error) {
-        console.error(error.message || error);
+        logger.error(error.message || error);
         response.error = error.message || error;
     }
     return response;
@@ -167,7 +168,7 @@ async function processLogoutRequest(request: UserLogoutArgs): Promise<UserRespon
             })
             .then((r) => r.payload);
     } catch (error) {
-        console.error(error.message || error);
+        logger.error(error.message || error);
         response.error = error.message || error;
     }
     return response;
@@ -186,7 +187,7 @@ async function processAddAccountRequest(request: ManageAccountArgs): Promise<Use
             }),
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -245,7 +246,7 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
             users: userCollection,
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -264,7 +265,7 @@ async function processCreateUserRequest(request: UserCreateArgs): Promise<UserRe
             }),
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -283,7 +284,7 @@ async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserRe
             }),
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -301,7 +302,7 @@ async function processUpdateUserRequest(request: UserUpdateArgs): Promise<UserRe
             }),
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -320,7 +321,7 @@ async function processUpdatePasswordRequest(request: UserUpdatePasswordArgs): Pr
             }),
         };
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;

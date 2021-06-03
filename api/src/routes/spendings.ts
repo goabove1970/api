@@ -7,11 +7,12 @@ import {
     SpendingRequestArgs,
 } from './request-types/SpendingsRequest';
 import { spendingsController } from '@controllers/spendings-controller';
+import logger from '../logger';
 
 const router = Router();
 
 async function process(req, res) {
-    console.log(`Received a request in spending controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logger.info(`Received a request in spending controller: ${JSON.stringify(req.body, null, 4)}`);
     const spendingRequest = req.body as SpendingRequest;
     if (!spendingRequest) {
         return res.status(500).send(new SpendingRequestError());
@@ -46,20 +47,20 @@ router.post('/', process);
 function validateReadRequest(args: SpendingRequestArgs): void {
     if (!args.userId) {
         const error = 'Recevied spending request with empty userId';
-        console.error(error);
+        logger.error(error);
         throw error;
     }
 }
 
 async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<SpendingResponse> {
-    console.log(`Processing read request in spending router`);
+    logger.info(`Processing read request in spending router`);
     validateReadRequest(args);
     let response: SpendingResponse;
     try {
         response = await spendingsController.processReadSpendingRequest(args);
         return response;
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;

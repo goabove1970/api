@@ -17,7 +17,7 @@ router.post('/', process);
 router.get('/', process);
 
 async function process(req, res, next) {
-    console.log(`Received a request in account controller: ${JSON.stringify(req.body, null, 4)}`);
+    logger.info(`Received a request in account controller: ${JSON.stringify(req.body, null, 4)}`);
     const accountRequest = req.body as AccountRequest;
     if (!accountRequest) {
         return res.status(500).send(new AccountError());
@@ -53,7 +53,7 @@ async function process(req, res, next) {
 }
 
 async function processReadAccountsRequest(args: ReadAccountArgs): Promise<AccountResponse> {
-    console.log(`Processing read-account request`);
+    logger.info(`Processing read-account request`);
     const response: AccountResponse = {
         action: 'read-accounts',
         payload: {},
@@ -81,14 +81,14 @@ async function processReadAccountsRequest(args: ReadAccountArgs): Promise<Accoun
                 throw error;
             });
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
 }
 
 async function processCreateAccountRequest(args: AccountCreateArgs): Promise<AccountResponse> {
-    console.log(`Processing create-account request`);
+    logger.info(`Processing create-account request`);
     const response: AccountResponse = {
         action: 'create-account',
         payload: {},
@@ -124,7 +124,7 @@ async function processCreateAccountRequest(args: AccountCreateArgs): Promise<Acc
 }
 
 async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<AccountResponse> {
-    console.log(`Processing delete-account request`);
+    logger.info(`Processing delete-account request`);
     const response: AccountResponse = {
         action: 'delete-account',
         payload: {},
@@ -143,14 +143,14 @@ async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<
                 throw error;
             });
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
 }
 
 async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<AccountResponse> {
-    // console.log(`Processing update account request`);
+    logger.info(`Processing update account request`);
     const response: AccountResponse = {
         action: 'update',
         payload: {},
@@ -168,7 +168,7 @@ async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<
                 throw error;
             });
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;

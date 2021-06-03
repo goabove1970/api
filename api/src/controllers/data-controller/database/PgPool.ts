@@ -1,6 +1,7 @@
 import { Client, Configuration, Result } from 'ts-postgres';
 import { PgConfig } from './PgConfig';
 import { CONFIG } from '@root/app.config';
+import logger from '@root/src/logger';
 
 export class PgPool {
     private client: Client;
@@ -28,21 +29,21 @@ export class PgPool {
         this.client
             .connect()
             .then(() => {
-                this.client.on('error', console.error);
+                this.client.on('error', logger.error);
             })
             .then(() => {
                 if (!this.client.closed) {
-                    console.log(`Conneted to the database: ${this.client.config.database}:${this.client.config.port}`);
+                    logger.info(`Conneted to the database: ${this.client.config.database}:${this.client.config.port}`);
                 }
             });
     }
 
     query(query?: string): Promise<Result> {
-        console.log(`Running database query: [${query}]`);
+        logger.info(`Running database query: [${query}]`);
         return this.client
             .query(query)
             .then((r) => {
-                console.log(`Got database result [${JSON.stringify(r, null, 4)}]`);
+                logger.info(`Got database result [${JSON.stringify(r, null, 4)}]`);
                 return r;
             })
             .catch((error) => {

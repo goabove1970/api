@@ -8,7 +8,7 @@ import { inspect } from 'util';
 const router = Router();
 
 const process = async function(req, res) {
-    console.log(`Received a request in bank sync controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logger.info(`Received a request in bank sync controller: ${JSON.stringify(req.body, null, 4)}`);
     const request = req.body as BankSyncRequest;
     if (!request) {
         return res.status(500).send(new BankServiceError());
@@ -16,12 +16,12 @@ const process = async function(req, res) {
 
     let responseData: BankConnectionResponse = {};
 
-    console.log(`Processing ${request.action} bank sync request`);
+    logger.info(`Processing ${request.action} bank sync request`);
     try {
         responseData = await bankSyncController.passThrough(request.args, request.action);
     } catch (error) {
         const message = `Error while processing bank service request: ${error.message || error}, original request: ${inspect(request)}`;
-        console.error(message);
+        logger.error(message);
         logger.error(message);
         return res.status(500).send(new BankServiceError(message));
     }

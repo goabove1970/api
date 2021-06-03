@@ -6,6 +6,7 @@ import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
 import controller from '@controllers/category-controller';
 import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
 import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
+import logger from '../logger';
 
 const router = Router();
 
@@ -18,7 +19,7 @@ const process = async function(req, res, next) {
 
     let responseData: CategoryResponse = {};
 
-    console.log(`Processing ${request.action} category request`);
+    logger.info(`Processing ${request.action} category request`);
     switch (request.action) {
         case CategoryRequestType.Create:
             responseData = await processCreateCategoryRequest(request.args);
@@ -77,7 +78,7 @@ async function processReadCategoryRequest(request: ReadCategoryArgs): Promise<Ca
                 throw error;
             });
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -102,7 +103,7 @@ async function processCreateCategoryRequest(request: CreateCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -127,7 +128,7 @@ async function processDeleteCategoryRequest(request: DeleteCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -151,7 +152,7 @@ async function processUpdateCategoryRequest(request: CreateCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         response.error = error.message;
     }
     return response;
