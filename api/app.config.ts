@@ -11,7 +11,7 @@ export interface ServiceConfig {
     port?: number;
 }
 
-export const CONFIG: ApplicationConfig = {
+export const LOCAL_CONFIG: ApplicationConfig = {
     PgConfig: {
         host: '127.0.0.1',
         port: 5432,
@@ -21,19 +21,30 @@ export const CONFIG: ApplicationConfig = {
         schema: 'public',
     },
     SessionServiceConfig: {
-        url: 'https://dinero-app.com/sessions',
-        port: undefined,
+        url: 'localhost',
+        port: 9200,
     },
-    // SessionServiceConfig: {
-    //     url: 'localhost',
-    //     port: 9200,
-    // },
-    // BankServiceConfig: {
-    //     url: 'dinero-app.com/sessions',
-    //     port: undefined,
-    // },
     BankServiceConfig: {
         url: '127.0.0.1',
         port: 9300,
     },
+};
+
+export const CONFIG: ApplicationConfig = {
+    PgConfig: {
+      host: '134.122.16.140',
+      port: 5432,
+      login: 'zhenia',
+      password: 'a84hg7dT!!a',
+      database: 'postgres',
+      schema: 'public',
+  },
+    SessionServiceConfig: {
+      url: '127.0.0.1',
+      port: 9200,
+  },
+  BankServiceConfig: {
+      url: '127.0.0.1',
+      port: 9300,
+  },
 };
