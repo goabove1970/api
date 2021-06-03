@@ -1,4 +1,3 @@
-import logger from '@root/src/logger';
 import { app } from '../app';
 import { CONFIG } from "../app.config";
 
@@ -60,11 +59,11 @@ function onError(error) {
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      logger.error(bind + ' requires elevated privileges');
+      console.error(bind + ' requires elevated privileges');
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      logger.error(bind + ' is already in use');
+      console.error(bind + ' is already in use');
       process.exit(1);
       break;
     default:
@@ -79,7 +78,7 @@ function onError(error) {
 function onListening() {
   var addr = server.address();
   var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  logger.info(`Listening on ${bind}`);
-  logger.info(`Service config: ${JSON.stringify(CONFIG, null, 2)}`);
+  console.log(`Listening on ${bind}`);
+  console.log(`Service config: ${JSON.stringify(CONFIG, null, 2)}`);
   debug('Listening on ' + bind);
 }
