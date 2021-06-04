@@ -43,7 +43,8 @@ export class PgPool {
         return this.client
             .query(query)
             .then((r) => {
-                logger.info(`Got database result [${JSON.stringify(r, null, 4)}]`);
+                // logger.info(`Got database result [${JSON.stringify(r, null, 4)}]`);
+                logger.info(`Got database result: ${r.rows.length} rows`);
                 return r;
             })
             .catch((error) => {
