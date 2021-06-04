@@ -140,8 +140,12 @@ async function processExtendSessionRequest(request: UserExtendSessionArgs): Prom
         payload: {},
     };
 
+    logger.info(`processExtendSessionRequest: Processing ${response.action} request`)
     try {
-        const session = await sessionServiceController.extend({ sessionId: request.sessionId });
+        const session = await sessionServiceController.extend({ sessionId: request.sessionId }).catch(e => {
+            logger.error(e);
+            throw e;
+        });
         if (session.error) {
             throw `Can not extend session. Code: ${session.errorCode}. Error message: ${session.error}.`;
         }
@@ -152,6 +156,7 @@ async function processExtendSessionRequest(request: UserExtendSessionArgs): Prom
         logger.error(error.message || error);
         response.error = error.message || error;
     }
+    logger.info(`processExtendSessionRequest: Processing ${response.action} request complete`)
     return response;
 }
 

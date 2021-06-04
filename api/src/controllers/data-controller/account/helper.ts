@@ -4,7 +4,7 @@ import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { GuidFull } from '@utils/generateGuid';
 import { AccountStatus } from '@models/accounts/AccountStatus';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
-import { CONFIG } from '@root/app.config';
+import { getConfig } from '@root/app.config';
 import {
     isAccountActive,
     isAccountDeactiveted,
@@ -62,7 +62,7 @@ export function matchesReadArgs(args: ReadAccountArgs): string {
 
     const conditions = [];
     if (args.userId) {
-        query += ` JOIN ${CONFIG.PgConfig.schema}.user_account AS usac
+        query += ` JOIN ${getConfig().PgConfig.schema}.user_account AS usac
           ON ac.account_id = usac.account_id
           WHERE (usac.user_id = '${args.userId}')`;
     }

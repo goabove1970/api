@@ -1,6 +1,6 @@
 import { SessionArgs, SessionResponse } from '@routes/request-types/session-request';
 import * as http from 'http';
-import { CONFIG, ServiceConfig } from '@root/app.config';
+import { getConfig, ServiceConfig } from '@root/app.config';
 import logger from '@root/src/logger';
 
 export interface ISessionService {
@@ -74,5 +74,5 @@ export class SessionService implements ISessionService {
     }
 }
 
-const sessionServiceController = new SessionService(CONFIG.SessionServiceConfig);
+const sessionServiceController = new SessionService(getConfig().SessionServiceConfig);
 export default sessionServiceController;

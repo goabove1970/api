@@ -1,6 +1,6 @@
 import { BankSyncArgs, BankConnectionResponse } from '@routes/request-types/bank-connections-requests';
 import * as http from 'http';
-import { CONFIG, ServiceConfig } from '@root/app.config';
+import { getConfig, ServiceConfig } from '@root/app.config';
 import logger from '@root/src/logger';
 
 export class BankSyncService {
@@ -53,5 +53,5 @@ export class BankSyncService {
     }
 }
 
-const bankSyncController = new BankSyncService(CONFIG.BankServiceConfig);
+const bankSyncController = new BankSyncService(getConfig().BankServiceConfig);
 export default bankSyncController;
