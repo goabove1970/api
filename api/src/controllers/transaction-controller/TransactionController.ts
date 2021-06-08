@@ -436,7 +436,7 @@ export const originalTransactionEquals = (t1: ChaseTransaction, t2: ChaseTransac
         // (t1.CheckOrSlip || undefined) === (t2.CheckOrSlip || undefined) &&
         // (t1.Description || undefined) === (t2.Description || undefined) &&
         // (t1.Details || undefined) === (t2.Details || undefined) &&
-        moment(t1.PostingDate).isSame(moment(t2.PostingDate)) //&&
+        moment(t1.PostingDate).startOf('day').isSame(moment(t2.PostingDate).startOf('day')) //&&
         // (t1.Type || undefined) === (t2.Type || undefined) &&
         // (t1.CreditCardTransactionType || undefined) === (t2.CreditCardTransactionType || undefined) &&
     );
