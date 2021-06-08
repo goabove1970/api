@@ -4,8 +4,8 @@ const zipFolder = require('zip-folder');
 console.log('Building');
 exec(`npm run build`, (error, stdout, stderr) => {
   if (error || stderr) {
-    logger.error('Build script failted, run [npm run build] to see build errors.');
-    logger.error(error || stderr);
+    console.error('Build script failted, run [npm run build] to see build errors.');
+    console.error(error || stderr);
     return;
   }
   console.log('Incrementing minor version...');

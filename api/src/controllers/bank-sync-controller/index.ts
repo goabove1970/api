@@ -1,7 +1,7 @@
 import { BankSyncArgs, BankConnectionResponse } from '@routes/request-types/bank-connections-requests';
 import * as http from 'http';
 import { getConfig, ServiceConfig } from '@root/app.config';
-import logger from '@root/src/logger';
+import { logHelper } from '@root/src/logger';
 
 export class BankSyncService {
     config: ServiceConfig;
@@ -43,7 +43,7 @@ export class BankSyncService {
             });
 
             req.on('error', (err) => {
-                logger.error(`Error: ${err.message || err}`);
+                logHelper.error(`Error: ${err.message || err}`);
                 reject(err);
             });
 

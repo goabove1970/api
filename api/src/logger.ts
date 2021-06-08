@@ -27,4 +27,7 @@ const logger = winston.createLogger({
       ),
 });
 
-export default logger;
+export const logHelper = {
+  info: logger.info.bind(logger),
+  error: logger.error.bind(logger),
+};

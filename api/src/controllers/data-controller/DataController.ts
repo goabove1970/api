@@ -1,7 +1,7 @@
 import pool from './database/PgPool';
 import { Value, Result } from 'ts-postgres';
 import { getConfig } from '@root/app.config';
-import logger from '@root/src/logger';
+import { logHelper  } from '@root/src/logger';
 
 export abstract class DataController<T> {}
 
@@ -31,7 +31,7 @@ export abstract class DatabaseController<T> extends DataController<T> {
                 const categories = this.readSelectResponse(rows);
                 return categories;
             }).catch(e => {
-                logger.error(e);
+                logHelper.error(e);
                 throw e;
             });
     }

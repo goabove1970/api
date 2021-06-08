@@ -3,12 +3,12 @@ import { Router } from 'express';
 import sessionServiceController from '@controllers/session-controller/session-service-controller';
 import { SessionResponse, SessionRequest, SessionRequestType } from './request-types/session-request';
 import { SessionError } from '@models/errors/errors';
-import logger from '../logger';
+import { logHelper } from '../logger';
 
 const router = Router();
 
 const process = async function(req, res, next) {
-    // logger.info(`Received a request in session controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logHelper.info(`Received a request in session controller: ${JSON.stringify(req.body, null, 4)}`);
     const sessionRequest = req.body as SessionRequest;
     if (!sessionRequest) {
         return res.status(500).send(new SessionError());
@@ -16,7 +16,7 @@ const process = async function(req, res, next) {
 
     let responseData: SessionResponse = {};
 
-    logger.info(`Processing ${sessionRequest.action} session request`);
+    logHelper.info(`Processing ${sessionRequest.action} session request`);
     try {
         switch (sessionRequest.action) {
             case SessionRequestType.Extend:
@@ -33,7 +33,7 @@ const process = async function(req, res, next) {
                 break;
         }
     } catch (error) {
-        logger.error(`Error: ${error.message || error}`);
+        logHelper.error(`Error: ${error.message || error}`);
         return res.status(500).send(new SessionError(error.message || error));
     }
 

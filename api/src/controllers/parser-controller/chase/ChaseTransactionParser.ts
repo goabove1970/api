@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import { ParseError } from '@models/errors/parse-error';
 import { ChaseTransactionOriginType } from '@models/transaction/chase/ChaseTransactionOriginType';
-import logger from '@root/src/logger';
+import { logHelper } from '@root/src/logger';
 
 export class ChaseTransactionParser implements Parser<ChaseTransaction> {
     private chaseCsvHeader = 'Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #';
@@ -47,10 +47,10 @@ export class ChaseTransactionParser implements Parser<ChaseTransaction> {
             const parseError = error as ParseError;
             if (parseError !== undefined) {
                 parseError.originalString = line;
-                logger.error(`ParseError: ${JSON.stringify(error, null, 4)}`);
+                logHelper.error(`ParseError: ${JSON.stringify(error, null, 4)}`);
                 throw parseError;
             }
-            logger.error(error);
+            logHelper.error(error);
             throw {
                 message: `Error Parsing ransaction: ${error.message}`,
                 originalString: line,
@@ -81,10 +81,10 @@ export class ChaseTransactionParser implements Parser<ChaseTransaction> {
             const parseError = error as ParseError;
             if (parseError !== undefined) {
                 parseError.originalString = line;
-                logger.error(`ParseError: ${JSON.stringify(error, null, 4)}`);
+                logHelper.error(`ParseError: ${JSON.stringify(error, null, 4)}`);
                 throw parseError;
             }
-            logger.error(error);
+            logHelper.error(error);
             throw {
                 message: `Error Parsing ransaction: ${error.message}`,
                 originalString: line,

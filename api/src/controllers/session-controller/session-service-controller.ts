@@ -1,7 +1,7 @@
 import { SessionArgs, SessionResponse } from '@routes/request-types/session-request';
 import * as http from 'http';
 import { getConfig, ServiceConfig } from '@root/app.config';
-import logger from '@root/src/logger';
+import { logHelper} from '@root/src/logger';
 
 export interface ISessionService {
     init(args: SessionArgs): Promise<SessionResponse>;
@@ -52,7 +52,7 @@ export class SessionService implements ISessionService {
             });
 
             req.on('error', (err) => {
-                logger.error(`Error: ${err.message || err}`);
+                logHelper.error(`Error: ${err.message || err}`);
                 reject(err);
             });
 

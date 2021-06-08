@@ -1,4 +1,4 @@
-import logger from "@root/src/logger";
+import { logHelper} from "@root/src/logger";
 import { AccountType, UserAccount } from "@root/src/models/accounts/Account";
 import { Category } from "@root/src/models/category/category";
 import { DeepPartial } from "@root/src/models/DeepPartial";
@@ -97,7 +97,7 @@ export const categorize = (transactions: Transaction[],
         const account = accountsMap[t.accountId];
         if (!account) {
             const errorMessage = `Can't find account ${t.accountId} while processing transaction ${t.transactionId}`;
-            logger.error(errorMessage);
+            logHelper.error(errorMessage);
             throw errorMessage;
         }
 

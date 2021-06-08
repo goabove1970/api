@@ -7,12 +7,12 @@ import { BusinessReadArgs } from '@models/business/BusinessReadArgs';
 import { BusinessCreateArgs } from '@models/business/BusinessCreateArgs';
 import { BusinessDeleteArgs } from '@models/business/BusinessDeleteArgs';
 import { AddRuleArgs } from '@models/business/AddRuleArgs';
-import logger from '../logger';
+import { logHelper } from '../logger';
 
 const router = Router();
 
 const process = async function(req, res, next) {
-    // logger.info(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logHelper.info(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
     const request = req.body as BusinessRequest;
     if (!request) {
         return res.status(500).send(new BusinessError('Empty business request'));
@@ -20,7 +20,7 @@ const process = async function(req, res, next) {
 
     let responseData: BusinessResponse = {};
 
-    logger.info(`Processing ${request.action} business request`);
+    logHelper.info(`Processing ${request.action} business request`);
     switch (request.action) {
         case BusinessRequestType.Create:
             responseData = await processCreateBusinessRequest(request.args);
@@ -82,7 +82,7 @@ async function processReadBusinessRequest(request: BusinessReadArgs): Promise<Bu
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -107,7 +107,7 @@ async function processCreateBusinessRequest(request: BusinessCreateArgs): Promis
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -132,7 +132,7 @@ async function processDeleteBusinessRequest(request: BusinessDeleteArgs): Promis
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -157,7 +157,7 @@ async function processUpdateBusinessRequest(request: BusinessReadArgs): Promise<
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -182,7 +182,7 @@ async function processAddRuleRequest(request: AddRuleArgs): Promise<BusinessResp
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;

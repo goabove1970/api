@@ -9,7 +9,7 @@ import { UserAccount } from '@models/accounts/Account';
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
-import logger from '../logger';
+import { logHelper } from '../logger';
 
 const router = Router();
 
@@ -17,7 +17,7 @@ router.post('/', process);
 router.get('/', process);
 
 async function process(req, res, next) {
-    logger.info(`Received a request in account controller: ${JSON.stringify(req.body, null, 4)}`);
+    logHelper.info(`Received a request in account controller: ${JSON.stringify(req.body, null, 4)}`);
     const accountRequest = req.body as AccountRequest;
     if (!accountRequest) {
         return res.status(500).send(new AccountError());
@@ -42,7 +42,7 @@ async function process(req, res, next) {
                 return res.status(500).send(new AccountError(`Unknown account request type: ${accountRequest.action}`));
         }
     } catch (error) {
-        logger.error(`Error while processing ${accountRequest.action}: ${error.message || error}`);
+        logHelper.error(`Error while processing ${accountRequest.action}: ${error.message || error}`);
         return res.status(500).send(new AccountError(error.message || error));
     }
 
@@ -53,7 +53,7 @@ async function process(req, res, next) {
 }
 
 async function processReadAccountsRequest(args: ReadAccountArgs): Promise<AccountResponse> {
-    logger.info(`Processing read-account request`);
+    logHelper.info(`Processing read-account request`);
     const response: AccountResponse = {
         action: 'read-accounts',
         payload: {},
@@ -81,14 +81,14 @@ async function processReadAccountsRequest(args: ReadAccountArgs): Promise<Accoun
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
 }
 
 async function processCreateAccountRequest(args: AccountCreateArgs): Promise<AccountResponse> {
-    logger.info(`Processing create-account request`);
+    logHelper.info(`Processing create-account request`);
     const response: AccountResponse = {
         action: 'create-account',
         payload: {},
@@ -117,14 +117,14 @@ async function processCreateAccountRequest(args: AccountCreateArgs): Promise<Acc
             });
     } catch (error) {
         const message = error.errorMessage || error.message || error;
-        logger.error(message);
+        logHelper.error(message);
         response.error = message;
     }
     return response;
 }
 
 async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<AccountResponse> {
-    logger.info(`Processing delete-account request`);
+    logHelper.info(`Processing delete-account request`);
     const response: AccountResponse = {
         action: 'delete-account',
         payload: {},
@@ -143,14 +143,14 @@ async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
 }
 
 async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<AccountResponse> {
-    logger.info(`Processing update account request`);
+    logHelper.info(`Processing update account request`);
     const response: AccountResponse = {
         action: 'update',
         payload: {},
@@ -168,7 +168,7 @@ async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;

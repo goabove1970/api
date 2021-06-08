@@ -21,7 +21,7 @@ import { inspect } from 'util';
 import userController from '../controllers/user-controller';
 import { Transaction, TransactionUpdateArgs } from '../models/transaction/transaction';
 import { transactionController } from '../controllers/transaction-controller/TransactionController';
-import logger from '../logger';
+import { logHelper } from '../logger';
 var multiparty = require('multiparty');
 const fs = require('fs');
 const path = require('path');
@@ -29,14 +29,14 @@ const path = require('path');
 const router = Router();
 
 const process = async function(req, res, next) {
-    // logger.info(`Received a request in transaction controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logHelper.info(`Received a request in transaction controller: ${JSON.stringify(req.body, null, 4)}`);
     const transactionRequest = req.body as TransactionRequest;
     if (!transactionRequest) {
         return res.status(500).send(new TransactionError());
     }
 
     let responseData: TransactionResponse = {};
-    logger.info(`Processing ${transactionRequest.action} request`);
+    logHelper.info(`Processing ${transactionRequest.action} request`);
 
     switch (transactionRequest.action) {
         case TransactionRequestType.ImportTransactions:
@@ -95,7 +95,7 @@ async function processUpdateTransactionRequest(args: UpdateTransactionArgs): Pro
     try {
         await transactionController.update(updateTransactionArgs);
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -165,7 +165,7 @@ async function processReadTransactionsRequest(args: TransactionReadArg): Promise
             }
         }
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -183,7 +183,7 @@ async function processImportTransactionRequest(args: TransactionImportArgs): Pro
             ...importResult,
         };
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -197,7 +197,7 @@ async function processImportTransactionsRequest(args: TransactionsImportArgs): P
 
     if (!args.accountId) {
         const errorMessage = `Can not import transactions if no accountId passed`
-        logger.error(errorMessage);
+        logHelper.error(errorMessage);
         response.error = errorMessage;
         return response;
     }
@@ -208,7 +208,7 @@ async function processImportTransactionsRequest(args: TransactionsImportArgs): P
             ...importResult,
         };
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -226,7 +226,7 @@ async function processDeleteTransactionRequest(args: TransactionDeleteArgs): Pro
             transactionId,
         };
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -244,7 +244,7 @@ async function processDeleteTransactionsRequest(args: TransactionsDeleteArgs): P
             transactionId,
         };
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -266,7 +266,7 @@ async function processImportTransactionFileRequest(args: TransactioCsvFileImport
             addResult,
         };
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -278,7 +278,7 @@ async function processUploadRequest(req, res, next) {
     if (parts.length > 0) {
         acct = parts[parts.length - 1];
     }
-    logger.info(`Acct: ${acct}`);
+    logHelper.info(`Acct: ${acct}`);
     var form = new multiparty.Form();
     var count = 0;
     let tmpDir = './tmp';
@@ -294,11 +294,11 @@ async function processUploadRequest(req, res, next) {
     const fileName = path.join(tmpDir, `${GuidEight()}.tmp`);
 
     form.on('error', function(err) {
-        logger.info('Error parsing form: ' + err.stack);
+        logHelper.info('Error parsing form: ' + err.stack);
     });
     form.on('part', function(part) {
         if (!part.filename) {
-            logger.info('got field named ' + part.name);
+            logHelper.info('got field named ' + part.name);
             part.resume();
         }
 
@@ -310,12 +310,12 @@ async function processUploadRequest(req, res, next) {
         }
 
         part.on('error', function(err) {
-            logger.error(`Error receiving transactions file: ${err.message || err}`);
+            logHelper.error(`Error receiving transactions file: ${err.message || err}`);
         });
     });
 
     form.on('close', function() {
-        logger.info('Upload completed!');
+        logHelper.info('Upload completed!');
         fs.readFile(fileName, (error, data) => {
             if (error) {
                 throw 'Error processing transaction file';
@@ -326,11 +326,11 @@ async function processUploadRequest(req, res, next) {
                 accountId: acct,
             })
                 .then((importRes: any) => {
-                    logger.info(inspect(importRes));
+                    logHelper.info(inspect(importRes));
                     res.send(importRes);
                 })
                 .catch(() => {
-                    logger.error('Error processing transaction file received');
+                    logHelper.error('Error processing transaction file received');
                     res.end('Received ' + count + ' files');
                 });
         });
@@ -352,7 +352,7 @@ async function processTestRegexRequest(args: TryRegexParseArgs): Promise<Transac
             matchingTransactions: addResult,
         };
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -371,7 +371,7 @@ async function processTestBusinessRegexRequest(args: TryRegexParseArgs): Promise
             matchingTransactions: addResult,
         };
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -390,7 +390,7 @@ async function processRecognizeRequest(): Promise<TransactionResponse> {
             matchingTransactions: addResult,
         };
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;

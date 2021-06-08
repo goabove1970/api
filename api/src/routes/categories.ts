@@ -6,12 +6,12 @@ import { CreateCategoryArgs } from '@models/category/CreateCategoryArgs';
 import controller from '@controllers/category-controller';
 import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
 import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
-import logger from '../logger';
+import { logHelper } from '../logger';
 
 const router = Router();
 
 const process = async function(req, res, next) {
-    // logger.info(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
+    // logHelper.info(`Received a request in category controller: ${JSON.stringify(req.body, null, 4)}`);
     const request = req.body as CategoryRequest;
     if (!request) {
         return res.status(500).send(new CategoryError('Empty category request'));
@@ -19,7 +19,7 @@ const process = async function(req, res, next) {
 
     let responseData: CategoryResponse = {};
 
-    logger.info(`Processing ${request.action} category request`);
+    logHelper.info(`Processing ${request.action} category request`);
     switch (request.action) {
         case CategoryRequestType.Create:
             responseData = await processCreateCategoryRequest(request.args);
@@ -78,7 +78,7 @@ async function processReadCategoryRequest(request: ReadCategoryArgs): Promise<Ca
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -103,7 +103,7 @@ async function processCreateCategoryRequest(request: CreateCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -128,7 +128,7 @@ async function processDeleteCategoryRequest(request: DeleteCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;
@@ -152,7 +152,7 @@ async function processUpdateCategoryRequest(request: CreateCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        logger.error(error.message);
+        logHelper.error(error.message);
         response.error = error.message;
     }
     return response;

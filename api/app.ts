@@ -14,7 +14,7 @@ import * as categoryRouter from '@routes/categories';
 import * as businessRouter from '@routes/businesses';
 import * as spendingsRouter from '@routes/spendings';
 import * as bankConnectionsRouter from '@routes/banks-connections';
-import logger from '@src/logger';
+import { logHelper } from './src/logger';
 
 export const app = express();
 
@@ -43,14 +43,14 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(error, req, res, next) {
     if (error) {
-        logger.error(`Error: ${error.message || error}`);
+        logHelper.error(`Error: ${error.message || error}`);
     }
     // set locals, only providing error in development
     res.locals.message = error.message;
     res.locals.error = req.app.get('env') === 'development' ? error : {};
-    logger.info('processing...');
+    logHelper.info('processing...');
     if (req && req.body) {
-        logger.info(`req body: ${req.body.toString()}`);
+        logHelper.info(`req body: ${req.body.toString()}`);
     }
     // render the error page
     res.status(error.status || 500);

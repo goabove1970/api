@@ -5,7 +5,7 @@ import { Transaction, TransactionUpdateArgs, TransactionStatus } from '@models/t
 import { transactionPostgresDataController } from './TransactionPostgresController';
 import moment = require('moment');
 import { TransactionDeleteArgs, TransactionsDeleteArgs } from '@routes/request-types/TransactionRequests';
-import logger from '@root/src/logger';
+import { logHelper } from '@root/src/logger';
 
 export class TransacitonPersistenceController implements TransactionPersistenceControllerBase {
     dataController: DatabaseController<Transaction>;
@@ -130,7 +130,7 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
         }
 
         if (args.overrideDescription) {
-            updateFields.push(`override_description='${args.overrideDescription}'`);
+            updateFields.push(`override_description='${escape(args.overrideDescription)}'`);
         }
 
         if (args.overridePostingDate) {
@@ -198,9 +198,9 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
                 '${args.accountId}',
                 '${moment().toISOString()}',
                 ${args.categoryId ? "'" + args.categoryId + "'" : 'NULL'},
-                ${args.userComment ? "'" + args.userComment + "'" : 'NULL'},
+                ${args.userComment ? "'" + escape(args.userComment) + "'" : 'NULL'},
                 ${args.overridePostingDate ? "'" + moment(args.overridePostingDate).toISOString() + "'" : 'NULL'},
-                ${args.overrideDescription ? "'" + args.overrideDescription + "'" : 'NULL'},
+                ${args.overrideDescription ? "'" + escape(args.overrideDescription) + "'" : 'NULL'},
                 ${args.serviceType ? args.serviceType : 'NULL'},
                 ${args.overrideCategory ? "'" + args.overrideCategory + "'" : 'NULL'},
                 ${args.transactionStatus ? args.transactionStatus : 'NULL'},
@@ -211,11 +211,11 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
                         ? "'" + moment(args.chaseTransaction.PostingDate).toISOString() + "'"
                         : 'NULL'
                 },
-                ${args.chaseTransaction.Description ? "'" + args.chaseTransaction.Description + "'" : 'NULL'},
+                ${args.chaseTransaction.Description ? "'" + escape(args.chaseTransaction.Description) + "'" : 'NULL'},
                 ${args.chaseTransaction.Amount ? args.chaseTransaction.Amount : 'NULL'},
                 ${args.chaseTransaction.Type ? "'" + args.chaseTransaction.Type + "'" : 'NULL'},
                 ${args.chaseTransaction.Balance ? args.chaseTransaction.Balance : 'NULL'},
-                ${args.chaseTransaction.CheckOrSlip ? "'" + args.chaseTransaction.CheckOrSlip + "'" : 'NULL'},
+                ${args.chaseTransaction.CheckOrSlip ? "'" + escape(args.chaseTransaction.CheckOrSlip) + "'" : 'NULL'},
                 ${args.businessId ? "'" + args.businessId + "'" : 'NULL'},
                 ${
                     args.chaseTransaction.CreditCardTransactionType
@@ -257,7 +257,7 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
             result = this.dataController.select(expression);
             return result;
         }).catch(e => {
-            logger.error(e);
+            logHelper.error(e);
             throw e;
         });
     }
