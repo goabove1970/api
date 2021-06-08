@@ -8,6 +8,7 @@ import {
     TryRegexParseArgs,
     UpdateTransactionArgs,
     TransactionsImportArgs,
+    TransactionsDeleteArgs,
 } from './request-types/TransactionRequests';
 import { Router } from 'express';
 import { TransactionError } from '@models/errors/errors';
@@ -49,6 +50,9 @@ const process = async function(req, res, next) {
             break;
         case TransactionRequestType.Delete:
             responseData = await processDeleteTransactionRequest(transactionRequest.args as TransactionDeleteArgs);
+            break;
+        case TransactionRequestType.DeleteTransactions:
+            responseData = await processDeleteTransactionsRequest(transactionRequest.args as TransactionsDeleteArgs);
             break;
         case TransactionRequestType.ImportTransactionCsvFile:
             responseData = await processImportTransactionFileRequest(
@@ -218,6 +222,24 @@ async function processDeleteTransactionRequest(args: TransactionDeleteArgs): Pro
 
     try {
         const transactionId = await transactionController.delete(args);
+        response.payload = {
+            transactionId,
+        };
+    } catch (error) {
+        logger.error(error.message);
+        response.error = error.message;
+    }
+    return response;
+}
+
+async function processDeleteTransactionsRequest(args: TransactionsDeleteArgs): Promise<TransactionResponse> {
+    const response: TransactionResponse = {
+        action: TransactionRequestType.Delete,
+        payload: {},
+    };
+
+    try {
+        const transactionId = await transactionController.deleteTransactions(args);
         response.payload = {
             transactionId,
         };

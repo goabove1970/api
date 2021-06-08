@@ -9,7 +9,7 @@ import { chaseTransactionParser } from '@controllers/data-controller/chase/Chase
 import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
 import moment = require('moment');
 import businessesController, { BusinessesController } from '@controllers/business-controller';
-import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
+import { TransactionDeleteArgs, TransactionsDeleteArgs } from '@routes/request-types/TransactionRequests';
 import { DatabaseError } from '@models/errors/errors';
 import {
     validateTransactionCreateArgs,
@@ -113,6 +113,10 @@ export class TransactionController {
 
     delete(args: TransactionDeleteArgs): Promise<void> {
         return this.dataController.delete(args);
+    }
+
+    deleteTransactions(args: TransactionsDeleteArgs): Promise<void> {
+        return this.dataController.deleteTransactions(args);
     }
 
     read(args: TransactionReadArg): Promise<number | Transaction[]> {

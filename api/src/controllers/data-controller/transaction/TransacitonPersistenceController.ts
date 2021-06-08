@@ -4,7 +4,7 @@ import { DatabaseController } from '../DataController';
 import { Transaction, TransactionUpdateArgs, TransactionStatus } from '@models/transaction/transaction';
 import { transactionPostgresDataController } from './TransactionPostgresController';
 import moment = require('moment');
-import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
+import { TransactionDeleteArgs, TransactionsDeleteArgs } from '@routes/request-types/TransactionRequests';
 
 export class TransacitonPersistenceController implements TransactionPersistenceControllerBase {
     dataController: DatabaseController<Transaction>;
@@ -231,6 +231,16 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
                 throw error;
             });
         });
+    }
+
+    deleteTransactions(args: TransactionsDeleteArgs): Promise<void> {
+        if (args && args.transactionIds && args.transactionIds.length > 0) {
+            const promises = args.transactionIds.map(t => this.delete(t));
+            return Promise.allSettled(promises).catch((err) => {
+                throw err;
+            }).then();
+        }
+        return Promise.resolve();
     }
 
     read(args: TransactionReadArg): Promise<Transaction[] | number> {

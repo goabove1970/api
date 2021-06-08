@@ -8,6 +8,7 @@ export enum TransactionRequestType {
     ImportTransactions = 'import-transactions',
     ImportTransactionCsvFile = 'import-transaction-csv-file',
     Delete = 'delete',
+    DeleteTransactions = 'delete-transactions',
     TestRegex = 'test-regex',
     TestBusinessRegex = 'test-business-regex',
     Recognize = 'recognize',
@@ -44,6 +45,11 @@ export interface TransactionImportArgs {
 
 export interface TransactionsImportArgs {
     transactions?: Transaction[];
+    accountId?: string;
+}
+
+export interface TransactionsDeleteArgs {
+    transactionIds?: [];
     accountId?: string;
 }
 

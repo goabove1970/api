@@ -211,4 +211,5 @@ export let MockTransactionPersistenceController = jest.fn<TransacitonPersistence
     delete: mock_delete,
     dataController: undefined,
     matchesReadArgs: undefined,
+    deleteTransactions: undefined
 }));
