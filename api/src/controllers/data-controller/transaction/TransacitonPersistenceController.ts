@@ -5,6 +5,7 @@ import { Transaction, TransactionUpdateArgs, TransactionStatus } from '@models/t
 import { transactionPostgresDataController } from './TransactionPostgresController';
 import moment = require('moment');
 import { TransactionDeleteArgs, TransactionsDeleteArgs } from '@routes/request-types/TransactionRequests';
+import logger from '@root/src/logger';
 
 export class TransacitonPersistenceController implements TransactionPersistenceControllerBase {
     dataController: DatabaseController<Transaction>;
@@ -13,7 +14,7 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
         this.dataController = controller;
     }
 
-    async matchesReadArgs(args: TransactionReadArg): Promise<string> {
+    async matchesReadArgs(args: TransactionReadArg | TransactionDeleteArgs | any): Promise<string> {
         if (!args) {
             return '';
         }
@@ -74,6 +75,10 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
 
         if (args.transactionId) {
             conditions.push(`transaction_id='${args.transactionId}'`);
+        }
+
+        if (args.transaction && args.transaction.transactionId) {
+            conditions.push(`transaction_id='${args.transaction.transactionId}'`);
         }
 
         if (args.startDate) {
@@ -235,7 +240,7 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
 
     deleteTransactions(args: TransactionsDeleteArgs): Promise<void> {
         if (args && args.transactionIds && args.transactionIds.length > 0) {
-            const promises = args.transactionIds.map(t => this.delete(t));
+            const promises = args.transactionIds.map(t => this.delete({ transaction: {transactionId: t }}));
             return Promise.allSettled(promises).catch((err) => {
                 throw err;
             }).then();
@@ -251,6 +256,9 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
             }
             result = this.dataController.select(expression);
             return result;
+        }).catch(e => {
+            logger.error(e);
+            throw e;
         });
     }
 }

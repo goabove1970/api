@@ -1,6 +1,7 @@
 import pool from './database/PgPool';
 import { Value, Result } from 'ts-postgres';
 import { getConfig } from '@root/app.config';
+import logger from '@root/src/logger';
 
 export abstract class DataController<T> {}
 
@@ -22,12 +23,16 @@ export abstract class DatabaseController<T> extends DataController<T> {
     }
 
     select(where?: string, fields?: string): Promise<T[]> {
+        const expression = `SELECT ${fields ? fields : '*'} FROM ${getConfig().PgConfig.schema}.${this.tableName} ${where}`;
         return pool
-            .query(`SELECT ${fields ? fields : '*'} FROM ${getConfig().PgConfig.schema}.${this.tableName} ${where}`)
+            .query(expression)
             .then((value) => {
                 const { rows } = value;
                 const categories = this.readSelectResponse(rows);
                 return categories;
+            }).catch(e => {
+                logger.error(e);
+                throw e;
             });
     }
 

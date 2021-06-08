@@ -20,6 +20,14 @@ const LOCAL_CONFIG: ApplicationConfig = {
         database: 'postgres',
         schema: 'public',
     },
+    // PgConfig: {
+    //     host: '134.122.16.140',
+    //     port: 5432,
+    //     login: 'zhenia',
+    //     password: 'a84hg7dT!!a',
+    //     database: 'postgres',
+    //     schema: 'public',
+    // },
     SessionServiceConfig: {
         url: 'localhost',
         port: 9200,

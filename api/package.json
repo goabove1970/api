@@ -91,7 +91,7 @@
         "ts-postgres": "^1.1.0",
         "tsc": "^1.20150623.0",
         "tsutils": "^3.19.1",
-        "winston": "^3.2.1",
+        "winston": "^3.3.3",
         "zip-folder": "^1.0.0"
     },
     "devDependencies": {
