@@ -6,8 +6,6 @@ import {
 } from '@controllers/data-controller/transaction/TransacitonPersistenceController';
 import { GuidFull } from '@utils/generateGuid';
 import { chaseTransactionParser } from '@controllers/data-controller/chase/ChaseTransactionFileDataController';
-import { ChaseTransaction } from '@models/transaction/chase/ChaseTransaction';
-import moment = require('moment');
 import businessesController, { BusinessesController } from '@controllers/business-controller';
 import { TransactionDeleteArgs, TransactionsDeleteArgs } from '@routes/request-types/TransactionRequests';
 import { DatabaseError } from '@models/errors/errors';
@@ -15,79 +13,11 @@ import {
     validateTransactionCreateArgs,
     validateTransactionUpdateArgs,
 } from '@controllers/data-controller/transaction/helper';
-import { TransactionImportResult } from './TransactionImportResult';
+import { TransactionImportResult } from '../../models/transaction/TransactionImportResult';
 import { Business } from '@root/src/models/business/Business';
-
-  export const strip = (str: string): string => {
-    const stripSymbol = `"`;
-    if (str.length >= 2) {
-      if (str[0] === stripSymbol && str[str.length - 1] === stripSymbol) {
-        return str.substr(1, str.length - 2);
-      } else {
-        return str;
-      }
-    } else return str;
-  }
-  
-  export const sameDescription = (d1?: string, d1Check?: string, d2?: string, d2Check?: string)  => {
-    d1 = d1 || '';
-    d2 = d2 || '';
-    d1 = strip(d1)
-      .replace(',', ' ')
-      .replace(/\s+/g, ' ');
-    if (d1.startsWith(' ')) {
-      d1 = d1.substr(1);
-    }
-    if (d1.endsWith(' ')) {
-      d1 = d1.substr(0, d1.length - 1);
-    }
-  
-    d2 = strip(d2)
-      .replace(',', ' ')
-      .replace(/\s+/g, ' ');
-    if (d2.startsWith(' ')) {
-      d2 = d2.substr(1);
-    }
-    if (d2.endsWith(' ')) {
-      d2 = d2.substr(0, d2.length - 1);
-    }
-  
-    if (d1 === d2) {
-      return true;
-    }
-  
-    if (d1Check) {
-      d1 = d1.replace(` ${d1Check.replace(/\s+/g, ' ')}`, d1Check.replace(/\s+/g, ' '));
-    }
-  
-    if (d2Check) {
-      d2 = d2.replace(` ${d2Check.replace(/\s+/g, ' ')}`, d2Check.replace(/\s+/g, ' '));
-    }
-  
-    if (d1.replace(/\s+/g, ' ') === d2.replace(/\s+/g, ' ')) {
-      return true;
-    }
-  
-    if (
-      d1.replace(/\s+/g, '').startsWith(d2.replace(/\s+/g, '')) ||
-      d2.replace(/\s+/g, '').startsWith(d1.replace(/\s+/g, ''))
-    ) {
-      return true;
-    }
-  
-    return false;
-  }
-  
-  export const sameTransaction = (db: ChaseTransaction, t2: ChaseTransaction) => {
-    return (
-      db.Amount === t2.Amount &&
-      sameDescription(db.Description, db.CheckOrSlip, t2.Description, t2.CheckOrSlip) &&
-      moment(db.PostingDate)
-        .startOf('day')
-        .isSame(moment(t2.PostingDate).startOf('day')) //&&
-    );
-  };
-
+import moment = require('moment');
+import { getSameConcat, getSame } from '@root/src/utils/transUtils';
+import { MergeResult } from '@root/src/models/transaction/mergeResults';
 
 export class TransactionController {
     dataController: TransacitonPersistenceController;
@@ -120,7 +50,7 @@ export class TransactionController {
     }
 
     read(args: TransactionReadArg): Promise<number | Transaction[]> {
-        if (!args.accountId && (!args.accountIds || args.accountIds.length === 0)) {
+        if (!args.reloadTransactions && !args.accountId && (!args.accountIds || args.accountIds.length === 0)) {
             return Promise.resolve([]);
         }
         return this.dataController.read(args);
@@ -147,7 +77,7 @@ export class TransactionController {
     addTransaction(transaction: Transaction, accountId: string): Promise<TransactionImportResult> {
         return this.addTransactions([transaction], accountId);
     }
-    
+
     importTransactionsFromCsv(transactionsCsv: string, accountId: string): Promise<TransactionImportResult> {
         const chaseTransactions = chaseTransactionParser.parseFile(transactionsCsv);
         const pending = chaseTransactions.map((tr) => {
@@ -169,25 +99,29 @@ export class TransactionController {
             multipleBusinessesMatched: 0,
             unrecognized: 0,
             unposted: 0,
+            toBeDeleted: 0,
         };
 
         return this.mergeWithExisting(bulk, accountId)
-            .then((merged) => {
+            .then((merged: MergeResult) => {
                 result.parsed = bulk.length;
                 bulk = bulk.filter(this.isTransactionPosted);
                 result.unposted = result.parsed - bulk.length;
-                result.newTransactions = merged.length;
+                result.newTransactions = merged.toBeAdded.length;
+                result.toBeDeleted = merged.toBeRemoved.length;
                 result.duplicates = result.parsed - result.newTransactions;
                 return merged;
             })
-            .then((merged) => {
-                const transactions = merged.map(async (tr) => {
+            .then((merged: MergeResult) => {
+                const transactions = merged.toBeAdded.map(async (tr: Transaction) => {
                     const transPromise: Promise<Transaction> = this.categorize(tr);
                     return transPromise;
                 });
-                return Promise.all(transactions);
+                return Promise.all(transactions).then((categorized) => {
+                    return { categorized, merged };
+                });
             })
-            .then((categorized) => {
+            .then(({ categorized, merged }) => {
                 result.businessRecognized = categorized.filter(
                     (tr) => tr.processingStatus & ProcessingStatus.merchantRecognized
                 ).length;
@@ -199,7 +133,12 @@ export class TransactionController {
                 ).length;
 
                 const addPromises = categorized.map((tr) => this.addTransactionImpl(tr, accountId));
-                return Promise.all(addPromises);
+                const deleteArgs: TransactionsDeleteArgs = {
+                    transactionIds: merged.toBeRemoved.map((t) => t.transactionId),
+                };
+                const removePromis = this.deleteTransactions(deleteArgs);
+                const allPromises = [...addPromises, removePromis];
+                return Promise.all(allPromises);
             })
             .then(() => {
                 return Promise.resolve(result);
@@ -213,16 +152,23 @@ export class TransactionController {
         return trans.chaseTransaction.PostingDate !== undefined;
     }
 
-    mergeWithExisting(pending: Transaction[], accountId: string): Promise<Transaction[]> {
-        const comparisonDepth = 30;
+    mergeWithExisting(pending: Transaction[], accountId: string): Promise<MergeResult> {
+        const comparisonDepth = 90;
 
         // sort pennding transactions by posting date accending
         // pending[0] is the earliest
         // pending[pending.length - 1] is the latest
-        const pendingPosted = pending.filter((tr) => tr.chaseTransaction.PostingDate !== undefined).sort((p1, p2) =>
-        moment(p1.chaseTransaction.PostingDate).isBefore(moment(p2.chaseTransaction.PostingDate)) ? -1 : 1);
+        const pendingPosted = pending
+            .filter((tr) => tr.chaseTransaction.PostingDate !== undefined)
+            .sort((p1, p2) =>
+                moment(p1.chaseTransaction.PostingDate).isBefore(moment(p2.chaseTransaction.PostingDate)) ? -1 : 1
+            );
         if (!pendingPosted || pendingPosted.length === 0) {
-            return Promise.resolve([]);
+            const emptyResult: MergeResult = {
+                toBeAdded: [],
+                toBeRemoved: [],
+            };
+            return Promise.resolve(emptyResult);
         }
 
         // from DB: posted transactions sorted by date descending
@@ -237,7 +183,11 @@ export class TransactionController {
             );
             // if there are no transactions in database, return all pending transactions
             if (lastExistingPosted.length === 0) {
-                return Promise.resolve(pendingPosted);
+                const res: MergeResult = {
+                    toBeAdded: pendingPosted,
+                    toBeRemoved: [],
+                };
+                return Promise.resolve(res);
             }
 
             // assuming it may take up to 5 days for transaction to post,
@@ -249,44 +199,88 @@ export class TransactionController {
             )
                 ? lastDbRecord.chaseTransaction.PostingDate
                 : lastPolledRecord.chaseTransaction.PostingDate;
-            const beginningDate = moment(lastTransactionDate).subtract(5, 'days');
+            const beginningDate = moment(lastTransactionDate).subtract(comparisonDepth, 'days');
             const today = moment();
 
             let toBeAdded: Transaction[] = [];
+            let toBeRemoved: Transaction[] = [];
 
             for (
                 let date = beginningDate;
                 date.startOf('day').isSameOrBefore(today.startOf('day'));
                 date.add(1, 'day')
             ) {
-                const dbRecords = lastExistingPosted.filter((t) =>
+                const thisDayDbRecords = lastExistingPosted.filter((t) =>
                     moment(t.chaseTransaction.PostingDate)
                         .startOf('day')
                         .isSame(date.startOf('day'))
                 );
-                const pendingRecords = pendingPosted.filter((t) => {
+                const thisDayFromBank = pendingPosted.filter((t) => {
                     const collDate = moment(t.chaseTransaction.PostingDate).startOf('day');
 
                     const iteratorDate = date.startOf('day');
                     return collDate.isSame(iteratorDate);
                 });
-                if (pendingRecords.length === 0) {
+                if (thisDayFromBank.length === 0) {
                     continue;
                 }
 
-                const missingInDb = pendingRecords.filter((penging) => {
-                    const matchingRecordsFromThisDateInDatabase = dbRecords.filter((db) => {
-                        return originalTransactionEquals(db.chaseTransaction, penging.chaseTransaction);
-                    }).length;
-                    const matchingRecordsFromThisDateInPolled = pendingRecords.filter((db) => {
-                        return originalTransactionEquals(db.chaseTransaction, penging.chaseTransaction);
-                    }).length;
-                    const shouldBeAdded = matchingRecordsFromThisDateInDatabase < matchingRecordsFromThisDateInPolled;
-                    return shouldBeAdded;
+                // 1. iterate through each transaction from bank
+                thisDayFromBank.forEach((transactionFromBank: Transaction) => {
+                    const sameTransactionsInDb = getSameConcat(thisDayDbRecords, toBeAdded, transactionFromBank);
+                    if (sameTransactionsInDb.length > 0) {
+                        // database has more than one copy for this transaction
+                        // possible if:
+                        // 1. multiple same transactions on this day from bank
+                        // 1.1. check how many transactions like this came from bank
+                        // caviat here - one adding one transaction to database,
+                        // include [sameTransactionsInDb and toBeAdded] in search for
+                        // thisDayFromBank transactions to avoid double-insert to db
+                        const sameTransactionsFromBank = getSameConcat(thisDayFromBank, toBeAdded, transactionFromBank);
+                        // 1.1.1 if same number -- ignore
+                        if (sameTransactionsFromBank.length > sameTransactionsInDb.length) {
+                            // 1.1.2 if more -- should be added to database
+                            toBeAdded.push(transactionFromBank);
+                        } else if (sameTransactionsFromBank.length < sameTransactionsInDb.length) {
+                            // 1.1.3 if less - database contains duplicates of the same bank transaction
+                            toBeRemoved.push(transactionFromBank);
+                            // to avoid double removing from database, remove it from thisDayDbRecords
+                            const tr = getSame(thisDayDbRecords, transactionFromBank);
+                            if (tr && tr.length > 0) {
+                                const indexToRemove = thisDayDbRecords.indexOf(tr[0]);
+                                thisDayDbRecords.splice(indexToRemove, 1);
+                            }
+                        }
+                    } else {
+                        // no such transactions in db, should be added to database
+                        toBeAdded.push(transactionFromBank);
+                    }
                 });
-                toBeAdded = toBeAdded.concat(missingInDb);
+
+                // 2. iterate through each transaction in database
+                thisDayDbRecords.forEach((transactionFromDb: Transaction) => {
+                    const sameTransactionsFromBank = getSame(thisDayFromBank, transactionFromDb);
+                    if (sameTransactionsFromBank.length > 0) {
+                        const sameInDb = getSameConcat(thisDayDbRecords, toBeAdded, transactionFromDb);
+                        const countInDb = sameInDb.length;
+                        const countFromBank = sameTransactionsFromBank.length;
+
+                        if (countInDb > countFromBank) {
+                            toBeRemoved.push(transactionFromDb);
+                            const tr = getSame(thisDayDbRecords, transactionFromDb);
+                            if (tr && tr.length > 0) {
+                                const indexToRemove = thisDayDbRecords.indexOf(tr[0]);
+                                thisDayDbRecords.splice(indexToRemove, 1);
+                            }
+                        }
+                    } else {
+                        // sameTransactionsFromBank.length == 0
+                        // bank has no such transactions for this date,
+                        toBeAdded.push(transactionFromDb);
+                    }
+                });
             }
-            return Promise.resolve(toBeAdded);
+            return Promise.resolve({ toBeAdded, toBeRemoved });
         });
     }
 
@@ -404,7 +398,7 @@ export class TransactionController {
     categorize(transaction: Transaction): Promise<Transaction> {
         return this.businessesController
             .getCache()
-            .then((cache) => {
+            .then((cache: { businesses: Business[] }) => {
                 const matchingBusinesses = cache.businesses.filter((business) => {
                     return (
                         business.regexps &&
@@ -418,6 +412,7 @@ export class TransactionController {
                 if (matchingBusinesses && matchingBusinesses.length === 1) {
                     transaction.businessId = matchingBusinesses[0].businessId;
                     transaction.processingStatus = transaction.processingStatus ^ ProcessingStatus.merchantRecognized;
+                    transaction.categoryId = matchingBusinesses[0].defaultCategoryId;
                 } else if (matchingBusinesses.length > 1) {
                     transaction.processingStatus =
                         transaction.processingStatus ^ ProcessingStatus.multipleBusinessesMatched;
@@ -432,18 +427,5 @@ export class TransactionController {
             });
     }
 }
-
-export const originalTransactionEquals = (t1: ChaseTransaction, t2: ChaseTransaction) => {
-    return (
-        t1.Amount === t2.Amount &&
-       // (t1.Balance || undefined) === (t2.Balance || undefined) &&
-        // (t1.CheckOrSlip || undefined) === (t2.CheckOrSlip || undefined) &&
-        // (t1.Description || undefined) === (t2.Description || undefined) &&
-        // (t1.Details || undefined) === (t2.Details || undefined) &&
-        moment(t1.PostingDate).startOf('day').isSame(moment(t2.PostingDate).startOf('day')) //&&
-        // (t1.Type || undefined) === (t2.Type || undefined) &&
-        // (t1.CreditCardTransactionType || undefined) === (t2.CreditCardTransactionType || undefined) &&
-    );
-};
 
 export const transactionController = new TransactionController(transactionDatabaseController, businessesController);

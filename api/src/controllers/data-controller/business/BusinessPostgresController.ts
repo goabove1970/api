@@ -10,11 +10,11 @@ export class BusinessPostgresController extends DatabaseController<Business> {
     readSelectResponse(values: Value[][]): Business[] {
         const collection: Business[] = [];
         values.forEach((row) => {
-            let regexp: string = (row[3] as string) || '';
+            let regexp: string = unescape((row[3] as string) || '');
 
             collection.push({
                 businessId: row[0],
-                name: row[1],
+                name: unescape(row[1] as string),
                 defaultCategoryId: row[2],
                 regexps: regexp.split('||'),
             } as Business);

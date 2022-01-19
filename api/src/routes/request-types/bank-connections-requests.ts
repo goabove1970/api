@@ -1,4 +1,4 @@
-import { TransactionImportResult } from '@root/src/controllers/transaction-controller/TransactionImportResult';
+import { TransactionImportResult } from '@root/src/models/transaction/TransactionImportResult';
 import { ResponseBase } from './Requests';
 
 export interface BankSyncRequest {

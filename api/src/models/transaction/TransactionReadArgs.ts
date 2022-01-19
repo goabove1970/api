@@ -2,6 +2,7 @@ import { CategorizationType } from '@routes/request-types/TransactionRequests';
 
 export interface TransactionReadArg {
     filter?: string;
+    reloadTransactions?: string[];
     transactionId?: string;
     startDate?: Date;
     endDate?: Date;

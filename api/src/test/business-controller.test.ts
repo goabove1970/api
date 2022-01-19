@@ -294,7 +294,7 @@ describe('BusinessController', () => {
         let thrown = false;
         const updateArgs: BusinessUpdateArgs = {
             businessId,
-            categoryId: 'new-default-category',
+            defaultCategoryId: 'new-default-category',
         };
         try {
             await mockController.update(updateArgs);
@@ -308,7 +308,7 @@ describe('BusinessController', () => {
         const businesses = await mockController.read(readArgs);
         const business = businesses[0];
 
-        expect(business.defaultCategoryId).toEqual(updateArgs.categoryId);
+        expect(business.defaultCategoryId).toEqual(updateArgs.defaultCategoryId);
         expect(business.name).toEqual(args.name);
         expect(business.regexps).toEqual(args.regexps);
     });

@@ -1,5 +1,5 @@
 import { ResponseBase } from './Requests';
-import { Transaction } from '@models/transaction/transaction';
+import { Transaction, TransactionStatus } from '@models/transaction/transaction';
 import { TransactionReadArg } from '@root/src/models/transaction/TransactionReadArgs';
 
 export enum TransactionRequestType {
@@ -36,6 +36,8 @@ export interface UpdateTransactionArgs {
     transactionId?: string;
     categoryId?: string;
     statusModification?: string;
+    businessId?: string;
+    transactionStatus?: TransactionStatus;
 }
 
 export interface TransactionImportArgs {
@@ -49,7 +51,7 @@ export interface TransactionsImportArgs {
 }
 
 export interface TransactionsDeleteArgs {
-    transactionIds?: [];
+    transactionIds?: string[];
     accountId?: string;
 }
 

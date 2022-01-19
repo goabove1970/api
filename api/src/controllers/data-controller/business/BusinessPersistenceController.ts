@@ -56,9 +56,9 @@ export class BusinessPersistenceController implements BusinessPersistenceControl
                     business_id, name, default_category_id, regexps)
                     VALUES (
                         '${a.businessId}', 
-                        ${a.name ? "'" + a.name + "'" : 'NULL'},
+                        ${a.name ? "'" + escape(a.name) + "'" : 'NULL'},
                         ${a.defaultCategoryId ? "'" + a.defaultCategoryId + "'" : 'NULL'},
-                        ${a.regexps ? "'" + a.regexps.join('||') + "'" : 'NULL'});`);
+                        ${a.regexps ? "'" + escape(a.regexps.join('||')) + "'" : 'NULL'});`);
             })
             .then(() => {
                 return a.businessId;
@@ -80,8 +80,8 @@ export class BusinessPersistenceController implements BusinessPersistenceControl
                 return business;
             })
             .then((business) => {
-                if (args.categoryId) {
-                    business.defaultCategoryId = args.categoryId;
+                if (args.defaultCategoryId) {
+                    business.defaultCategoryId = args.defaultCategoryId;
                 }
                 if (args.name) {
                     business.name = args.name;
@@ -130,9 +130,9 @@ export class BusinessPersistenceController implements BusinessPersistenceControl
     composeSetStatement(a: Business): string {
         return `
         SET
-            name=${a.name ? "'" + a.name + "'" : 'NULL'},
+            name=${a.name ? "'" + escape(a.name) + "'" : 'NULL'},
             default_category_id=${a.defaultCategoryId ? "'" + a.defaultCategoryId + "'" : 'NULL'},
-            regexps=${a.regexps ? "'" + a.regexps.join('||') + "'" : 'NULL'}
+            regexps=${a.regexps ? "'" + escape(a.regexps.join('||')) + "'" : 'NULL'}
         WHERE
             business_id='${a.businessId}';`;
     }

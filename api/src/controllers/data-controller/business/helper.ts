@@ -49,7 +49,7 @@ export function validateCreateBusinessArgs(args: BusinessCreateArgs): Promise<vo
     }
 
     return businessPersistenceController
-        .read({ name: args.name })
+        .read({ name: escape(args.name) })
         .then((business) => {
             if (business && business.length > 0) {
                 throw new ValidationError('Business with this name already exists');

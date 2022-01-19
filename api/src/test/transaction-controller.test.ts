@@ -6,7 +6,7 @@ import { BusinessesController } from '@controllers/business-controller';
 import { BusinessPersistenceController } from '@controllers/data-controller/business/BusinessPersistenceController';
 import { TransacitonPersistenceController } from '@controllers/data-controller/transaction/TransacitonPersistenceController';
 import { TransactionController } from '@controllers/transaction-controller/TransactionController';
-import { TransactionImportResult } from '@controllers/transaction-controller/TransactionImportResult';
+import { TransactionImportResult } from '@root/src/models/transaction/TransactionImportResult';
 import { ChaseTransactionOriginType } from '@models/transaction/chase/ChaseTransactionOriginType';
 import { CreditCardTransactionType, ChaseTransactionType } from '@models/transaction/chase/ChaseTransactionType';
 import { Transaction } from '@models/transaction/transaction';

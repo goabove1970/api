@@ -81,7 +81,7 @@ async function processReadBusinessRequest(request: BusinessReadArgs): Promise<Bu
             .catch((error) => {
                 throw error;
             });
-    } catch (error) {
+    } catch (error: any) {
         logHelper.error(error.message);
         response.error = error.message;
     }
@@ -106,7 +106,7 @@ async function processCreateBusinessRequest(request: BusinessCreateArgs): Promis
             .catch((error) => {
                 throw error;
             });
-    } catch (error) {
+    } catch (error: any) {
         logHelper.error(error.message);
         response.error = error.message;
     }
@@ -131,7 +131,7 @@ async function processDeleteBusinessRequest(request: BusinessDeleteArgs): Promis
             .catch((error) => {
                 throw error;
             });
-    } catch (error) {
+    } catch (error: any) {
         logHelper.error(error.message);
         response.error = error.message;
     }
@@ -156,7 +156,7 @@ async function processUpdateBusinessRequest(request: BusinessReadArgs): Promise<
             .catch((error) => {
                 throw error;
             });
-    } catch (error) {
+    } catch (error: any) {
         logHelper.error(error.message);
         response.error = error.message;
     }
@@ -181,7 +181,7 @@ async function processAddRuleRequest(request: AddRuleArgs): Promise<BusinessResp
             .catch((error) => {
                 throw error;
             });
-    } catch (error) {
+    } catch (error: any) {
         logHelper.error(error.message);
         response.error = error.message;
     }

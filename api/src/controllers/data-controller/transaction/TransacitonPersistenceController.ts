@@ -6,6 +6,7 @@ import { transactionPostgresDataController } from './TransactionPostgresControll
 import moment = require('moment');
 import { TransactionDeleteArgs, TransactionsDeleteArgs } from '@routes/request-types/TransactionRequests';
 import { logHelper } from '@root/src/logger';
+import { inspect } from 'util';
 
 export class TransacitonPersistenceController implements TransactionPersistenceControllerBase {
     dataController: DatabaseController<Transaction>;
@@ -53,9 +54,14 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
             );
         }
 
-        if (args.accountIds) {
+        if (args.accountIds && args.accountIds.length > 0) {
             const expr = args.accountIds.map((e) => `'${e}'`).join(', ');
             conditions.push(`account_id in (${expr})`);
+        }
+
+        if (args.reloadTransactions && args.reloadTransactions.length > 0) {
+            const expr = args.reloadTransactions.map((e) => `'${e}'`).join(', ');
+            conditions.push(`transaction_id in (${expr})`);
         }
 
         if (args.categorization) {
@@ -137,7 +143,9 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
             updateFields.push(`override_posting_date='${moment(args.overridePostingDate).toISOString()}'`);
         }
 
-        if (args.businessId) {
+        if (args.businessId === null) {
+            updateFields.push(`business_id=NULL`);
+        } else if (args.businessId) {
             updateFields.push(`business_id='${args.businessId}'`);
         }
 
@@ -149,7 +157,7 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
             updateFields.push(`service_type=${args.serviceType}`);
         }
 
-        if (args.transactionStatus) {
+        if (!args.statusModification && args.transactionStatus !== undefined) {
             updateFields.push(`transaction_status=${args.transactionStatus}`);
         } else {
             if (args.statusModification === 'hide') {
@@ -240,26 +248,31 @@ export class TransacitonPersistenceController implements TransactionPersistenceC
 
     deleteTransactions(args: TransactionsDeleteArgs): Promise<void> {
         if (args && args.transactionIds && args.transactionIds.length > 0) {
-            const promises = args.transactionIds.map(t => this.delete({ transaction: {transactionId: t }}));
-            return Promise.allSettled(promises).catch((err) => {
-                throw err;
-            }).then();
+            const promises = args.transactionIds.map((t) => this.delete({ transaction: { transactionId: t } }));
+            return Promise.allSettled(promises)
+                .catch((err) => {
+                    throw err;
+                })
+                .then();
         }
         return Promise.resolve();
     }
 
     read(args: TransactionReadArg): Promise<Transaction[] | number> {
-        return this.matchesReadArgs(args).then((expression) => {
-            let result: Promise<Transaction[] | number>;
-            if (args.countOnly) {
-                result = this.dataController.count(expression);
-            }
-            result = this.dataController.select(expression);
-            return result;
-        }).catch(e => {
-            logHelper.error(e);
-            throw e;
-        });
+        console.log(`TransacitonPersistenceController.read: ${inspect(args)}`);
+        return this.matchesReadArgs(args)
+            .then((expression) => {
+                let result: Promise<Transaction[] | number>;
+                if (args.countOnly) {
+                    result = this.dataController.count(expression);
+                }
+                result = this.dataController.select(expression);
+                return result;
+            })
+            .catch((e) => {
+                logHelper.error(e);
+                throw e;
+            });
     }
 }
 

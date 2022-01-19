@@ -119,8 +119,8 @@ const mock_update = jest.fn(
                 return business;
             })
             .then((business) => {
-                if (args.categoryId) {
-                    business.defaultCategoryId = args.categoryId;
+                if (args.defaultCategoryId) {
+                    business.defaultCategoryId = args.defaultCategoryId;
                 }
                 if (args.name) {
                     business.name = args.name;

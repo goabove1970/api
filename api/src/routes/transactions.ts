@@ -36,7 +36,7 @@ const process = async function(req, res, next) {
     }
 
     let responseData: TransactionResponse = {};
-    logHelper.info(`Processing ${transactionRequest.action} request`);
+    logHelper.info(`Processing ${transactionRequest.action} request: ${inspect(transactionRequest.args)}`);
 
     switch (transactionRequest.action) {
         case TransactionRequestType.ImportTransactions:
@@ -90,6 +90,8 @@ async function processUpdateTransactionRequest(args: UpdateTransactionArgs): Pro
         categoryId: args.categoryId,
         transactionId: args.transactionId,
         statusModification: args.statusModification,
+        businessId: args.businessId,
+        transactionStatus: args.transactionStatus,
     };
 
     try {
@@ -122,18 +124,18 @@ async function processReadTransactionsRequest(args: TransactionReadArg): Promise
         accountIds: accounts,
         categorization: args.categorization,
         filter: args.filter,
+        reloadTransactions: args.reloadTransactions,
     };
     try {
-        const transactionsReadResult =
-            !readArgs.accountId && (!readArgs.accountIds || readArgs.accountIds.length === 0)
-                ? []
-                : await transactionController.read(readArgs);
+        // console.log(`read transaction args: ${inspect(readArgs)}`);
+        const transactionsReadResult = await transactionController.read(readArgs);
         if (args.countOnly) {
             const number = transactionsReadResult as number;
             response.payload = {
                 count: number,
             };
         } else {
+            // console.log(`read transaction results: ${inspect(transactionsReadResult)}`);
             const transactions = transactionsReadResult as Transaction[];
             response.payload = {
                 count: transactions.length,
@@ -196,7 +198,7 @@ async function processImportTransactionsRequest(args: TransactionsImportArgs): P
     };
 
     if (!args.accountId) {
-        const errorMessage = `Can not import transactions if no accountId passed`
+        const errorMessage = `Can not import transactions if no accountId passed`;
         logHelper.error(errorMessage);
         response.error = errorMessage;
         return response;
