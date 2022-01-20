@@ -1,13 +1,10 @@
 import { Router } from 'express';
 
 import { SpendingRequestError } from '@models/errors/errors';
-import {
-    SpendingRequest,
-    SpendingResponse,
-    SpendingRequestArgs,
-} from './request-types/SpendingsRequest';
+import { SpendingRequest, SpendingResponse, SpendingRequestArgs } from './request-types/SpendingsRequest';
 import { spendingsController } from '@controllers/spendings-controller';
 import { logHelper } from '../logger';
+import { inspect } from 'util';
 
 const router = Router();
 
@@ -30,10 +27,8 @@ async function process(req, res) {
                     .status(500)
                     .send(new SpendingRequestError(`Unknown spending request type: ${spendingRequest.action}`));
         }
-    } catch (err) {
-        return res
-            .status(500)
-            .send(new SpendingRequestError(`Error processing spending request: ${err.message || err}`));
+    } catch (error) {
+        return res.status(500).send(new SpendingRequestError(`Error processing spending request: ${inspect(error)}`));
     }
 
     res.header('Access-Control-Allow-Origin', '*');
@@ -60,8 +55,8 @@ async function processReadSpendingRequest(args: SpendingRequestArgs): Promise<Sp
         response = await spendingsController.processReadSpendingRequest(args);
         return response;
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(inspect(error));
+        response.error = inspect(error);
     }
     return response;
 }

@@ -7,6 +7,7 @@ import controller from '@controllers/category-controller';
 import { ReadCategoryArgs } from '@models/category/GetCategoryArgs';
 import { DeleteCategoryArgs } from '@models/category/DeleteCategoryArgs';
 import { logHelper } from '../logger';
+import { inspect } from 'util';
 
 const router = Router();
 
@@ -78,8 +79,8 @@ async function processReadCategoryRequest(request: ReadCategoryArgs): Promise<Ca
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(inspect(error));
+        response.error = inspect(error);
     }
     return response;
 }
@@ -103,8 +104,8 @@ async function processCreateCategoryRequest(request: CreateCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(inspect(error));
+        response.error = inspect(error);
     }
     return response;
 }
@@ -128,8 +129,8 @@ async function processDeleteCategoryRequest(request: DeleteCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(inspect(error));
+        response.error = inspect(error);
     }
     return response;
 }
@@ -152,8 +153,8 @@ async function processUpdateCategoryRequest(request: CreateCategoryArgs): Promis
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(inspect(error));
+        response.error = inspect(error);
     }
     return response;
 }

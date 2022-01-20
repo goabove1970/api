@@ -4,6 +4,7 @@ import sessionServiceController from '@controllers/session-controller/session-se
 import { SessionResponse, SessionRequest, SessionRequestType } from './request-types/session-request';
 import { SessionError } from '@models/errors/errors';
 import { logHelper } from '../logger';
+import { inspect } from 'util';
 
 const router = Router();
 
@@ -33,8 +34,8 @@ const process = async function(req, res, next) {
                 break;
         }
     } catch (error) {
-        logHelper.error(`Error: ${error.message || error}`);
-        return res.status(500).send(new SessionError(error.message || error));
+        logHelper.error(`Error: ${inspect(error)}`);
+        return res.status(500).send(new SessionError(inspect(error)));
     }
 
     res.header('Access-Control-Allow-Origin', '*');

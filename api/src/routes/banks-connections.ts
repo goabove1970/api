@@ -20,7 +20,9 @@ const process = async function(req, res) {
     try {
         responseData = await bankSyncController.passThrough(request.args, request.action);
     } catch (error) {
-        const message = `Error while processing bank service request: ${error.message || error}, original request: ${inspect(request)}`;
+        const message = `Error while processing bank service request: ${inspect(error)}, original request: ${inspect(
+            request
+        )}`;
         logHelper.error(message);
         logHelper.error(message);
         return res.status(500).send(new BankServiceError(message));

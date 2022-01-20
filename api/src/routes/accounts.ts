@@ -10,6 +10,7 @@ import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 import { AccountUpdateArgs } from '@models/accounts/AccountUpdateArgs';
 import { logHelper } from '../logger';
+import { inspect } from 'util';
 
 const router = Router();
 
@@ -42,8 +43,8 @@ async function process(req, res, next) {
                 return res.status(500).send(new AccountError(`Unknown account request type: ${accountRequest.action}`));
         }
     } catch (error) {
-        logHelper.error(`Error while processing ${accountRequest.action}: ${error.message || error}`);
-        return res.status(500).send(new AccountError(error.message || error));
+        logHelper.error(`Error while processing ${accountRequest.action}: ${inspect(error)}`);
+        return res.status(500).send(new AccountError(inspect(error)));
     }
 
     res.header('Access-Control-Allow-Origin', '*');
@@ -81,8 +82,8 @@ async function processReadAccountsRequest(args: ReadAccountArgs): Promise<Accoun
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(inspect(error));
+        response.error = inspect(error);
     }
     return response;
 }
@@ -116,7 +117,7 @@ async function processCreateAccountRequest(args: AccountCreateArgs): Promise<Acc
                 throw error;
             });
     } catch (error) {
-        const message = error.errorMessage || error.message || error;
+        const message = inspect(error);
         logHelper.error(message);
         response.error = message;
     }
@@ -143,8 +144,8 @@ async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(inspect(error));
+        response.error = inspect(error);
     }
     return response;
 }
@@ -168,8 +169,8 @@ async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(inspect(error));
+        response.error = inspect(error);
     }
     return response;
 }

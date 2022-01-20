@@ -16,7 +16,8 @@ import { UserCreateArgs } from '@models/user/UserCreateArgs';
 import { UserUpdateArgs } from '@models/user/UserUpdateArgs';
 import { UserDetails } from '@models/user/UserDetails';
 import sessionServiceController from '@controllers/session-controller/session-service-controller';
-import { logHelper }from '../logger';
+import { logHelper } from '../logger';
+import { inspect } from 'util';
 
 const router = Router();
 
@@ -84,8 +85,8 @@ async function processRemoveAccountRequest(request: ManageAccountArgs): Promise<
             }),
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -128,8 +129,8 @@ async function processLoginRequest(request: UserLoginArgs): Promise<UserResponse
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error.message || error);
-        response.error = error.message || error;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -140,9 +141,9 @@ async function processExtendSessionRequest(request: UserExtendSessionArgs): Prom
         payload: {},
     };
 
-    logHelper.info(`processExtendSessionRequest: Processing ${response.action} request`)
+    logHelper.info(`processExtendSessionRequest: Processing ${response.action} request`);
     try {
-        const session = await sessionServiceController.extend({ sessionId: request.sessionId }).catch(e => {
+        const session = await sessionServiceController.extend({ sessionId: request.sessionId }).catch((e) => {
             logHelper.error(e);
             throw e;
         });
@@ -153,10 +154,10 @@ async function processExtendSessionRequest(request: UserExtendSessionArgs): Prom
             session: session.payload,
         };
     } catch (error) {
-        logHelper.error(error.message || error);
-        response.error = error.message || error;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
-    logHelper.info(`processExtendSessionRequest: Processing ${response.action} request complete`)
+    logHelper.info(`processExtendSessionRequest: Processing ${response.action} request complete`);
     return response;
 }
 
@@ -173,8 +174,8 @@ async function processLogoutRequest(request: UserLogoutArgs): Promise<UserRespon
             })
             .then((r) => r.payload);
     } catch (error) {
-        logHelper.error(error.message || error);
-        response.error = error.message || error;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -192,8 +193,8 @@ async function processAddAccountRequest(request: ManageAccountArgs): Promise<Use
             }),
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -251,8 +252,8 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
             users: userCollection,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -270,8 +271,8 @@ async function processCreateUserRequest(request: UserCreateArgs): Promise<UserRe
             }),
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -289,8 +290,8 @@ async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserRe
             }),
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -307,8 +308,8 @@ async function processUpdateUserRequest(request: UserUpdateArgs): Promise<UserRe
             }),
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -326,8 +327,8 @@ async function processUpdatePasswordRequest(request: UserUpdatePasswordArgs): Pr
             }),
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }

@@ -174,8 +174,10 @@ export class TransactionController {
         // from DB: posted transactions sorted by date descending
         const readArgs = {
             accountId,
-            order: SortOrder.descending,
-            readCount: comparisonDepth,
+            order: SortOrder.accending,
+            startDate: moment()
+                .add(-comparisonDepth, 'day')
+                .toDate(),
         };
         return this.dataController.read(readArgs).then((readData: number | Transaction[]) => {
             const lastExistingPosted = (readData as Transaction[]).filter(
@@ -210,7 +212,7 @@ export class TransactionController {
                 date.startOf('day').isSameOrBefore(today.startOf('day'));
                 date.add(1, 'day')
             ) {
-                const thisDayDbRecords = lastExistingPosted.filter((t) =>
+                let thisDayDbRecords = lastExistingPosted.filter((t) =>
                     moment(t.chaseTransaction.PostingDate)
                         .startOf('day')
                         .isSame(date.startOf('day'))
@@ -227,7 +229,7 @@ export class TransactionController {
 
                 // 1. iterate through each transaction from bank
                 thisDayFromBank.forEach((transactionFromBank: Transaction) => {
-                    const sameTransactionsInDb = getSameConcat(thisDayDbRecords, toBeAdded, transactionFromBank);
+                    let sameTransactionsInDb = getSameConcat(thisDayDbRecords, toBeAdded, transactionFromBank);
                     if (sameTransactionsInDb.length > 0) {
                         // database has more than one copy for this transaction
                         // possible if:
@@ -242,41 +244,25 @@ export class TransactionController {
                             // 1.1.2 if more -- should be added to database
                             toBeAdded.push(transactionFromBank);
                         } else if (sameTransactionsFromBank.length < sameTransactionsInDb.length) {
-                            // 1.1.3 if less - database contains duplicates of the same bank transaction
-                            toBeRemoved.push(transactionFromBank);
-                            // to avoid double removing from database, remove it from thisDayDbRecords
-                            const tr = getSame(thisDayDbRecords, transactionFromBank);
-                            if (tr && tr.length > 0) {
-                                const indexToRemove = thisDayDbRecords.indexOf(tr[0]);
-                                thisDayDbRecords.splice(indexToRemove, 1);
+                            while (sameTransactionsFromBank.length < sameTransactionsInDb.length) {
+                                // 1.1.3 if less - database contains duplicates of the same bank transaction
+                                const tobeRemovedDbTransaction = sameTransactionsInDb[0];
+                                toBeRemoved.push(tobeRemovedDbTransaction);
+                                // to avoid double removing from database, remove it from thisDayDbRecords
+                                const tr = thisDayDbRecords.find(
+                                    (t) => t.transactionId === tobeRemovedDbTransaction.transactionId
+                                );
+                                if (tr) {
+                                    thisDayDbRecords = thisDayDbRecords.filter(
+                                        (t) => t.transactionId != tr.transactionId
+                                    );
+                                }
+                                sameTransactionsInDb = getSameConcat(thisDayDbRecords, toBeAdded, transactionFromBank);
                             }
                         }
                     } else {
                         // no such transactions in db, should be added to database
                         toBeAdded.push(transactionFromBank);
-                    }
-                });
-
-                // 2. iterate through each transaction in database
-                thisDayDbRecords.forEach((transactionFromDb: Transaction) => {
-                    const sameTransactionsFromBank = getSame(thisDayFromBank, transactionFromDb);
-                    if (sameTransactionsFromBank.length > 0) {
-                        const sameInDb = getSameConcat(thisDayDbRecords, toBeAdded, transactionFromDb);
-                        const countInDb = sameInDb.length;
-                        const countFromBank = sameTransactionsFromBank.length;
-
-                        if (countInDb > countFromBank) {
-                            toBeRemoved.push(transactionFromDb);
-                            const tr = getSame(thisDayDbRecords, transactionFromDb);
-                            if (tr && tr.length > 0) {
-                                const indexToRemove = thisDayDbRecords.indexOf(tr[0]);
-                                thisDayDbRecords.splice(indexToRemove, 1);
-                            }
-                        }
-                    } else {
-                        // sameTransactionsFromBank.length == 0
-                        // bank has no such transactions for this date,
-                        toBeAdded.push(transactionFromDb);
                     }
                 });
             }

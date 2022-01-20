@@ -97,8 +97,8 @@ async function processUpdateTransactionRequest(args: UpdateTransactionArgs): Pro
     try {
         await transactionController.update(updateTransactionArgs);
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -167,8 +167,8 @@ async function processReadTransactionsRequest(args: TransactionReadArg): Promise
             }
         }
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -185,8 +185,8 @@ async function processImportTransactionRequest(args: TransactionImportArgs): Pro
             ...importResult,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -198,9 +198,9 @@ async function processImportTransactionsRequest(args: TransactionsImportArgs): P
     };
 
     if (!args.accountId) {
-        const errorMessage = `Can not import transactions if no accountId passed`;
-        logHelper.error(errorMessage);
-        response.error = errorMessage;
+        const error = `Can not import transactions if no accountId passed`;
+        logHelper.error(error);
+        response.error = error;
         return response;
     }
 
@@ -210,8 +210,8 @@ async function processImportTransactionsRequest(args: TransactionsImportArgs): P
             ...importResult,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -228,8 +228,8 @@ async function processDeleteTransactionRequest(args: TransactionDeleteArgs): Pro
             transactionId,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -246,8 +246,8 @@ async function processDeleteTransactionsRequest(args: TransactionsDeleteArgs): P
             transactionId,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -268,8 +268,8 @@ async function processImportTransactionFileRequest(args: TransactioCsvFileImport
             addResult,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -354,8 +354,8 @@ async function processTestRegexRequest(args: TryRegexParseArgs): Promise<Transac
             matchingTransactions: addResult,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -373,8 +373,8 @@ async function processTestBusinessRegexRequest(args: TryRegexParseArgs): Promise
             matchingTransactions: addResult,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }
@@ -392,8 +392,8 @@ async function processRecognizeRequest(): Promise<TransactionResponse> {
             matchingTransactions: addResult,
         };
     } catch (error) {
-        logHelper.error(error.message);
-        response.error = error.message;
+        logHelper.error(error);
+        response.error = inspect(error);
     }
     return response;
 }

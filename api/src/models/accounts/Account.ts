@@ -21,6 +21,7 @@ export interface UserAccountLink {
 }
 
 export enum AccountType {
+    Empty = 0,
     Credit = 1,
     Debit = 2,
     Checking = 4,

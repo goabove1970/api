@@ -20,14 +20,6 @@ const LOCAL_CONFIG: ApplicationConfig = {
         database: 'postgres',
         schema: 'public',
     },
-    // PgConfig: {
-    //     host: '134.122.16.140',
-    //     port: 5432,
-    //     login: 'zhenia',
-    //     password: 'a84hg7dT!!a',
-    //     database: 'postgres',
-    //     schema: 'public',
-    // },
     SessionServiceConfig: {
         url: 'localhost',
         port: 9200,
@@ -40,21 +32,28 @@ const LOCAL_CONFIG: ApplicationConfig = {
 
 const CONFIG: ApplicationConfig = {
     PgConfig: {
-      host: '134.122.16.140',
-      port: 5432,
-      login: 'zhenia',
-      password: 'a84hg7dT!!a',
-      database: 'postgres',
-      schema: 'public',
-  },
+        host: '134.122.16.140',
+        port: 5432,
+        login: 'zhenia',
+        password: 'a84hg7dT!!a',
+        database: 'postgres',
+        schema: 'public',
+    },
     SessionServiceConfig: {
-      url: '127.0.0.1',
-      port: 9200,
-  },
-  BankServiceConfig: {
-      url: '127.0.0.1',
-      port: 9300,
-  },
+        url: '127.0.0.1',
+        port: 9200,
+    },
+    BankServiceConfig: {
+        url: '127.0.0.1',
+        port: 9300,
+    },
+};
+
+export const getEnvName = (): string => {
+    if (process.env.NODE_ENV === 'development') {
+        return 'Dev';
+    }
+    return 'Prod';
 };
 
 export const getConfig = (): ApplicationConfig => {
@@ -62,4 +61,4 @@ export const getConfig = (): ApplicationConfig => {
         return LOCAL_CONFIG;
     }
     return CONFIG;
-}
+};

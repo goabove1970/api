@@ -1,6 +1,7 @@
 import { ChaseTransactionOriginType } from '@models/transaction/chase/ChaseTransactionOriginType';
 import { ParseError } from '@models/errors/parse-error';
 import { ChaseTransactionType, CreditCardTransactionType } from '@models/transaction/chase/ChaseTransactionType';
+import { inspect } from 'util';
 
 export function parseChaseTransDetails(details: string): ChaseTransactionOriginType {
     switch (details) {
@@ -36,7 +37,7 @@ export function parseCreditCardTransactionType(line: string): CreditCardTransact
     } catch (error) {
         throw {
             part: 'CreditCardTransactionType',
-            message: `Could not parse ${line} CreditCardTransactionType, ${error.message}`,
+            message: `Could not parse ${line} CreditCardTransactionType, ${inspect(error)}`,
         } as ParseError;
     }
     return CreditCardTransactionType.Undefined;
@@ -85,7 +86,7 @@ export function parseChaseTransactionType(line: string): ChaseTransactionType {
     } catch (error) {
         throw {
             part: 'TransactionType',
-            message: `Could not parse ${line} TransactionType, ${error.message}`,
+            message: `Could not parse ${line} TransactionType, ${inspect(error)}`,
         } as ParseError;
     }
     return ChaseTransactionType.Undefined;
