@@ -16,7 +16,7 @@ import {
 import { TransactionImportResult } from '../../models/transaction/TransactionImportResult';
 import { Business } from '@root/src/models/business/Business';
 import moment = require('moment');
-import { getSameConcat, getSame } from '@root/src/utils/transUtils';
+import { getSameConcat } from '@root/src/utils/transUtils';
 import { MergeResult } from '@root/src/models/transaction/mergeResults';
 
 export class TransactionController {
