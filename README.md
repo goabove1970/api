@@ -34,7 +34,7 @@ A Node.js/Express REST API for managing financial transactions, accounts, users,
 
 - Node.js (v12 or higher recommended)
 - npm (v6 or higher)
-- PostgreSQL database (for production)
+- PostgreSQL database (v12 or higher)
 - TypeScript (v4.9.5)
 
 ## Installation
@@ -69,15 +69,108 @@ Set `NODE_ENV=development` for local development or leave unset for production.
 - `NODE_ENV`: Set to `development` for local development
 - `PORT`: Server port (default: 9000)
 
+## Database Setup
+
+### Prerequisites
+
+- PostgreSQL installed and running locally
+- Default local configuration:
+  - **Host**: `127.0.0.1`
+  - **Port**: `5432`
+  - **User**: `postgres`
+  - **Password**: `admin`
+  - **Database**: `postgres`
+  - **Schema**: `public`
+
+### Installing PostgreSQL
+
+#### macOS (Homebrew)
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+```
+
+#### macOS (Postgres.app)
+1. Download from: https://postgresapp.com/
+2. Install and start the app
+3. Add PostgreSQL to your PATH (instructions shown in app)
+
+#### Linux
+```bash
+sudo apt-get update
+sudo apt-get install postgresql postgresql-contrib
+sudo systemctl start postgresql
+```
+
+### Setting Up the Database
+
+1. **Set PostgreSQL password** (if not already set):
+```bash
+psql postgres
+```
+Then in the PostgreSQL prompt:
+```sql
+ALTER USER postgres WITH PASSWORD 'admin';
+\q
+```
+
+2. **Run the database setup script**:
+```bash
+cd api
+./scripts/setup-db.sh
+```
+
+The script will:
+- Check if PostgreSQL is running
+- Create the database if it doesn't exist
+- Create all required tables (account, users, user_account, categories, business, transactions, session)
+- Create indexes for better performance
+
+3. **Manual setup** (alternative):
+```bash
+psql -U postgres -d postgres -f database/schema.sql
+```
+
+### Database Schema
+
+The database includes the following tables:
+- **account**: Bank account information
+- **users**: User accounts and authentication
+- **user_account**: Many-to-many relationship between users and accounts
+- **categories**: Transaction categories with parent/child relationships
+- **business**: Business/merchant information for transaction recognition
+- **transactions**: Financial transactions with Chase bank data
+- **session**: User session management
+
+### Verifying Database Setup
+
+```bash
+psql -U postgres -d postgres
+```
+
+Then in PostgreSQL:
+```sql
+\dt  -- List all tables
+SELECT COUNT(*) FROM account;  -- Should return 0 (empty table)
+\q
+```
+
 ### Database Configuration
 
-Update `app.config.ts` with your PostgreSQL connection details:
-- Host
-- Port
-- Database name
-- Username
-- Password
-- Schema
+To change database settings, update `LOCAL_CONFIG` in `app.config.ts`:
+```typescript
+const LOCAL_CONFIG: ApplicationConfig = {
+    PgConfig: {
+        host: '127.0.0.1',
+        port: 5432,
+        login: 'postgres',
+        password: 'admin',
+        database: 'postgres',
+        schema: 'public',
+    },
+    // ...
+};
+```
 
 ## Building
 
@@ -103,10 +196,24 @@ npm run build:ts
 npm start
 ```
 
-### Start in development mode:
+### Start in development mode (uses local database):
 
 ```bash
 npm run start-local
+```
+
+Or explicitly:
+```bash
+NODE_ENV=development npm start
+```
+
+**Important**: Make sure PostgreSQL is running and the database is set up before starting the server:
+```bash
+# Check if PostgreSQL is running
+pg_isready
+
+# If not running, start it (macOS with Homebrew):
+brew services start postgresql@15
 ```
 
 The API will be available at `http://localhost:9000` (or the port specified in `PORT` environment variable).
