@@ -220,10 +220,44 @@ async function processLogoutRequest(request: UserLogoutArgs): Promise<UserRespon
             .terminate({
                 sessionId: request.sessionId,
             })
-            .then((r) => r.payload);
+            .then((r) => {
+                if (r.error) {
+                    throw new Error(r.error);
+                }
+                return r.payload;
+            });
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object') {
+            // Check for connection errors (session service not available)
+            const errorMsg = (error as any).message || (error as any).errorMessage || String(error);
+            const errorCode = (error as any).code;
+            
+            if (errorCode === 'ECONNREFUSED' || errorMsg.includes('ECONNREFUSED') || errorMsg.includes('connect')) {
+                response.error = 'Session service is not available. Please try again later.';
+            } else if ('errorMessage' in error) {
+                response.error = (error as any).errorMessage || 'An error occurred while logging out';
+            } else if (error instanceof Error) {
+                response.error = error.message || 'An error occurred while logging out';
+            } else {
+                response.error = String(error) || 'An error occurred while logging out';
+            }
+        } else if (error instanceof Error) {
+            const errorMsg = error.message || String(error);
+            if (errorMsg.includes('ECONNREFUSED') || errorMsg.includes('connect')) {
+                response.error = 'Session service is not available. Please try again later.';
+            } else {
+                response.error = errorMsg || 'An error occurred while logging out';
+            }
+        } else {
+            const errorStr = String(error);
+            if (errorStr.includes('ECONNREFUSED') || errorStr.includes('connect')) {
+                response.error = 'Session service is not available. Please try again later.';
+            } else {
+                response.error = errorStr || 'An error occurred while logging out';
+            }
+        }
     }
     return response;
 }
