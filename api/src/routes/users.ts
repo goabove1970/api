@@ -347,14 +347,24 @@ async function processUpdatePasswordRequest(request: UserUpdatePasswordArgs): Pr
     };
 
     try {
+        await userController.updatePassword(request).catch((error) => {
+            throw error;
+        });
+        // Return success with the userId that was updated
         response.payload = {
-            userId: await userController.updatePassword(request).catch((error) => {
-                throw error;
-            }),
+            userId: request.userId,
+            message: 'Password updated successfully',
         };
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while updating the password';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while updating the password';
+        } else {
+            response.error = String(error) || 'An error occurred while updating the password';
+        }
     }
     return response;
 }
