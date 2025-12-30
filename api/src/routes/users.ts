@@ -218,23 +218,26 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
                     })
             );
         } else if (request.login) {
-            userCollection.push(
-                await userController.getUserByLogin(request.login).catch((error) => {
-                    throw error;
-                })
-            );
+            const user = await userController.getUserByLogin(request.login).catch((error) => {
+                throw error;
+            });
+            if (user) {
+                userCollection.push(user);
+            }
         } else if (request.userId) {
-            userCollection.push(
-                await userController.getUserById(request.userId).catch((error) => {
-                    throw error;
-                })
-            );
+            const user = await userController.getUserById(request.userId).catch((error) => {
+                throw error;
+            });
+            if (user) {
+                userCollection.push(user);
+            }
         } else if (request.email) {
-            userCollection.push(
-                await userController.getUserByEmail(request.email).catch((error) => {
-                    throw error;
-                })
-            );
+            const user = await userController.getUserByEmail(request.email).catch((error) => {
+                throw error;
+            });
+            if (user) {
+                userCollection.push(user);
+            }
         } else {
             userCollection = userCollection.concat(
                 await userController
@@ -247,9 +250,12 @@ async function processReadUsersRequest(request: ReadUserArgs): Promise<UserRespo
             );
         }
 
+        // Filter out any null/undefined values
+        const validUsers = userCollection.filter((user) => user != null);
+        
         response.payload = {
-            count: userCollection.length,
-            users: userCollection,
+            count: validUsers.length,
+            users: validUsers,
         };
     } catch (error) {
         logHelper.error(error);
