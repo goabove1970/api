@@ -1,0 +1,9 @@
+{
+  "action": "update",
+  "args": {
+    "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4",
+    "bankName": "Chase",
+    "alias": "Updated Account Name"
+  }
+}
+

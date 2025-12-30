@@ -297,8 +297,171 @@ api/
 - Session management
 
 ### Accounts (`/accounts`)
-- Bank account CRUD operations
-- Account-to-user assignment
+
+#### Read Accounts
+**Action**: `read-accounts`
+
+Get accounts by user ID or account ID.
+
+**Request Example**:
+```json
+{
+  "action": "read-accounts",
+  "args": {
+    "userId": "098be70d-f5c1-0799-e0b2-9226eb0c4f1d"
+  }
+}
+```
+
+**Response Example**:
+```json
+{
+  "action": "read-accounts",
+  "payload": {
+    "count": 1,
+    "accounts": [
+      {
+        "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4",
+        "bankName": "JP Morgan Chase",
+        "bankRoutingNumber": "233",
+        "bankAccountNumber": "1789",
+        "accountType": 4,
+        "status": 1
+      }
+    ]
+  }
+}
+```
+
+#### Create Account
+**Action**: `create-account`
+
+Create a new bank account and automatically link it to a user.
+
+**Request Example**:
+```json
+{
+  "action": "create-account",
+  "args": {
+    "userId": "098be70d-f5c1-0799-e0b2-9226eb0c4f1d",
+    "bankRoutingNumber": "233",
+    "bankAccountNumber": "1789",
+    "bankName": "JP Morgan Chase",
+    "accountType": 4,
+    "alias": "My Checking Account"
+  }
+}
+```
+
+**Response Example**:
+```json
+{
+  "action": "create-account",
+  "payload": {
+    "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4"
+  }
+}
+```
+
+**Required Fields**:
+- `userId`: User ID to link the account to
+- `bankRoutingNumber`: Bank routing number
+- `bankAccountNumber`: Bank account number
+- `bankName`: Name of the bank
+
+**Optional Fields**:
+- `accountType`: Account type (0=Empty, 1=Credit, 2=Debit, 4=Checking, 8=Savings)
+- `alias`: Custom name for the account
+
+#### Update Account
+**Action**: `update`
+
+Update account information.
+
+**Request Example**:
+```json
+{
+  "action": "update",
+  "args": {
+    "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4",
+    "bankName": "Chase",
+    "alias": "Updated Account Name"
+  }
+}
+```
+
+**Response Example**:
+```json
+{
+  "action": "update",
+  "payload": {
+    "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4"
+  }
+}
+```
+
+**Error Response Example**:
+```json
+{
+  "action": "update",
+  "payload": {},
+  "error": "Account not found. No account exists with ID: invalid-id"
+}
+```
+
+#### Delete Account
+**Action**: `delete-account`
+
+Delete or deactivate an account. Supports two modes:
+- **Soft Delete** (default): Deactivates the account and adds a service comment. The account record remains in the database.
+- **Hard Delete**: Permanently removes the account from the database.
+
+**Soft Delete Request Example**:
+```json
+{
+  "action": "delete-account",
+  "args": {
+    "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4",
+    "serviceComment": "Account closed by user request",
+    "deleteRecord": false
+  }
+}
+```
+
+**Hard Delete Request Example**:
+```json
+{
+  "action": "delete-account",
+  "args": {
+    "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4",
+    "deleteRecord": true
+  }
+}
+```
+
+**Response Example** (Success):
+```json
+{
+  "action": "delete-account",
+  "payload": {
+    "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4"
+  }
+}
+```
+
+**Error Response Example**:
+```json
+{
+  "action": "delete-account",
+  "payload": {},
+  "error": "Account not found. No account exists with ID: invalid-id"
+}
+```
+
+**Parameters**:
+- `accountId` (required): The account ID to delete
+- `serviceComment` (optional): Comment to add when soft deleting
+- `deleteRecord` (optional, default: `false`): Set to `true` for hard delete, `false` for soft delete (deactivation)
 
 ### Transactions (`/transactions`)
 - Transaction import (CSV and individual)

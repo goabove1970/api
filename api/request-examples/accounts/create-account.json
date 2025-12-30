@@ -1,0 +1,12 @@
+{
+  "action": "create-account",
+  "args": {
+    "userId": "098be70d-f5c1-0799-e0b2-9226eb0c4f1d",
+    "bankRoutingNumber": "233",
+    "bankAccountNumber": "1789",
+    "bankName": "JP Morgan Chase",
+    "accountType": 4,
+    "alias": "My Checking Account"
+  }
+}
+

@@ -1,5 +1,6 @@
 import { AccountCreateArgs } from '@models/accounts/AccountCreateArgs';
 import { ReadAccountArgs } from '@models/accounts/ReadAccountArgs';
+import { AccountDeleteArgs } from '@models/accounts/AccountDeleteArgs';
 import { AccountController } from '@controllers/account-controller/account-controller';
 import { mockableAccountArgs, MockAccountPersistenceController } from '@mock/MockAccountPersistenceController';
 import { ValidationError } from '@models/errors/errors';
@@ -101,5 +102,74 @@ describe('AccountController', () => {
         };
         const user = mockAccountController.read(readAccountArgs);
         expect(user).not.toBeNull();
+    });
+
+    it(`should soft delete account (deactivate)`, async () => {
+        const createAccountArgs: AccountCreateArgs = {
+            bankAccountNumber: 'acc_num',
+            bankName: 'bank_name',
+            userId: 'user_id',
+            bankRoutingNumber: 'bank_routing',
+        };
+        mockableAccountArgs.mockAccountCollection = [];
+
+        const accountId = await mockAccountController.create(createAccountArgs);
+        expect(mockableAccountArgs.mockAccountCollection.length).toBe(1);
+
+        const deleteArgs: AccountDeleteArgs = {
+            accountId,
+            serviceComment: 'Account closed by user',
+            deleteRecord: false,
+        };
+
+        await mockAccountController.delete(deleteArgs);
+        
+        // Account should still exist but be deactivated
+        expect(mockableAccountArgs.mockAccountCollection.length).toBe(1);
+        const account = mockableAccountArgs.mockAccountCollection.find((a) => a.accountId === accountId);
+        expect(account).toBeDefined();
+        expect(account.serviceComment).toContain('Account closed by user');
+    });
+
+    it(`should hard delete account (remove from database)`, async () => {
+        const createAccountArgs: AccountCreateArgs = {
+            bankAccountNumber: 'acc_num',
+            bankName: 'bank_name',
+            userId: 'user_id',
+            bankRoutingNumber: 'bank_routing',
+        };
+        mockableAccountArgs.mockAccountCollection = [];
+
+        const accountId = await mockAccountController.create(createAccountArgs);
+        expect(mockableAccountArgs.mockAccountCollection.length).toBe(1);
+
+        const deleteArgs: AccountDeleteArgs = {
+            accountId,
+            deleteRecord: true,
+        };
+
+        await mockAccountController.delete(deleteArgs);
+        
+        // Account should be removed from collection
+        expect(mockableAccountArgs.mockAccountCollection.length).toBe(0);
+        const account = mockableAccountArgs.mockAccountCollection.find((a) => a.accountId === accountId);
+        expect(account).toBeUndefined();
+    });
+
+    it(`should throw error when deleting non-existent account`, async () => {
+        const deleteArgs: AccountDeleteArgs = {
+            accountId: 'non-existent-account-id',
+            deleteRecord: false,
+        };
+
+        let thrown = false;
+        try {
+            await mockAccountController.delete(deleteArgs);
+        } catch (error) {
+            thrown = true;
+            expect(error).toBeInstanceOf(Error);
+            expect((error as Error).message).toContain('Account not found');
+        }
+        expect(thrown).toBeTruthy();
     });
 });

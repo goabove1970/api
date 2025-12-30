@@ -30,7 +30,28 @@ const mock_create = jest.fn(
 );
 const mock_assignUser = jest.fn();
 const mock_update = jest.fn();
-const mock_delete = jest.fn();
+const mock_delete = jest.fn(
+    (args: { accountId: string; serviceComment?: string; deleteRecord?: boolean }): Promise<void> => {
+        const account = mockableAccountArgs.mockAccountCollection.find((a) => a.accountId === args.accountId);
+        if (!account) {
+            return Promise.reject(new Error(`Account not found. No account exists with ID: ${args.accountId}`));
+        }
+        if (args.deleteRecord) {
+            // Hard delete - remove from collection
+            const index = mockableAccountArgs.mockAccountCollection.findIndex((a) => a.accountId === args.accountId);
+            if (index > -1) {
+                mockableAccountArgs.mockAccountCollection.splice(index, 1);
+            }
+        } else {
+            // Soft delete - deactivate account
+            account.status = (account.status || 0) & ~1; // Deactivate (remove active bit)
+            if (args.serviceComment) {
+                account.serviceComment = (account.serviceComment || '') + `; ${args.serviceComment}`;
+            }
+        }
+        return Promise.resolve();
+    }
+);
 
 const mock_findAccountImpl = jest.fn(
     (accountId: string): Promise<UserAccount | undefined> => {

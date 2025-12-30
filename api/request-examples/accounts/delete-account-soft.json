@@ -1,0 +1,9 @@
+{
+  "action": "delete-account",
+  "args": {
+    "accountId": "77cbb0cf-c614-573c-d124-6e72872471d4",
+    "serviceComment": "Account closed by user request",
+    "deleteRecord": false
+  }
+}
+
