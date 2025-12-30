@@ -2,6 +2,8 @@ import { Router } from 'express';
 
 import { UserRequest, UserResponse, ReadUserArgs, UserRequestType } from './request-types/UserRequests';
 import { UserError } from '@models/errors/errors';
+import { ErrorCode } from '@models/errors/ErrorCodes';
+import { formatError } from '@utils/errorFormatter';
 import { DeepPartial } from '@models/DeepPartial';
 import userController from '@controllers/user-controller';
 import {
@@ -93,14 +95,9 @@ async function processRemoveAccountRequest(request: ManageAccountArgs): Promise<
         };
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while unlinking the account from the user';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while unlinking the account from the user';
-        } else {
-            response.error = String(error) || 'An error occurred while unlinking the account from the user';
-        }
+        const formatted = formatError(error, ErrorCode.ACCOUNT_UNLINK_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -144,66 +141,9 @@ async function processLoginRequest(request: UserLoginArgs): Promise<UserResponse
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        // Extract error message from different error types
-        let errorMsg = '';
-        let errorCode = '';
-        
-        if (error && typeof error === 'object') {
-            errorMsg = (error as any).errorMessage || 
-                      (error instanceof Error ? error.message : '') || 
-                      String(error);
-            errorCode = (error as any).code || (error as any).errorCode || '';
-        } else if (error instanceof Error) {
-            errorMsg = error.message || String(error);
-        } else {
-            errorMsg = String(error);
-        }
-        
-        // Check for authentication errors (user not found, wrong password)
-        const isAuthError = errorMsg && (
-            errorMsg.includes('user not found') ||
-            errorMsg.includes('Could not validate user credentials') ||
-            errorMsg.includes('Error validating user password')
-        );
-        
-        // Check for session service connection errors
-        const isConnectionError = errorCode === 'ECONNREFUSED' || 
-                                 errorMsg.includes('ECONNREFUSED') || 
-                                 errorMsg.includes('connect') ||
-                                 errorMsg.includes('timeout');
-        
-        // Check for session initialization errors
-        const isSessionError = errorMsg.includes('Could not initilize new session') ||
-                              errorMsg.includes('initilize new session') ||
-                              errorMsg.includes('session');
-        
-        if (isAuthError) {
-            // For security, use generic message for auth failures
-            response.error = 'Invalid login credentials';
-        } else if (isConnectionError) {
-            response.error = 'Session service is not available. Please try again later.';
-        } else if (isSessionError) {
-            // Extract the actual session error message if available
-            const sessionErrorMatch = errorMsg.match(/error:\s*(.+)/i);
-            if (sessionErrorMatch && sessionErrorMatch[1]) {
-                response.error = `Unable to create session: ${sessionErrorMatch[1].trim()}`;
-            } else {
-                response.error = 'Unable to create session. Please try again later.';
-            }
-        } else {
-            // For other errors, show a meaningful message
-            if (errorMsg && errorMsg !== 'undefined' && errorMsg !== 'null') {
-                // Clean up the error message
-                let cleanMsg = errorMsg;
-                // Remove common error prefixes
-                cleanMsg = cleanMsg.replace(/^Error:\s*/i, '');
-                cleanMsg = cleanMsg.replace(/^DatabaseError:\s*/i, '');
-                cleanMsg = cleanMsg.replace(/^ValidationError:\s*/i, '');
-                response.error = cleanMsg || 'An error occurred during login. Please try again.';
-            } else {
-                response.error = 'An error occurred during login. Please try again.';
-            }
-        }
+        const formatted = formatError(error, ErrorCode.INTERNAL_ERROR);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -228,36 +168,9 @@ async function processExtendSessionRequest(request: UserExtendSessionArgs): Prom
         };
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object') {
-            // Check for connection errors (session service not available)
-            const errorMsg = (error as any).message || (error as any).errorMessage || String(error);
-            const errorCode = (error as any).code;
-            
-            if (errorCode === 'ECONNREFUSED' || errorMsg.includes('ECONNREFUSED') || errorMsg.includes('connect')) {
-                response.error = 'Session service is not available. Please try again later.';
-            } else if ('errorMessage' in error) {
-                response.error = (error as any).errorMessage || 'An error occurred while extending the session';
-            } else if (error instanceof Error) {
-                response.error = error.message || 'An error occurred while extending the session';
-            } else {
-                response.error = String(error) || 'An error occurred while extending the session';
-            }
-        } else if (error instanceof Error) {
-            const errorMsg = error.message || String(error);
-            if (errorMsg.includes('ECONNREFUSED') || errorMsg.includes('connect')) {
-                response.error = 'Session service is not available. Please try again later.';
-            } else {
-                response.error = errorMsg || 'An error occurred while extending the session';
-            }
-        } else {
-            const errorStr = String(error);
-            if (errorStr.includes('ECONNREFUSED') || errorStr.includes('connect')) {
-                response.error = 'Session service is not available. Please try again later.';
-            } else {
-                response.error = errorStr || 'An error occurred while extending the session';
-            }
-        }
+        const formatted = formatError(error, ErrorCode.SESSION_EXTEND_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     logHelper.info(`processExtendSessionRequest: Processing ${response.action} request complete`);
     return response;
@@ -282,36 +195,9 @@ async function processLogoutRequest(request: UserLogoutArgs): Promise<UserRespon
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object') {
-            // Check for connection errors (session service not available)
-            const errorMsg = (error as any).message || (error as any).errorMessage || String(error);
-            const errorCode = (error as any).code;
-            
-            if (errorCode === 'ECONNREFUSED' || errorMsg.includes('ECONNREFUSED') || errorMsg.includes('connect')) {
-                response.error = 'Session service is not available. Please try again later.';
-            } else if ('errorMessage' in error) {
-                response.error = (error as any).errorMessage || 'An error occurred while logging out';
-            } else if (error instanceof Error) {
-                response.error = error.message || 'An error occurred while logging out';
-            } else {
-                response.error = String(error) || 'An error occurred while logging out';
-            }
-        } else if (error instanceof Error) {
-            const errorMsg = error.message || String(error);
-            if (errorMsg.includes('ECONNREFUSED') || errorMsg.includes('connect')) {
-                response.error = 'Session service is not available. Please try again later.';
-            } else {
-                response.error = errorMsg || 'An error occurred while logging out';
-            }
-        } else {
-            const errorStr = String(error);
-            if (errorStr.includes('ECONNREFUSED') || errorStr.includes('connect')) {
-                response.error = 'Session service is not available. Please try again later.';
-            } else {
-                response.error = errorStr || 'An error occurred while logging out';
-            }
-        }
+        const formatted = formatError(error, ErrorCode.SESSION_TERMINATE_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -334,14 +220,9 @@ async function processAddAccountRequest(request: ManageAccountArgs): Promise<Use
         };
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while linking the account to the user';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while linking the account to the user';
-        } else {
-            response.error = String(error) || 'An error occurred while linking the account to the user';
-        }
+        const formatted = formatError(error, ErrorCode.ACCOUNT_LINK_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -405,8 +286,10 @@ async function processReadUsersRequest(request: ReadUserArgs, originalAction?: s
             users: validUsers,
         };
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        const formatted = formatError(error, ErrorCode.INTERNAL_ERROR);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -425,14 +308,9 @@ async function processCreateUserRequest(request: UserCreateArgs, originalAction?
         };
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while creating the user';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while creating the user';
-        } else {
-            response.error = String(error) || 'An error occurred while creating the user';
-        }
+        const formatted = formatError(error, ErrorCode.USER_CREATION_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -450,8 +328,10 @@ async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserRe
             }),
         };
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        const formatted = formatError(error, ErrorCode.USER_DELETE_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -472,14 +352,9 @@ async function processUpdateUserRequest(request: UserUpdateArgs, originalAction?
         };
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while updating the user';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while updating the user';
-        } else {
-            response.error = String(error) || 'An error occurred while updating the user';
-        }
+        const formatted = formatError(error, ErrorCode.USER_UPDATE_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -501,14 +376,9 @@ async function processUpdatePasswordRequest(request: UserUpdatePasswordArgs): Pr
         };
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while updating the password';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while updating the password';
-        } else {
-            response.error = String(error) || 'An error occurred while updating the password';
-        }
+        const formatted = formatError(error, ErrorCode.PASSWORD_UPDATE_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }

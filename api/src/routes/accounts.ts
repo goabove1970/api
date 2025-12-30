@@ -1,6 +1,8 @@
 import { Router } from 'express';
 
 import { AccountError } from '@models/errors/errors';
+import { ErrorCode } from '@models/errors/ErrorCodes';
+import { formatError } from '@utils/errorFormatter';
 import { DeepPartial } from '@models/DeepPartial';
 import accountController from '@controllers/account-controller';
 import { AccountResponse, AccountRequest } from './request-types/AccountRequests';
@@ -83,14 +85,9 @@ async function processReadAccountsRequest(args: ReadAccountArgs): Promise<Accoun
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while reading accounts';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while reading accounts';
-        } else {
-            response.error = String(error) || 'An error occurred while reading accounts';
-        }
+        const formatted = formatError(error, ErrorCode.INTERNAL_ERROR);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -125,14 +122,9 @@ async function processCreateAccountRequest(args: AccountCreateArgs): Promise<Acc
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while creating the account';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while creating the account';
-        } else {
-            response.error = String(error) || 'An error occurred while creating the account';
-        }
+        const formatted = formatError(error, ErrorCode.ACCOUNT_CREATION_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -158,14 +150,9 @@ async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while deleting the account';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while deleting the account';
-        } else {
-            response.error = String(error) || 'An error occurred while deleting the account';
-        }
+        const formatted = formatError(error, ErrorCode.ACCOUNT_DELETE_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
@@ -190,14 +177,9 @@ async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        // Format error message to be more user-friendly
-        if (error && typeof error === 'object' && 'errorMessage' in error) {
-            response.error = (error as any).errorMessage || 'An error occurred while updating the account';
-        } else if (error instanceof Error) {
-            response.error = error.message || 'An error occurred while updating the account';
-        } else {
-            response.error = String(error) || 'An error occurred while updating the account';
-        }
+        const formatted = formatError(error, ErrorCode.ACCOUNT_UPDATE_FAILED);
+        response.error = formatted.error;
+        response.errorCode = formatted.errorCode;
     }
     return response;
 }
