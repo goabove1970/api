@@ -32,7 +32,8 @@ const process = async function(req, res, next) {
     logHelper.info(`Processing ${userRequest.action} user request`);
     switch (userRequest.action) {
         case UserRequestType.Read:
-            responseData = await processReadUsersRequest(userRequest.args);
+        case 'read-users' as any: // Support both 'read' and 'read-users' for backward compatibility
+            responseData = await processReadUsersRequest(userRequest.args, userRequest.action);
             break;
         case UserRequestType.Create:
             responseData = await processCreateUserRequest(userRequest.args);
@@ -199,9 +200,9 @@ async function processAddAccountRequest(request: ManageAccountArgs): Promise<Use
     return response;
 }
 
-async function processReadUsersRequest(request: ReadUserArgs): Promise<UserResponse> {
+async function processReadUsersRequest(request: ReadUserArgs, originalAction?: string): Promise<UserResponse> {
     const response: UserResponse = {
-        action: UserRequestType.Read,
+        action: (originalAction as UserRequestType) || UserRequestType.Read,
         payload: {},
     };
 
