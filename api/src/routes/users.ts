@@ -144,39 +144,64 @@ async function processLoginRequest(request: UserLoginArgs): Promise<UserResponse
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        // For login errors, always use generic message for security (don't reveal if user exists or password is wrong)
-        // Check error message/content to determine if it's an authentication failure
-        let isAuthError = false;
+        // Extract error message from different error types
+        let errorMsg = '';
+        let errorCode = '';
+        
         if (error && typeof error === 'object') {
-            const errorMsg = (error as any).errorMessage || (error instanceof Error ? error.message : String(error));
-            isAuthError = errorMsg && (
-                errorMsg.includes('user not found') ||
-                errorMsg.includes('Could not validate user credentials') ||
-                errorMsg.includes('Error validating user password')
-            );
+            errorMsg = (error as any).errorMessage || 
+                      (error instanceof Error ? error.message : '') || 
+                      String(error);
+            errorCode = (error as any).code || (error as any).errorCode || '';
         } else if (error instanceof Error) {
-            isAuthError = error.message && (
-                error.message.includes('user not found') ||
-                error.message.includes('Could not validate user credentials') ||
-                error.message.includes('Error validating user password')
-            );
+            errorMsg = error.message || String(error);
         } else {
-            const errorStr = String(error);
-            isAuthError = errorStr.includes('user not found') ||
-                errorStr.includes('Could not validate user credentials') ||
-                errorStr.includes('Error validating user password');
+            errorMsg = String(error);
         }
         
+        // Check for authentication errors (user not found, wrong password)
+        const isAuthError = errorMsg && (
+            errorMsg.includes('user not found') ||
+            errorMsg.includes('Could not validate user credentials') ||
+            errorMsg.includes('Error validating user password')
+        );
+        
+        // Check for session service connection errors
+        const isConnectionError = errorCode === 'ECONNREFUSED' || 
+                                 errorMsg.includes('ECONNREFUSED') || 
+                                 errorMsg.includes('connect') ||
+                                 errorMsg.includes('timeout');
+        
+        // Check for session initialization errors
+        const isSessionError = errorMsg.includes('Could not initilize new session') ||
+                              errorMsg.includes('initilize new session') ||
+                              errorMsg.includes('session');
+        
         if (isAuthError) {
+            // For security, use generic message for auth failures
             response.error = 'Invalid login credentials';
-        } else {
-            // For non-auth errors, show the actual error message
-            if (error && typeof error === 'object' && 'errorMessage' in error) {
-                response.error = (error as any).errorMessage || 'An error occurred during login';
-            } else if (error instanceof Error) {
-                response.error = error.message || 'An error occurred during login';
+        } else if (isConnectionError) {
+            response.error = 'Session service is not available. Please try again later.';
+        } else if (isSessionError) {
+            // Extract the actual session error message if available
+            const sessionErrorMatch = errorMsg.match(/error:\s*(.+)/i);
+            if (sessionErrorMatch && sessionErrorMatch[1]) {
+                response.error = `Unable to create session: ${sessionErrorMatch[1].trim()}`;
             } else {
-                response.error = String(error) || 'An error occurred during login';
+                response.error = 'Unable to create session. Please try again later.';
+            }
+        } else {
+            // For other errors, show a meaningful message
+            if (errorMsg && errorMsg !== 'undefined' && errorMsg !== 'null') {
+                // Clean up the error message
+                let cleanMsg = errorMsg;
+                // Remove common error prefixes
+                cleanMsg = cleanMsg.replace(/^Error:\s*/i, '');
+                cleanMsg = cleanMsg.replace(/^DatabaseError:\s*/i, '');
+                cleanMsg = cleanMsg.replace(/^ValidationError:\s*/i, '');
+                response.error = cleanMsg || 'An error occurred during login. Please try again.';
+            } else {
+                response.error = 'An error occurred during login. Please try again.';
             }
         }
     }
