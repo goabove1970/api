@@ -36,7 +36,8 @@ const process = async function(req, res, next) {
             responseData = await processReadUsersRequest(userRequest.args, userRequest.action);
             break;
         case UserRequestType.Create:
-            responseData = await processCreateUserRequest(userRequest.args);
+        case 'create-user' as any: // Support both 'create' and 'create-user' for backward compatibility
+            responseData = await processCreateUserRequest(userRequest.args, userRequest.action);
             break;
         case UserRequestType.Delete:
             responseData = await processDeleteUserRequest(userRequest.args);
@@ -265,9 +266,9 @@ async function processReadUsersRequest(request: ReadUserArgs, originalAction?: s
     return response;
 }
 
-async function processCreateUserRequest(request: UserCreateArgs): Promise<UserResponse> {
+async function processCreateUserRequest(request: UserCreateArgs, originalAction?: string): Promise<UserResponse> {
     const response: UserResponse = {
-        action: UserRequestType.Create,
+        action: (originalAction as UserRequestType) || UserRequestType.Create,
         payload: {},
     };
 
@@ -278,8 +279,15 @@ async function processCreateUserRequest(request: UserCreateArgs): Promise<UserRe
             }),
         };
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while creating the user';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while creating the user';
+        } else {
+            response.error = String(error) || 'An error occurred while creating the user';
+        }
     }
     return response;
 }
