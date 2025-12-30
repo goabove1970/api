@@ -319,8 +319,8 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
                     accountId,
                 });
             })
-            .then((account) => {
-                if (!account) {
+            .then((accounts) => {
+                if (!accounts || accounts.length === 0) {
                     throw new DatabaseError('Could not find account record to link account to user');
                 }
             })
@@ -357,8 +357,8 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
                     accountId,
                 });
             })
-            .then((account) => {
-                if (!account) {
+            .then((accounts) => {
+                if (!accounts || accounts.length === 0) {
                     throw new DatabaseError('Could not find account record to unlink account to user');
                 }
             })

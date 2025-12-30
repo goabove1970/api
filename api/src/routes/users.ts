@@ -82,14 +82,25 @@ async function processRemoveAccountRequest(request: ManageAccountArgs): Promise<
     };
 
     try {
+        await userController.removeAccount(request).catch((error) => {
+            throw error;
+        });
+        // Return success with the userId and accountId that were unlinked
         response.payload = {
-            userId: await userController.removeAccount(request).catch((error) => {
-                throw error;
-            }),
+            userId: request.userId,
+            accountId: request.accountId,
+            message: 'Account unlinked from user successfully',
         };
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while unlinking the account from the user';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while unlinking the account from the user';
+        } else {
+            response.error = String(error) || 'An error occurred while unlinking the account from the user';
+        }
     }
     return response;
 }
@@ -190,14 +201,25 @@ async function processAddAccountRequest(request: ManageAccountArgs): Promise<Use
     };
 
     try {
+        await userController.addAccount(request).catch((error) => {
+            throw error;
+        });
+        // Return success with the userId and accountId that were linked
         response.payload = {
-            userId: await userController.addAccount(request).catch((error) => {
-                throw error;
-            }),
+            userId: request.userId,
+            accountId: request.accountId,
+            message: 'Account linked to user successfully',
         };
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while linking the account to the user';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while linking the account to the user';
+        } else {
+            response.error = String(error) || 'An error occurred while linking the account to the user';
+        }
     }
     return response;
 }
