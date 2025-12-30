@@ -4,7 +4,7 @@
 # Usage: ./start.ksh [check|stop|rebuild|start|restart|status]
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-API_DIR="${SCRIPT_DIR}/api/api"
+API_DIR="${SCRIPT_DIR}/api"
 PORT=9000
 
 # Colors for output
