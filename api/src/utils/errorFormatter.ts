@@ -47,6 +47,8 @@ export function formatError(error: any, defaultCode: ErrorCode = ErrorCode.INTER
     // Override message for specific error codes
     switch (errorCode) {
         case ErrorCode.INVALID_CREDENTIALS:
+        case ErrorCode.USER_NOT_FOUND:
+            // For security, use generic message for authentication failures
             formattedMsg = 'Invalid login credentials';
             break;
         case ErrorCode.SESSION_SERVICE_UNAVAILABLE:
@@ -54,9 +56,6 @@ export function formatError(error: any, defaultCode: ErrorCode = ErrorCode.INTER
             break;
         case ErrorCode.SERVICE_UNAVAILABLE:
             formattedMsg = 'Service is not available. Please try again later.';
-            break;
-        case ErrorCode.USER_NOT_FOUND:
-            formattedMsg = formattedMsg || 'User not found';
             break;
         case ErrorCode.ACCOUNT_NOT_FOUND:
             formattedMsg = formattedMsg || 'Account not found';
