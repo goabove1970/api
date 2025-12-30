@@ -146,10 +146,10 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
         ]);
         return validations.then(() => {
                 const query = `(
-                    "userId", "firstName", "lastName", ssn,
+                    user_id, first_name, last_name, ssn,
                     login, password, email, dob,
-                    "lastLogin",
-                    "accountCreated", "serviceComment", status)
+                    last_login,
+                    account_created, service_comment, status)
                 VALUES (
                     '${u.userId}', '${u.firstName}', '${u.lastName}', ${u.ssn},
                     '${u.login}', '${u.password}', '${u.email}', '${moment(u.dob).toISOString()}',
@@ -169,19 +169,19 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
 
     composeSetStatement(user: UserDetails): string {
         return `SET
-                "firstName"='${user.firstName}',
-                "lastName"='${user.lastName}',
+                first_name='${user.firstName}',
+                last_name='${user.lastName}',
                 ssn=${user.ssn},
                 login='${user.login}',
                 password='${user.password}',
                 email='${user.email}',
                 dob='${moment(user.dob).toISOString()}',
-                "lastLogin"=${user.lastLogin ? "'" + moment(user.lastLogin).toISOString() + "'" : 'NULL'},
-                "accountCreated"='${moment(user.accountCreated).toISOString()}',
-                "serviceComment"=${user.serviceComment ? "'" + user.serviceComment + "'" : 'NULL'},
+                last_login=${user.lastLogin ? "'" + moment(user.lastLogin).toISOString() + "'" : 'NULL'},
+                account_created='${moment(user.accountCreated).toISOString()}',
+                service_comment=${user.serviceComment ? "'" + user.serviceComment + "'" : 'NULL'},
                 status=${user.status ? user.status : 'NULL'}
             WHERE 
-                "userId"='${user.userId}';`;
+                user_id='${user.userId}';`;
     }
 
     updatePassword(args: UserUpdatePasswordArgs): Promise<void> {
@@ -294,7 +294,7 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
                     throw new DatabaseError('Error deleting user, could not find user record');
                 }
                 if (deleteRecord) {
-                    return this.userDataController.delete(`where "userId"='${userId}'`).then(() => {});
+                    return this.userDataController.delete(`where user_id='${userId}'`).then(() => {});
                 } else {
                     user.serviceComment = user.serviceComment + `; ${serviceComment}`;
                     user.status = user.status & UserStatus.Deactivated;
