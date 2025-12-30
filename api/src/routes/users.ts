@@ -143,8 +143,42 @@ async function processLoginRequest(request: UserLoginArgs): Promise<UserResponse
                 throw error;
             });
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        // For login errors, always use generic message for security (don't reveal if user exists or password is wrong)
+        // Check error message/content to determine if it's an authentication failure
+        let isAuthError = false;
+        if (error && typeof error === 'object') {
+            const errorMsg = (error as any).errorMessage || (error instanceof Error ? error.message : String(error));
+            isAuthError = errorMsg && (
+                errorMsg.includes('user not found') ||
+                errorMsg.includes('Could not validate user credentials') ||
+                errorMsg.includes('Error validating user password')
+            );
+        } else if (error instanceof Error) {
+            isAuthError = error.message && (
+                error.message.includes('user not found') ||
+                error.message.includes('Could not validate user credentials') ||
+                error.message.includes('Error validating user password')
+            );
+        } else {
+            const errorStr = String(error);
+            isAuthError = errorStr.includes('user not found') ||
+                errorStr.includes('Could not validate user credentials') ||
+                errorStr.includes('Error validating user password');
+        }
+        
+        if (isAuthError) {
+            response.error = 'Invalid login credentials';
+        } else {
+            // For non-auth errors, show the actual error message
+            if (error && typeof error === 'object' && 'errorMessage' in error) {
+                response.error = (error as any).errorMessage || 'An error occurred during login';
+            } else if (error instanceof Error) {
+                response.error = error.message || 'An error occurred during login';
+            } else {
+                response.error = String(error) || 'An error occurred during login';
+            }
+        }
     }
     return response;
 }
