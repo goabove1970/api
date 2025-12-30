@@ -102,6 +102,7 @@ describe('TransactionController', () => {
             multipleBusinessesMatched: 0,
             newTransactions: 1,
             parsed: 1,
+            toBeDeleted: 0,
             unposted: 0,
             unrecognized: 1,
         });
@@ -133,14 +134,15 @@ describe('TransactionController', () => {
         const importData: TransactionImportResult = await mockController.addTransaction(transactionArgs, accountId);
         expect(importData).toEqual({
             businessRecognized: 0,
-            duplicates: 0,
+            duplicates: 1,
             multipleBusinessesMatched: 0,
-            newTransactions: 1,
+            newTransactions: 0,
             parsed: 1,
+            toBeDeleted: 0,
             unposted: 1,
-            unrecognized: 1,
+            unrecognized: 0,
         });
-        expect(getCollection().length).toEqual(1);
+        expect(getCollection().length).toEqual(0);
     });
 
     it(`should read transactions`, async () => {

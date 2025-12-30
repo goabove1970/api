@@ -1,6 +1,6 @@
 import { Transaction, TransactionUpdateArgs } from '@models/transaction/transaction';
 import { SortOrder, TransactionReadArg } from '@models/transaction/TransactionReadArgs';
-import { TransactionDeleteArgs } from '@routes/request-types/TransactionRequests';
+import { TransactionDeleteArgs, TransactionsDeleteArgs } from '@routes/request-types/TransactionRequests';
 import moment = require('moment');
 import { TransactionStatus } from '@models/transaction/transaction';
 import { UserPersistenceController } from '@controllers/data-controller/users/UserPersistenceController';
@@ -204,12 +204,23 @@ const mock_delete = jest.fn(
     }
 );
 
+const mock_deleteTransactions = jest.fn(
+    (args: TransactionsDeleteArgs): Promise<void> => {
+        if (args.transactionIds) {
+            args.transactionIds.forEach((transactionId) => {
+                deleteTransaction(transactionId);
+            });
+        }
+        return Promise.resolve();
+    }
+);
+
 export let MockTransactionPersistenceController = jest.fn<TransacitonPersistenceController, []>(() => ({
     add: mock_add,
     read: mock_read,
     update: mock_update,
     delete: mock_delete,
+    deleteTransactions: mock_deleteTransactions,
     dataController: undefined,
-    matchesReadArgs: undefined,
-    deleteTransactions: undefined
+    matchesReadArgs: undefined
 }));
