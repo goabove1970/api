@@ -74,6 +74,7 @@ export const toShortUserDetails = (user: UserDetails): DeepPartial<UserDetails> 
         status: user.status,
         email: user.email,
         accountCreated: user.accountCreated,
+        isDarkModeEnabled: user.isDarkModeEnabled !== undefined ? user.isDarkModeEnabled : false,
     };
 };
 
@@ -90,6 +91,7 @@ export const combineNewUser = (args: UserCreateArgs): UserDetails => {
         ssn: args.ssn,
         userId: GuidFull(),
         status: UserStatus.ActivationPending,
+        isDarkModeEnabled: false,
     };
 };
 

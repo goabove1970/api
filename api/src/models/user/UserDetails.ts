@@ -12,4 +12,5 @@ export interface UserDetails {
     accountCreated: Date;
     serviceComment?: string;
     status?: UserStatus;
+    isDarkModeEnabled?: boolean;
 }

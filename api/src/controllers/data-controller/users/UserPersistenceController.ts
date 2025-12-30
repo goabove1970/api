@@ -149,14 +149,15 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
                     user_id, first_name, last_name, ssn,
                     login, password, email, dob,
                     last_login,
-                    account_created, service_comment, status)
+                    account_created, service_comment, status, is_dark_mode_enabled)
                 VALUES (
                     '${u.userId}', '${u.firstName}', '${u.lastName}', ${u.ssn},
                     '${u.login}', '${u.password}', '${u.email}', '${moment(u.dob).toISOString()}',
                     ${!u.lastLogin ? 'NULL' : "'" + moment(u.lastLogin!).toISOString() + "'"},
                     '${moment(u.accountCreated).toISOString()}',
                     ${!u.serviceComment ? 'NULL' : "'" + u.serviceComment! + "'"}, 
-                    ${!u.status ? 'NULL' : u.status});`;
+                    ${!u.status ? 'NULL' : u.status},
+                    ${u.isDarkModeEnabled !== undefined ? (u.isDarkModeEnabled ? 'TRUE' : 'FALSE') : 'FALSE'});`;
                 return this.userDataController.insert(query);
             })
             .then(() => {
@@ -179,7 +180,8 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
                 last_login=${user.lastLogin ? "'" + moment(user.lastLogin).toISOString() + "'" : 'NULL'},
                 account_created='${moment(user.accountCreated).toISOString()}',
                 service_comment=${user.serviceComment ? "'" + user.serviceComment + "'" : 'NULL'},
-                status=${user.status ? user.status : 'NULL'}
+                status=${user.status ? user.status : 'NULL'},
+                is_dark_mode_enabled=${user.isDarkModeEnabled !== undefined ? (user.isDarkModeEnabled ? 'TRUE' : 'FALSE') : 'FALSE'}
             WHERE 
                 user_id='${user.userId}';`;
     }
@@ -258,10 +260,16 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
                 if (args.status) {
                     user.status = args.status;
                 }
+                if (args.isDarkModeEnabled !== undefined) {
+                    user.isDarkModeEnabled = args.isDarkModeEnabled;
+                }
                 return user;
             })
             .then((user) => {
-                this.userDataController.update(this.composeSetStatement(user));
+                return this.userDataController.update(this.composeSetStatement(user));
+            })
+            .then(() => {
+                // Update completed successfully
             })
             .catch((error) => {
                 throw error;

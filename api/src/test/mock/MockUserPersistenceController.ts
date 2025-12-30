@@ -249,6 +249,9 @@ const mock_updateUserData = jest.fn(
                 if (args.status) {
                     user.status = args.status;
                 }
+                if (args.isDarkModeEnabled !== undefined) {
+                    user.isDarkModeEnabled = args.isDarkModeEnabled;
+                }
                 return user;
             })
             .then((user) => {

@@ -89,6 +89,17 @@ PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB
 echo -e "${GREEN}✓ Database schema created successfully${NC}"
 echo ""
 
+# Check for migration scripts
+MIGRATIONS_DIR="$SCRIPT_DIR/../database/migrations"
+if [ -d "$MIGRATIONS_DIR" ]; then
+    MIGRATION_COUNT=$(find "$MIGRATIONS_DIR" -name "*.sql" | wc -l | tr -d ' ')
+    if [ "$MIGRATION_COUNT" -gt 0 ]; then
+        echo -e "${YELLOW}Note: $MIGRATION_COUNT migration script(s) found in $MIGRATIONS_DIR${NC}"
+        echo "If you have an existing database, you may need to run migration scripts manually."
+        echo ""
+    fi
+fi
+
 # Verify tables were created
 echo -e "${YELLOW}Verifying tables...${NC}"
 TABLE_COUNT=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '$DB_SCHEMA' AND table_name IN ('account', 'users', 'user_account', 'categories', 'business', 'transactions', 'session');")

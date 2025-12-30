@@ -10,6 +10,13 @@ export class UserPostgresController extends DatabaseController<UserDetails> {
     readSelectResponse(values: Value[][]): UserDetails[] {
         const collection: UserDetails[] = [];
         values.forEach((row) => {
+            // Handle case where is_dark_mode_enabled column might not exist or be at different position
+            // If row has 13+ elements, is_dark_mode_enabled is at position 12
+            // Otherwise, default to false
+            const isDarkModeEnabled = row.length > 12 
+                ? (row[12] !== null && row[12] !== undefined ? Boolean(row[12]) : false)
+                : false;
+            
             collection.push({
                 userId: row[0],
                 firstName: row[1],
@@ -23,6 +30,7 @@ export class UserPostgresController extends DatabaseController<UserDetails> {
                 accountCreated: row[9],
                 serviceComment: row[10],
                 status: row[11],
+                isDarkModeEnabled: isDarkModeEnabled,
             } as UserDetails);
         });
 

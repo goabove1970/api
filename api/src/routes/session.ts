@@ -44,6 +44,13 @@ const process = async function(req, res, next) {
             responseData.error = formatted.error;
             responseData.errorCode = formatted.errorCode;
         }
+        
+        // Propagate sessionExpires if present and state is not EXPIRED
+        // The sessionExpires field is already in responseData from the session service
+        // We just need to ensure it's not included when state is EXPIRED
+        if (responseData && responseData.payload?.state === 'EXPIRED' && responseData.sessionExpires !== undefined) {
+            delete responseData.sessionExpires;
+        }
     } catch (error) {
         logHelper.error(`Error: ${inspect(error)}`);
         const formatted = formatError(error, ErrorCode.SESSION_SERVICE_UNAVAILABLE);

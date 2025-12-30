@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS public.users (
     last_login TIMESTAMP,
     account_created TIMESTAMP,
     service_comment TEXT,
-    status INTEGER DEFAULT 0
+    status INTEGER DEFAULT 0,
+    is_dark_mode_enabled BOOLEAN DEFAULT FALSE
 );
 
 -- Create user_account link table

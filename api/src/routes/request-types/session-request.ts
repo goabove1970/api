@@ -25,6 +25,8 @@ export interface SessionRequest {
 
 export interface SessionResponse extends ResponseBase {
     action?: SessionRequestType;
+    /** Session expiration date/time. Present in all responses except when state is "EXPIRED" */
+    sessionExpires?: Date | string;
 }
 
 export interface SessionArgs {

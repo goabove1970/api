@@ -39,6 +39,8 @@ export interface UserRequest {
 
 export interface UserResponse extends ResponseBase {
     action?: UserRequestType;
+    /** Session expiration date/time. Present in session-related responses (login, extend-session) when session is active */
+    sessionExpires?: Date | string;
 }
 
 export interface ReadUserArgs {

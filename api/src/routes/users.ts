@@ -131,6 +131,10 @@ async function processLoginRequest(request: UserLoginArgs): Promise<UserResponse
                     throw `Could not initilize new session, code: ${sessionData.errorCode}, error: ${sessionData.error}`;
                 }
                 await userController.updateLastLogin(userData.userId);
+                // Propagate sessionExpires if present and state is not EXPIRED
+                if (sessionData.sessionExpires && sessionData.payload?.state !== 'EXPIRED') {
+                    response.sessionExpires = sessionData.sessionExpires;
+                }
                 return {
                     ...response.payload,
                     session: sessionData.payload,
@@ -162,6 +166,10 @@ async function processExtendSessionRequest(request: UserExtendSessionArgs): Prom
         });
         if (session.error) {
             throw `Can not extend session. Code: ${session.errorCode}. Error message: ${session.error}.`;
+        }
+        // Propagate sessionExpires if present and state is not EXPIRED
+        if (session.sessionExpires && session.payload?.state !== 'EXPIRED') {
+            response.sessionExpires = session.sessionExpires;
         }
         response.payload = {
             session: session.payload,
