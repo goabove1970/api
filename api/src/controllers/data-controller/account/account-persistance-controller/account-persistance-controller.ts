@@ -93,7 +93,7 @@ export class AccountPersistenceController extends AccountPersistenceControllerBa
             })
             .then((account) => {
                 if (!account) {
-                    throw new DatabaseError('Error updating account data, could not find account record');
+                    throw new DatabaseError(`Account not found. No account exists with ID: ${args.accountId}`);
                 }
                 // if (!(account.status & AccountStatus.Active) && !args.forceUpdate) {
                 //     throw new DatabaseError('Error updating account data, user bank account is inactive');
@@ -163,7 +163,7 @@ export class AccountPersistenceController extends AccountPersistenceControllerBa
         return this.findAccountImpl(accountId)
             .then((a) => {
                 if (!a) {
-                    throw new DatabaseError('Error deleting account, could not find bank account record');
+                    throw new DatabaseError(`Account not found. No account exists with ID: ${accountId}`);
                 }
                 if (deleteRecord) {
                     return this.accountDataController.delete(`where "account_id"='${accountId}'`).then(() => {});

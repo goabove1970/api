@@ -83,7 +83,14 @@ async function processReadAccountsRequest(args: ReadAccountArgs): Promise<Accoun
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        response.error = inspect(error);
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while reading accounts';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while reading accounts';
+        } else {
+            response.error = String(error) || 'An error occurred while reading accounts';
+        }
     }
     return response;
 }
@@ -117,9 +124,15 @@ async function processCreateAccountRequest(args: AccountCreateArgs): Promise<Acc
                 throw error;
             });
     } catch (error) {
-        const message = inspect(error);
-        logHelper.error(message);
-        response.error = message;
+        logHelper.error(inspect(error));
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while creating the account';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while creating the account';
+        } else {
+            response.error = String(error) || 'An error occurred while creating the account';
+        }
     }
     return response;
 }
@@ -145,7 +158,14 @@ async function processDeleteAccountRequest(request: AccountDeleteArgs): Promise<
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        response.error = inspect(error);
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while deleting the account';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while deleting the account';
+        } else {
+            response.error = String(error) || 'An error occurred while deleting the account';
+        }
     }
     return response;
 }
@@ -170,7 +190,14 @@ async function processUpdateAccountRequest(request: AccountUpdateArgs): Promise<
             });
     } catch (error) {
         logHelper.error(inspect(error));
-        response.error = inspect(error);
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while updating the account';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while updating the account';
+        } else {
+            response.error = String(error) || 'An error occurred while updating the account';
+        }
     }
     return response;
 }
