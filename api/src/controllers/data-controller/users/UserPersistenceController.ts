@@ -71,7 +71,7 @@ export class UserPersistenceController implements UserPersistenceControllerBase 
     }
 
     findUserImpl(userId: string): Promise<UserDetails | undefined> {
-        const condition = `WHERE "userId"='${userId}'`;
+        const condition = `WHERE user_id='${userId}'`;
 
         return this.userDataController
             .select(condition)

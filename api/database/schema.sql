@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS public.account (
     account_type INTEGER DEFAULT 0,
     card_number VARCHAR,
     card_expiration TIMESTAMP,
-    alias VARCHAR,
+    account_alias VARCHAR,
     bank_routing_number VARCHAR,
     bank_account_number VARCHAR
 );
