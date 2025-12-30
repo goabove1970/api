@@ -43,7 +43,8 @@ const process = async function(req, res, next) {
             responseData = await processDeleteUserRequest(userRequest.args);
             break;
         case UserRequestType.Update:
-            responseData = await processUpdateUserRequest(userRequest.args);
+        case 'update-user' as any: // Support both 'update' and 'update-user' for backward compatibility
+            responseData = await processUpdateUserRequest(userRequest.args, userRequest.action);
             break;
         case UserRequestType.UpdatePassword:
             responseData = await processUpdatePasswordRequest(userRequest.args);
@@ -311,20 +312,30 @@ async function processDeleteUserRequest(request: UserDeleteArgs): Promise<UserRe
     return response;
 }
 
-async function processUpdateUserRequest(request: UserUpdateArgs): Promise<UserResponse> {
+async function processUpdateUserRequest(request: UserUpdateArgs, originalAction?: string): Promise<UserResponse> {
     const response: UserResponse = {
-        action: UserRequestType.Update,
+        action: (originalAction as UserRequestType) || UserRequestType.Update,
         payload: {},
     };
     try {
+        await userController.updateUserData(request).catch((error) => {
+            throw error;
+        });
+        // Return success with the userId that was updated
         response.payload = {
-            userId: await userController.updateUserData(request).catch((error) => {
-                throw error;
-            }),
+            userId: request.userId,
+            message: 'User updated successfully',
         };
     } catch (error) {
-        logHelper.error(error);
-        response.error = inspect(error);
+        logHelper.error(inspect(error));
+        // Format error message to be more user-friendly
+        if (error && typeof error === 'object' && 'errorMessage' in error) {
+            response.error = (error as any).errorMessage || 'An error occurred while updating the user';
+        } else if (error instanceof Error) {
+            response.error = error.message || 'An error occurred while updating the user';
+        } else {
+            response.error = String(error) || 'An error occurred while updating the user';
+        }
     }
     return response;
 }
