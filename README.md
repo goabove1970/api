@@ -484,10 +484,151 @@ Delete or deactivate an account. Supports two modes:
 - Annual balance reports
 
 ### Session (`/session`)
-- Session initialization
-- Session validation
-- Session extension
-- Session termination
+
+Session management endpoints. All requests should be sent to `POST http://localhost:9000/session`.
+
+#### Init Session
+**Action**: `init`
+
+Initializes a new session for a user. Typically called after successful user login.
+
+**Request Example**:
+```json
+{
+  "action": "init",
+  "args": {
+    "userId": "098be70d-f5c1-0799-e0b2-9226eb0c4f1d"
+  }
+}
+```
+
+**Response Example**:
+```json
+{
+  "action": "init",
+  "payload": {
+    "sessionId": "0ca96562-89d9-8576-93b9-b5625fb0f039",
+    "state": "ACTIVE",
+    "loginTimestamp": "2025-01-01T12:00:00.000Z"
+  }
+}
+```
+
+**Required Fields**:
+- `userId` (string): The unique identifier of the user
+
+#### Extend Session
+**Action**: `extend`
+
+Extends the lifetime of an existing active session.
+
+**Request Example**:
+```json
+{
+  "action": "extend",
+  "args": {
+    "sessionId": "0ca96562-89d9-8576-93b9-b5625fb0f039"
+  }
+}
+```
+
+**Response Example**:
+```json
+{
+  "action": "extend",
+  "payload": {
+    "sessionId": "0ca96562-89d9-8576-93b9-b5625fb0f039",
+    "state": "ACTIVE",
+    "message": "Session extended successfully"
+  }
+}
+```
+
+**Required Fields**:
+- `sessionId` (string): The unique identifier of the session to extend
+
+#### Validate Session
+**Action**: `validate`
+
+Validates whether a session is still active and valid.
+
+**Request Example**:
+```json
+{
+  "action": "validate",
+  "args": {
+    "sessionId": "0ca96562-89d9-8576-93b9-b5625fb0f039"
+  }
+}
+```
+
+**Response Example** (Valid Session):
+```json
+{
+  "action": "validate",
+  "payload": {
+    "sessionId": "0ca96562-89d9-8576-93b9-b5625fb0f039",
+    "state": "ACTIVE",
+    "loginTimestamp": "2025-01-01T12:00:00.000Z"
+  }
+}
+```
+
+**Response Example** (Expired Session):
+```json
+{
+  "action": "validate",
+  "payload": {
+    "sessionId": "0ca96562-89d9-8576-93b9-b5625fb0f039",
+    "state": "EXPIRED"
+  }
+}
+```
+
+**Required Fields**:
+- `sessionId` (string): The unique identifier of the session to validate
+
+#### Terminate Session
+**Action**: `terminate`
+
+Terminates (logs out) an active session.
+
+**Request Example**:
+```json
+{
+  "action": "terminate",
+  "args": {
+    "sessionId": "0ca96562-89d9-8576-93b9-b5625fb0f039"
+  }
+}
+```
+
+**Response Example**:
+```json
+{
+  "action": "terminate",
+  "payload": {
+    "sessionId": "0ca96562-89d9-8576-93b9-b5625fb0f039",
+    "message": "Session terminated successfully"
+  }
+}
+```
+
+**Required Fields**:
+- `sessionId` (string): The unique identifier of the session to terminate
+
+**Error Response Example**:
+```json
+{
+  "action": "terminate",
+  "error": "Session service is not available. Please try again later.",
+  "errorCode": 500
+}
+```
+
+**Note**: Session requests are proxied to an external session-manager service running on port 9200. If the service is unavailable, you'll receive a connection error message.
+
+For more examples, see `api/request-examples/sessions/` directory.
 
 ### Bank Connections (`/bank-connections`)
 - Bank account synchronization
